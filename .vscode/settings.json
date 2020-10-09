@@ -1,0 +1,14 @@
+{
+    "eslint.alwaysShowStatus": true,
+    "eslint.lintTask.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.rulers": [80, 120],
+    "files.autoSave": "onFocusChange",
+    "scss.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownProperties": "ignore",
+    "typescript.suggest.paths": false
+}
