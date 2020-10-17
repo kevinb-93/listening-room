@@ -10,5 +10,5 @@
     "files.autoSave": "onFocusChange",
     "scss.lint.unknownAtRules": "ignore",
     "scss.lint.unknownProperties": "ignore",
-    "typescript.suggest.paths": false
+    // "typescript.suggest.paths": false
 }

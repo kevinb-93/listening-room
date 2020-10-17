@@ -1,22 +1,22 @@
 import React from 'react';
-import { _ as Drawer } from './drawer';
-import { AppReducerActionPayload } from './types';
-import { AppContextState } from '../types';
+import { _ as Spotify } from './spotify';
+import { IdentityReducerActionPayload } from './types';
+import { IdentityContextState } from '../types';
 
 // Combine the actions from the sub-modules
 export const actions = {
-    drawer: Drawer.actions,
+    spotify: Spotify.actions,
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
-    ...Drawer.reducers,
+    ...Spotify.reducers,
 };
 
 const Reducer = (
-    state: AppContextState,
-    action: AppReducerActionPayload<unknown>
-): AppContextState => {
+    state: IdentityContextState,
+    action: IdentityReducerActionPayload<unknown>
+): IdentityContextState => {
     // first see if there's a reducer for this action
     if (reducers[action.type] === undefined) {
         // return current state
@@ -27,14 +27,15 @@ const Reducer = (
     return reducers[action.type](state, action.payload);
 };
 
-const initialState: AppContextState = {
-    isDrawerHidden: true,
+const initialState: IdentityContextState = {
+    loggedIn: false,
+    spotify: { access_token: null, refresh_token: null },
 };
 
 /**
  * React Hook providing access to reducer
  */
-export const __useAppReducer = () =>
-    React.useReducer<React.Reducer<AppContextState, unknown>>(Reducer, {
+export const __useIdentityReducer = () =>
+    React.useReducer<React.Reducer<IdentityContextState, unknown>>(Reducer, {
         ...initialState,
     });
