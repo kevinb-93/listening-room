@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const cors = require('cors');
 
 const spotifyRoutes = require("./routes/spotify-routes");
 const usersRoutes = require("./routes/users-routes");
@@ -11,7 +12,13 @@ const secret = require("./utils/secret");
 
 const app = express();
 
-app.use(bodyParser.json()).use(express.static(__dirname + '/public')).use(cookieParser());
+const corsOptions = {
+  headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
+}
+
+app.use(bodyParser.json()).use(express.static(__dirname + '/public')).use(cookieParser()).use(
+  cors(corsOptions)
+);
 
 app.use('/api/spotify', spotifyRoutes);
 app.use('/api/users', usersRoutes);
