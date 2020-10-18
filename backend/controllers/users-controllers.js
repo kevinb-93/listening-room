@@ -1,4 +1,5 @@
 const { validationResult } = require('express-validator');
+const bcrypt = require('bcryptjs');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
@@ -34,8 +35,18 @@ const signup = async (req, res, next) => {
     ));
     }
 
-    const newUser = new User({ name, email, password});
+    let hashedPassword;
 
+    try {
+      hashedPassword = await bcrypt.hash(password, 12);
+    } catch (err) {
+      return next(new HttpError(
+        'Could not create user, please try again.',
+        500
+      ));
+    }
+
+    const newUser = new User({ name, email, password: hashedPassword });
 
     // save new user
     try {
