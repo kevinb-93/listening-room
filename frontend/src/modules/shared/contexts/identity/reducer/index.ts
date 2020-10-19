@@ -1,16 +1,16 @@
 import React from 'react';
-import { _ as Spotify } from './spotify';
+import { _ as Auth } from './auth';
 import { IdentityReducerActionPayload } from './types';
 import { IdentityContextState } from '../types';
 
 // Combine the actions from the sub-modules
 export const actions = {
-    spotify: Spotify.actions,
+    auth: Auth.actions,
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
-    ...Spotify.reducers,
+    ...Auth.reducers,
 };
 
 const Reducer = (
@@ -28,8 +28,9 @@ const Reducer = (
 };
 
 const initialState: IdentityContextState = {
-    loggedIn: false,
-    spotify: { access_token: null, refresh_token: null },
+    token: null,
+    tokenExpirationDate: null,
+    spotifyToken: null,
 };
 
 /**

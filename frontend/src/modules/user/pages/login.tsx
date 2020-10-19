@@ -10,9 +10,10 @@ import {
 import { useForm } from '../../shared/hooks/form-hook';
 import Input from '../../shared/components/FormElements/input';
 import { useApiRequest } from '../../shared/hooks/api-hook';
+import { useIdentityContext } from '../../shared/contexts/identity';
 
 const Login: React.FC = () => {
-    // const { actions } = useIdentityContext();
+    const { actions } = useIdentityContext();
 
     const [formState, inputHandler] = useForm(
         {
@@ -73,13 +74,15 @@ const Login: React.FC = () => {
         event.preventDefault();
 
         try {
-            sendRequest('/users/login', {
+            const response = await sendRequest('/users/login', {
                 data: {
                     email: formState.inputs.email.value,
                     password: formState.inputs.password.value,
                 },
                 method: 'POST',
             });
+            actions.login(response.data.token, null);
+            console.log(response);
         } catch (e) {
             console.log(e);
         }

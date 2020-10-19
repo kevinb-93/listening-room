@@ -17,10 +17,10 @@ import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
 import Login from '../modules/user/pages/login';
-import { useIdentityContext } from '../modules/user/context/identity';
+import { useIdentityContext } from '../modules/shared/contexts/identity';
 
 const Router: React.FC = () => {
-    const { loggedIn } = useIdentityContext();
+    const { token } = useIdentityContext();
 
     // A wrapper for <Route> that redirects to the login
     // screen if you're not yet authenticated.
@@ -29,7 +29,7 @@ const Router: React.FC = () => {
             <Route
                 {...rest}
                 render={({ location }) =>
-                    loggedIn ? (
+                    token ? (
                         children
                     ) : (
                         <Redirect
@@ -47,7 +47,7 @@ const Router: React.FC = () => {
     return (
         <BrowserRouter>
             <GlobalStyle />
-            {loggedIn && (
+            {token && (
                 <>
                     <Header>
                         <Search />
@@ -76,7 +76,7 @@ const Router: React.FC = () => {
                         <Settings />
                     </PrivateRoute>
                     <Route path="/login">
-                        {loggedIn ? <Redirect to={'/queue'} /> : <Login />}
+                        {token ? <Redirect to={'/queue'} /> : <Login />}
                     </Route>
                     {/* Fallback */}
                     <PrivateRoute path="/">
