@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import HttpError from '../models/http-error';
 import User from '../models/user';
 import { NextFunction, Request, Response } from 'express';
-import secret from 'utils/secret';
+import secret from '../utils/secret';
 
 export const signup = async (
     req: Request,

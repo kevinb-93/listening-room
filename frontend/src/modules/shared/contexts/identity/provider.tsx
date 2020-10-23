@@ -3,6 +3,8 @@ import { IdentityContext } from './context';
 import { IdentityContextInterface } from './types';
 import { __useIdentityReducer, actions } from './reducer';
 
+let logoutTimer: number;
+
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useIdentityReducer();
 
@@ -20,6 +22,8 @@ export const Provider: React.FC = ({ children }) => {
     useEffect(() => {
         const storedData = JSON.parse(localStorage.getItem('userData'));
 
+        // restore token on first load
+
         if (
             storedData?.token &&
             storedData?.expiration &&
@@ -31,6 +35,19 @@ export const Provider: React.FC = ({ children }) => {
             });
         }
     }, [dispatch]);
+
+    React.useEffect(() => {
+        if (state.token && state.tokenExpirationDate) {
+            const remainingTime =
+                state.tokenExpirationDate.getTime() - new Date().getTime();
+            logoutTimer = setTimeout(
+                actions.auth.logout(dispatch),
+                remainingTime
+            );
+        } else {
+            clearTimeout(logoutTimer);
+        }
+    }, [state.token, state.tokenExpirationDate, dispatch]);
 
     return (
         <IdentityContext.Provider value={value}>
