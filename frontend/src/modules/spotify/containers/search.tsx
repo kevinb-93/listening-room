@@ -1,19 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
 
 import Search from '../../shared/components/FormElements/search';
 
 const SpotifySearch: React.FC = () => {
-    const s = new SpotifyWebApi();
-
     const [searchTerm, setSearchTerm] = useState('');
+
+    const searchHandler = useCallback((searchTerm: string) => {
+        const s = new SpotifyWebApi();
+
+        s.search(searchTerm, ['track'], { market: 'from_token' }).then(
+            (data) => {
+                console.log(data);
+            },
+            (err) => {
+                console.log(err);
+            }
+        );
+    }, []);
 
     useEffect(() => {
         if (searchTerm) {
-            const timer = setTimeout(() => console.log(searchTerm), 1000);
+            const timer = setTimeout(() => searchHandler(searchTerm), 1000);
             return () => clearTimeout(timer);
         }
-    }, [searchTerm]);
+    }, [searchTerm, searchHandler]);
 
     const changeHandler = (searchTerm: string) => {
         setSearchTerm(searchTerm);

@@ -26,14 +26,15 @@
 
             var access_token = params.access_token,
                 refresh_token = params.refresh_token,
-                error = params.error;
+                error = params.error,
+                expires_in = params.expires_in;
 
             if (error) {
                 alert('There was an error during the authentication');
             }
             else {
                 if (access_token) {
-                    window.opener.postMessage(JSON.stringify({ access_token, refresh_token}), "http://localhost:3000/login")
+                    window.opener.postMessage(JSON.stringify({ access_token, refresh_token, expires_in}), "http://localhost:3000/login")
                 }
             }
 

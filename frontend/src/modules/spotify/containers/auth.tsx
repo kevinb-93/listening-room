@@ -1,5 +1,4 @@
 import React from 'react';
-import SpotifyWebApi from 'spotify-web-api-js';
 
 import { useIdentityContext } from '../../shared/contexts/identity';
 
@@ -38,9 +37,16 @@ const SpotifyAuth: React.FC = () => {
                     Object.prototype.hasOwnProperty.call(hash, 'access_token')
                 ) {
                     w.close();
-                    const spotifyApi = new SpotifyWebApi();
-                    spotifyApi.setAccessToken(hash.access_token);
-                    actions.spotifyLogin(hash.access_token, hash.refresh_token);
+
+                    const tokenExpiration = new Date(
+                        new Date().getTime() + 1000 * hash.expires_in
+                    );
+
+                    actions.spotifyLogin(
+                        hash.access_token,
+                        hash.refresh_token,
+                        tokenExpiration
+                    );
                 }
             },
             false

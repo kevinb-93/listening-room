@@ -1,10 +1,11 @@
 import queryString from 'querystring';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
+import { Response, Request, NextFunction } from 'express';
 
 import spotify from '../utils/spotify';
 import secret from '../utils/secret';
 import { generateRandomString } from '../utils/string';
-import { Response, Request } from 'express';
+import HttpError from '../models/http-error';
 
 export const login = (req: Request, res: Response) => {
     /**
@@ -70,11 +71,13 @@ export const callback = (req: Request, res: Response) => {
                 if (response.status === 200) {
                     const accessToken = response.data.access_token;
                     const refreshToken = response.data.refresh_token;
+                    const expiresIn = response.data.expires_in;
 
                     res.redirect(
                         `/spotify-auth.html#${queryString.stringify({
                             access_token: accessToken,
                             refresh_token: refreshToken,
+                            expires_in: expiresIn,
                         })}`
                     );
 
@@ -93,4 +96,46 @@ export const callback = (req: Request, res: Response) => {
                 );
             });
     }
+};
+
+export const refreshToken = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    // requesting access token from refresh token
+    const refreshToken = req.query.refresh_token;
+    const config: AxiosRequestConfig = {
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+            Authorization:
+                'Basic ' +
+                Buffer.from(
+                    spotify.clientId + ':' + secret.spotifyClientSecret
+                ).toString('base64'),
+        },
+    };
+
+    axios
+        .post(
+            'https://accounts.spotify.com/api/token',
+            queryString.stringify({
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken as string,
+            }),
+            config
+        )
+        .then((response) => {
+            if (response.status === 200) {
+                res.send({
+                    access_token: response.data.access_token,
+                    expires_in: response.data.expires_in,
+                });
+            }
+        })
+        .catch((e) => {
+            next(
+                new HttpError('Something went wrong refreshing the token.', 500)
+            );
+        });
 };

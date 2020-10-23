@@ -7,7 +7,8 @@ export interface IdentityContextInterface extends IdentityContextState {
         logout: () => void;
         spotifyLogin: (
             token: IdentityContextState['spotifyToken'],
-            refreshToken: IdentityContextState['spotifyRefreshToken']
+            refreshToken: IdentityContextState['spotifyRefreshToken'],
+            expirationDate: Date
         ) => void;
     };
 }
@@ -17,4 +18,5 @@ export interface IdentityContextState {
     tokenExpirationDate: Date;
     spotifyToken: string;
     spotifyRefreshToken: string;
+    spotifyExpirationDate: Date;
 }
