@@ -3,6 +3,7 @@ import { IdentityContextState } from '../../types';
 
 interface Payload {
     spotifyToken: IdentityContextState['spotifyToken'];
+    spotifyRefreshToken: IdentityContextState['spotifyRefreshToken'];
 }
 
 const action = (
@@ -13,6 +14,17 @@ const action = (
         type: IdentityReducerAction.spotifyLogin,
         payload,
     });
+
+    localStorage.get;
+
+    localStorage.setItem(
+        'userData',
+        JSON.stringify({
+            ...JSON.parse(localStorage.getItem('userData')),
+            spotifyToken: payload.spotifyToken,
+            spotifyRefreshToken: payload.spotifyRefreshToken,
+        })
+    );
 };
 
 const reducer = (
@@ -22,6 +34,7 @@ const reducer = (
     return {
         ...state,
         spotifyToken: payload.spotifyToken,
+        spotifyRefreshToken: payload.spotifyRefreshToken,
     };
 };
 

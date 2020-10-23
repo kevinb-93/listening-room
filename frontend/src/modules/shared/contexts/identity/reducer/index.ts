@@ -31,6 +31,7 @@ const initialState: IdentityContextState = {
     token: null,
     tokenExpirationDate: null,
     spotifyToken: null,
+    spotifyRefreshToken: null,
 };
 
 /**

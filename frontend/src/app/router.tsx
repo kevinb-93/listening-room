@@ -1,11 +1,5 @@
 import * as React from 'react';
-import {
-    BrowserRouter,
-    Switch,
-    Route,
-    Redirect,
-    RouteProps,
-} from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 
 import Settings from '../modules/settings/pages/settings';
 import Queue from '../modules/queue/pages/queue';
@@ -18,39 +12,19 @@ import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
 import Login from '../modules/user/pages/login';
 import { useIdentityContext } from '../modules/shared/contexts/identity';
+import PrivateRoute from '../modules/navigation/components/private-route';
 
 const Router: React.FC = () => {
-    const { token } = useIdentityContext();
-
-    // A wrapper for <Route> that redirects to the login
-    // screen if you're not yet authenticated.
-    const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
-        return (
-            <Route
-                {...rest}
-                render={({ location }) =>
-                    token ? (
-                        children
-                    ) : (
-                        <Redirect
-                            to={{
-                                pathname: '/login',
-                                state: { from: location },
-                            }}
-                        />
-                    )
-                }
-            />
-        );
-    };
+    const { token, spotifyToken } = useIdentityContext();
 
     return (
         <BrowserRouter>
             <GlobalStyle />
-            {token && (
+            {token && spotifyToken && (
                 <>
                     <Header>
                         <Search />
+                        <button>Log out</button>
                     </Header>
                     <Drawer>
                         <SideNav>
@@ -69,14 +43,17 @@ const Router: React.FC = () => {
                     </Drawer>
                 </>
             )}
-
             <Main>
                 <Switch>
                     <PrivateRoute path="/settings">
                         <Settings />
                     </PrivateRoute>
                     <Route path="/login">
-                        {token ? <Redirect to={'/queue'} /> : <Login />}
+                        {token && spotifyToken ? (
+                            <Redirect to={'/queue'} />
+                        ) : (
+                            <Login />
+                        )}
                     </Route>
                     {/* Fallback */}
                     <PrivateRoute path="/">

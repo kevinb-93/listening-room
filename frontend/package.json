@@ -7,7 +7,8 @@
     "license": "MIT",
     "scripts": {
         "dev": "webpack-dev-server --config config/webpack.dev.config.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "npx eslint --ext .ts,.tsx src/"
     },
     "resolutions": {
         "styled-components": "^5"
@@ -40,6 +41,7 @@
         "file-loader": "^6.1.0",
         "html-webpack-plugin": "^4.3.0",
         "prettier": "^2.0.5",
+        "react-context-devtool": "^2.0.0",
         "stylelint": "^13.7.0",
         "stylelint-config-recommended": "^3.0.0",
         "stylelint-config-styled-components": "^0.1.1",

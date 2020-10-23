@@ -14,8 +14,11 @@ export const Provider: React.FC = ({ children }) => {
             login: (token, expirationDate) =>
                 actions.auth.login(dispatch, { token, expirationDate }),
             logout: () => actions.auth.logout(dispatch),
-            spotifyLogin: (spotifyToken) =>
-                actions.auth.spotifyLogin(dispatch, { spotifyToken }),
+            spotifyLogin: (spotifyToken, spotifyRefreshToken) =>
+                actions.auth.spotifyLogin(dispatch, {
+                    spotifyToken,
+                    spotifyRefreshToken,
+                }),
         },
     };
 
@@ -23,6 +26,7 @@ export const Provider: React.FC = ({ children }) => {
         const storedData = JSON.parse(localStorage.getItem('userData'));
 
         // restore token on first load
+        console.log('checking restore token...');
 
         if (
             storedData?.token &&
@@ -34,14 +38,22 @@ export const Provider: React.FC = ({ children }) => {
                 expirationDate: new Date(storedData.expiration),
             });
         }
+
+        if (storedData?.spotifyToken && storedData?.spotifyRefreshToken) {
+            actions.auth.spotifyLogin(dispatch, {
+                spotifyToken: storedData.spotifyToken,
+                spotifyRefreshToken: storedData.spotifyRefreshToken,
+            });
+        }
     }, [dispatch]);
 
     React.useEffect(() => {
+        console.log('checking token remaining time...');
         if (state.token && state.tokenExpirationDate) {
             const remainingTime =
                 state.tokenExpirationDate.getTime() - new Date().getTime();
             logoutTimer = setTimeout(
-                actions.auth.logout(dispatch),
+                () => actions.auth.logout(dispatch),
                 remainingTime
             );
         } else {

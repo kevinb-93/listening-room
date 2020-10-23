@@ -1,7 +1,6 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import { Providers } from './providers';
-import Router from './router';
+import { debugContextDevtool } from 'react-context-devtool';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
     faSearch,
@@ -10,6 +9,9 @@ import {
     faTimes,
     faPlus,
 } from '@fortawesome/free-solid-svg-icons';
+
+import { Providers } from './providers';
+import Router from './router';
 
 /* Add font-awesome icons for global use */
 library.add(faSearch, faListOl, faCog, faTimes, faPlus);
@@ -22,4 +24,9 @@ const App = () => {
     );
 };
 
-ReactDOM.render(<App />, document.querySelector('#root'));
+const container = document.querySelector('#root');
+
+ReactDOM.render(<App />, container);
+
+// Attach root container
+debugContextDevtool(container);

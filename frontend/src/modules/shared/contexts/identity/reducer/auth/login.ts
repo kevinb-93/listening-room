@@ -16,7 +16,7 @@ const action = (
 
     dispatch({
         type: IdentityReducerAction.login,
-        payload,
+        payload: { ...payload, expirationDate: tokenExpirationDate },
     });
 
     localStorage.setItem(

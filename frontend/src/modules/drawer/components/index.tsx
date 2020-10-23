@@ -8,7 +8,10 @@ const Drawer: React.FC = ({ children }) => {
 
     const content = <StyledDrawer>{children}</StyledDrawer>;
 
-    return ReactDOM.createPortal(content, document.getElementById('drawer-hook'));
+    return ReactDOM.createPortal(
+        content,
+        document.getElementById('drawer-hook')
+    );
 };
 
 export default Drawer;
