@@ -23,26 +23,28 @@ export const Provider: React.FC = ({ children }) => {
     };
 
     useEffect(() => {
-        const storedData = JSON.parse(localStorage.getItem('userData'));
+        const storeduser = JSON.parse(localStorage.getItem('ls_user'));
 
         // restore token on first load
         console.log('checking restore token...');
 
         if (
-            storedData?.token &&
-            storedData?.expiration &&
-            new Date(storedData?.expiration) > new Date()
+            storeduser?.token &&
+            storeduser?.expiration &&
+            new Date(storeduser?.expiration) > new Date()
         ) {
             actions.auth.login(dispatch, {
-                token: storedData.token,
-                expirationDate: new Date(storedData.expiration),
+                token: storeduser.token,
+                expirationDate: new Date(storeduser.expiration),
             });
         }
 
-        if (storedData?.spotifyToken && storedData?.spotifyRefreshToken) {
+        const storedSpotify = JSON.parse(localStorage.getItem('ls_spotify'));
+
+        if (storedSpotify?.spotifyToken && storedSpotify?.spotifyRefreshToken) {
             actions.auth.spotifyLogin(dispatch, {
-                spotifyToken: storedData.spotifyToken,
-                spotifyRefreshToken: storedData.spotifyRefreshToken,
+                spotifyToken: storedSpotify.spotifyToken,
+                spotifyRefreshToken: storedSpotify.spotifyRefreshToken,
             });
         }
     }, [dispatch]);

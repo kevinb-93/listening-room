@@ -9,7 +9,7 @@ const action = (
         payload: null,
     });
 
-    localStorage.removeItem('userData');
+    localStorage.removeItem('ls_user');
 };
 
 const reducer = (state: IdentityContextState): IdentityContextState => {

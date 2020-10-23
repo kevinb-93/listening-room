@@ -18,9 +18,8 @@ const action = (
     localStorage.get;
 
     localStorage.setItem(
-        'userData',
+        'ls_spotify',
         JSON.stringify({
-            ...JSON.parse(localStorage.getItem('userData')),
             spotifyToken: payload.spotifyToken,
             spotifyRefreshToken: payload.spotifyRefreshToken,
         })

@@ -20,7 +20,7 @@ const action = (
     });
 
     localStorage.setItem(
-        'userData',
+        'ls_user',
         JSON.stringify({
             token: payload.token,
             expiration: tokenExpirationDate.toISOString(),
