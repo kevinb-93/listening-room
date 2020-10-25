@@ -23,6 +23,12 @@ const SpotifySearch: React.FC = () => {
         );
     }, []);
 
+    useEffect(() => {
+        if (!searchTerm) {
+            setSearchResponseData(null);
+        }
+    }, [searchTerm]);
+
     const renderSearchResults = () => {
         if (!searchResponseData) {
             return null;
@@ -30,7 +36,7 @@ const SpotifySearch: React.FC = () => {
 
         return (
             <>
-                {searchResponseData.tracks.items.map((t) => {
+                {searchResponseData.tracks.items.slice(0, 10).map((t) => {
                     return (
                         <div key={t.id} style={{ display: 'flex' }}>
                             <img
@@ -69,6 +75,11 @@ const SpotifySearch: React.FC = () => {
 
     const changeHandler = (searchTerm: string) => {
         setSearchTerm(searchTerm);
+        console.log('search change handler');
+    };
+
+    const clearHandler = () => {
+        setSearchTerm('');
     };
 
     return (
@@ -76,6 +87,7 @@ const SpotifySearch: React.FC = () => {
             onChange={changeHandler}
             searchTerm={searchTerm}
             searchResults={renderSearchResults()}
+            onClear={clearHandler}
         />
     );
 };

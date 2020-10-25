@@ -26,6 +26,15 @@ export const SearchInputContainer = styled.div`
     align-items: center;
 `;
 
+export const SearchBarContainer = styled.div`
+    display: flex;
+    flex: 1 1;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    max-width: 500px;
+`;
+
 export const SearchListContainer = styled.div`
     display: flex;
     flex: 1 1;
@@ -33,21 +42,51 @@ export const SearchListContainer = styled.div`
     left: 0;
     right: 0;
     top: ${searchInputHeight};
+    justify-content: center;
+    align-items: center;
+    background-color: red;
+`;
+
+interface SearchListProps {
+    positionLeft: number;
+    positionTop: number;
+    width: number;
+}
+
+export const SearchList = styled.div<SearchListProps>`
+    display: flex;
+    flex: 1 1;
+    position: fixed;
+    left: ${(props) => props.positionLeft}px;
+    top: ${(props) => props.positionTop + parseInt(searchInputHeight)}px;
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    background-color: red;
+    width: ${(props) => props.width}px;
+    max-width: 500px;
+    background-color: green;
 `;
 
 export const SearchIcon = styled.span`
     display: flex;
     width: ${searchIconWidth};
     top: 0;
-    left: ${searchIconWidth};
+    left: 0;
     bottom: 0;
     align-items: center;
     justify-content: center;
-    position: relative;
+    position: absolute;
+`;
+
+export const SearchClearIcon = styled.span`
+    display: flex;
+    width: ${searchIconWidth};
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
 `;
 
 export const SearchInput = styled.input`
