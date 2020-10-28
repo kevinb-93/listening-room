@@ -1,14 +1,22 @@
 import * as React from 'react';
 
 import TrackList from '../../songs/components/song-list';
-import TrackListItem from '../../songs/components/song-list-item';
+import TrackItem from '../../spotify/components/track-item';
+import { useSpotifyContext } from '../../spotify/context/spotify';
 
 const Queue: React.FC = () => {
+    const { queue } = useSpotifyContext();
+
+    if (!queue) {
+        return null;
+    }
+
     return (
         <div>
             <TrackList>
-                <TrackListItem />
-                <TrackListItem />
+                {queue.map((t) => (
+                    <TrackItem track={t} key={t.id} />
+                ))}
             </TrackList>
         </div>
     );

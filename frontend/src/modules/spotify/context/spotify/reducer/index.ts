@@ -28,7 +28,7 @@ const Reducer = (
 };
 
 const initialState: SpotifyContextState = {
-    queue: null,
+    queue: [],
 };
 
 /**

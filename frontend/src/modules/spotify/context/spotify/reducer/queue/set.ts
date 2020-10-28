@@ -20,7 +20,10 @@ const reducer = (
     let queue: SpotifyContextState['queue'];
 
     if (action === 'add') {
-        queue = [...state.queue, ...tracks];
+        queue = [
+            ...state.queue,
+            ...tracks.filter((t) => !state.queue.includes(t)),
+        ];
     } else if (action === 'delete') {
         queue = state.queue.filter((q) => !tracks.includes(q));
     }

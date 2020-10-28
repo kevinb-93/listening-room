@@ -42,7 +42,7 @@ module.exports = {
         },
         open: {
             // open in chrome browser (guest mode)
-            app: ['Chrome', '--guest'],
+            app: ['Chrome'],
         },
         contentBase: path.join(__dirname, 'src'),
         historyApiFallback: true,
