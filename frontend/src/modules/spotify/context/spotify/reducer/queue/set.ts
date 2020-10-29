@@ -18,6 +18,9 @@ const reducer = (
     { action, tracks }: Payload
 ): SpotifyContextState => {
     let queue: SpotifyContextState['queue'];
+    const trackIds: SpotifyApi.TrackObjectFull['id'][] = tracks.map(
+        (t) => t.id
+    );
 
     if (action === 'add') {
         queue = [
@@ -25,8 +28,10 @@ const reducer = (
             ...tracks.filter((t) => !state.queue.includes(t)),
         ];
     } else if (action === 'delete') {
-        queue = state.queue.filter((q) => !tracks.includes(q));
+        queue = state.queue.filter((q) => !trackIds.includes(q.id));
     }
+
+    localStorage.setItem('s_queue', JSON.stringify(queue));
 
     return {
         ...state,

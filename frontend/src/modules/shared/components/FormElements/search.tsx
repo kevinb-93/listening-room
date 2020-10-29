@@ -104,11 +104,17 @@ const Search: React.FC<Props> = ({
         };
     }, [showResults]);
 
+    const keyPressHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === 'Enter') {
+            setShowResults(true);
+        }
+    };
+
     return (
         <SearchContainer>
             <SearchBarContainer ref={searchBarContainerRef}>
                 <SearchInputContainer>
-                    <SearchIcon>
+                    <SearchIcon onClick={() => setShowResults(true)}>
                         <FontAwesomeIcon icon={'search'} />
                     </SearchIcon>
                     <SearchInput
@@ -116,6 +122,8 @@ const Search: React.FC<Props> = ({
                         onChange={changeHandler}
                         value={searchTerm}
                         ref={searchInputRef}
+                        onKeyUp={keyPressHandler}
+                        onFocus={() => setShowResults(true)}
                     />
                     {searchTerm && (
                         <SearchClearIcon

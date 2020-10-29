@@ -41,14 +41,20 @@ const TrackItem: React.FC<Props> = ({ track }) => {
                     display: 'flex',
                     flexDirection: 'column',
                 }}
-                onClick={() =>
-                    actions.setQueue({
-                        action: queueAction,
-                        tracks: [track],
-                    })
-                }
             >
-                <FontAwesomeIcon fixedWidth icon={queueIcon} />
+                <span
+                    onClick={() =>
+                        actions.setQueue({
+                            action: queueAction,
+                            tracks: [track],
+                        })
+                    }
+                >
+                    <FontAwesomeIcon fixedWidth icon={queueIcon} />
+                </span>
+                <span>
+                    <FontAwesomeIcon fixedWidth icon={'play'} />
+                </span>
             </div>
         </div>
     );
