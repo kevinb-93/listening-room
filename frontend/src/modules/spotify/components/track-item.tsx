@@ -11,7 +11,7 @@ interface Props {
 }
 
 const TrackItem: React.FC<Props> = ({ track }) => {
-    const { queue, actions } = useSpotifyContext();
+    const { queue, playTrack, setQueue } = useSpotifyContext();
 
     const isQueued = queue.some((q) => q.id === track.id);
     const queueAction: SetSpotifyQueueParams['action'] = isQueued
@@ -44,7 +44,7 @@ const TrackItem: React.FC<Props> = ({ track }) => {
             >
                 <span
                     onClick={() =>
-                        actions.setQueue({
+                        setQueue({
                             action: queueAction,
                             tracks: [track],
                         })
@@ -52,7 +52,7 @@ const TrackItem: React.FC<Props> = ({ track }) => {
                 >
                     <FontAwesomeIcon fixedWidth icon={queueIcon} />
                 </span>
-                <span>
+                <span onClick={() => playTrack(track)}>
                     <FontAwesomeIcon fixedWidth icon={'play'} />
                 </span>
             </div>

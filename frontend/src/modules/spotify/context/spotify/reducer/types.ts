@@ -2,6 +2,9 @@ import { SpotifyContextState } from '../types';
 
 export enum SpotifyReducerAction {
     setQueue,
+    playTrack,
+    setDevices,
+    setActiveDevice,
 }
 
 export interface SpotifyReducerActionPayload<T> {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { SpotifyContext } from './context';
 import { SpotifyContextInterface, SpotifyContextState } from './types';
 import { __useSpotifyReducer, actions } from './reducer';
@@ -6,11 +6,32 @@ import { __useSpotifyReducer, actions } from './reducer';
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyReducer();
 
+    const setQueue = useCallback(
+        (params) => actions.queue.setQueue(dispatch, params),
+        [dispatch]
+    );
+
+    const playTrack = useCallback(
+        (track) => actions.queue.playTrack(dispatch, track),
+        [dispatch]
+    );
+
+    const setDevices = useCallback(
+        (devices) => actions.devices.setDevices(dispatch, devices),
+        [dispatch]
+    );
+
+    const setActiveDevice = useCallback(
+        (id) => actions.devices.setActiveDevice(dispatch, id),
+        [dispatch]
+    );
+
     const value: SpotifyContextInterface = {
         ...state,
-        actions: {
-            setQueue: (params) => actions.queue.setQueue(dispatch, params),
-        },
+        setQueue,
+        playTrack,
+        setDevices,
+        setActiveDevice,
     };
 
     useEffect(() => {
@@ -18,12 +39,20 @@ export const Provider: React.FC = ({ children }) => {
             JSON.parse(localStorage.getItem('s_queue')) ??
             ([] as SpotifyContextState['queue']);
 
+        const nowPlaying =
+            JSON.parse(localStorage.getItem('ls_now_playing')) ??
+            (null as SpotifyContextState['nowPlaying']);
+
         console.log(queue);
 
         actions.queue.setQueue(dispatch, {
             action: 'add',
             tracks: queue,
         });
+
+        if (nowPlaying) {
+            actions.queue.playTrack(dispatch, nowPlaying);
+        }
     }, [dispatch]);
 
     return (
