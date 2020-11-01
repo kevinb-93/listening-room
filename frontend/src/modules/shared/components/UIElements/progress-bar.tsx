@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { useSpotifyPlayerContext } from '../../../spotify/context/player';
 import { convertDurationMs } from '../../utils/datetime';
 
 interface Props {
@@ -13,10 +14,15 @@ const ProgressBar: React.FC<Props> = ({
     isPlaying,
     songDurationMs,
 }) => {
+    const { playbackState } = useSpotifyPlayerContext();
     const requestAnimationRef = useRef<number>(0);
     const prevTimeRef = useRef<number>(undefined);
 
     const [elaspedTime, setElaspedTime] = useState<number>(startingTime);
+
+    useEffect(() => {
+        setElaspedTime(playbackState.position);
+    }, [playbackState.position]);
 
     const animate = useCallback((time) => {
         if (prevTimeRef.current === undefined) {

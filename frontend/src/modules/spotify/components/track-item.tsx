@@ -5,6 +5,7 @@ import { convertDurationMs } from '../../shared/utils/datetime';
 import { useSpotifyContext } from '../context/spotify';
 import { SetSpotifyQueueParams } from '../context/spotify/types';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import SpotifyWebApi from 'spotify-web-api-js';
 
 interface Props {
     track: SpotifyApi.TrackObjectFull;
@@ -18,6 +19,15 @@ const TrackItem: React.FC<Props> = ({ track }) => {
         ? 'delete'
         : 'add';
     const queueIcon: IconProp = isQueued ? 'times' : 'plus';
+
+    const playTrackHandler = (track: SpotifyApi.TrackObjectFull) => {
+        const s = new SpotifyWebApi();
+        s.play({ uris: [track.uri] })
+            .then(() => {
+                playTrack(track);
+            })
+            .catch((e) => console.error('Unable to play track', e));
+    };
 
     return (
         <div key={track.id} style={{ display: 'flex' }}>
@@ -52,7 +62,7 @@ const TrackItem: React.FC<Props> = ({ track }) => {
                 >
                     <FontAwesomeIcon fixedWidth icon={queueIcon} />
                 </span>
-                <span onClick={() => playTrack(track)}>
+                <span onClick={() => playTrackHandler(track)}>
                     <FontAwesomeIcon fixedWidth icon={'play'} />
                 </span>
             </div>

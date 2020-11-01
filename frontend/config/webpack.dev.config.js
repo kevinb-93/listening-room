@@ -47,6 +47,7 @@ module.exports = {
         contentBase: path.join(__dirname, 'src'),
         historyApiFallback: true,
         hot: true,
+        compress: true,
         port: 3000,
     },
     plugins: [

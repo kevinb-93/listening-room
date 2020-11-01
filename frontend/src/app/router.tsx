@@ -1,8 +1,8 @@
-import * as React from 'react';
+import React from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 
 import Settings from '../modules/settings/pages/settings';
-import Queue from '../modules/queue/pages/queue';
+import Queue from '../modules/queue/container/queue';
 import Drawer from '../modules/drawer/components';
 import Header from '../modules/shared/components/header';
 import SideNav from '../modules/navigation/components/side-nav';
@@ -12,7 +12,6 @@ import Main from '../modules/shared/components/main';
 import Login from '../modules/user/pages/login';
 import { useIdentityContext } from '../modules/shared/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
-import SpotifySearch from '../modules/spotify/containers/search';
 
 const Router: React.FC = () => {
     const { token, spotifyToken, actions } = useIdentityContext();
@@ -23,7 +22,6 @@ const Router: React.FC = () => {
             {token && spotifyToken && (
                 <>
                     <Header>
-                        <SpotifySearch />
                         <button onClick={() => actions.logout()}>
                             Log out
                         </button>

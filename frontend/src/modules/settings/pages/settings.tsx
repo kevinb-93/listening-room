@@ -24,6 +24,13 @@ const Settings: React.FC = () => {
         return id === activeDeviceId;
     };
 
+    const setActiveDeviceHandler = (id: SpotifyApi.UserDevice['id']) => {
+        const s = new SpotifyWebApi();
+        s.transferMyPlayback([id])
+            .then(() => setActiveDevice(id))
+            .catch((e) => console.error('Could not transfer playback', e));
+    };
+
     return (
         <div>
             {devices.map((d) => {
@@ -31,7 +38,8 @@ const Settings: React.FC = () => {
                     <div key={d.id}>
                         <button
                             onClick={() =>
-                                !isActiveDevice(d.id) && setActiveDevice(d.id)
+                                !isActiveDevice(d.id) &&
+                                setActiveDeviceHandler(d.id)
                             }
                         >
                             {isActiveDevice(d.id) ? 'Active' : 'Set Active'}
