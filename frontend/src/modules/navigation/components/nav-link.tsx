@@ -1,14 +1,9 @@
 import React from 'react';
-import { match } from 'react-router-dom';
+import { match, NavLink } from 'react-router-dom';
 import * as H from 'history';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-
-import {
-    StyledNavLink,
-    StyledNavLinkContent,
-    StyledNavLinkLabel,
-} from '../styles';
+import styled from 'styled-components';
 
 interface Props {
     to: string;
@@ -17,7 +12,7 @@ interface Props {
     label: string;
 }
 
-const NavLink: React.FC<Props> = ({ to, icon, label, activePaths }) => {
+const NavigationLink: React.FC<Props> = ({ to, icon, label, activePaths }) => {
     const isActive = (match: match, location: H.Location) => {
         if (!activePaths) {
             return match ? true : false;
@@ -35,9 +30,31 @@ const NavLink: React.FC<Props> = ({ to, icon, label, activePaths }) => {
     );
 };
 
-NavLink.defaultProps = {
+const StyledNavLink = styled(NavLink).attrs((props) => {
+    props.activeClassName;
+})`
+    color: lightgray;
+
+    &.${(props) => props.activeClassName} {
+        color: green;
+    }
+`;
+
+const StyledNavLinkContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0px;
+`;
+
+const StyledNavLinkLabel = styled.span`
+    padding: 5px 0px;
+`;
+
+NavigationLink.defaultProps = {
     activePaths: null,
     icon: null,
 };
 
-export default NavLink;
+export default NavigationLink;

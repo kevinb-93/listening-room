@@ -5,13 +5,13 @@ import Settings from '../modules/settings/pages/settings';
 import Queue from '../modules/queue/container/queue';
 import Drawer from '../modules/drawer/components';
 import Header from '../modules/shared/components/header';
-import SideNav from '../modules/navigation/components/side-nav';
 import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
 import Login from '../modules/user/pages/login';
 import { useIdentityContext } from '../modules/shared/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
+import NavMenu from '../modules/navigation/components/nav-menu';
 
 const Router: React.FC = () => {
     const { token, spotifyToken, actions } = useIdentityContext();
@@ -22,11 +22,24 @@ const Router: React.FC = () => {
             {token && spotifyToken && (
                 <>
                     <Header>
+                        <NavMenu>
+                            <NavLink
+                                to="/queue"
+                                label={'Queue'}
+                                icon={'list-ol'}
+                                activePaths={['/', '/queue']}
+                            />
+                            <NavLink
+                                to="/settings"
+                                label={'Settings'}
+                                icon={'cog'}
+                            />
+                        </NavMenu>
                         <button onClick={() => actions.logout()}>
                             Log out
                         </button>
                     </Header>
-                    <Drawer>
+                    {/* <Drawer>
                         <SideNav>
                             <NavLink
                                 to="/queue"
@@ -40,7 +53,7 @@ const Router: React.FC = () => {
                                 icon={'cog'}
                             />
                         </SideNav>
-                    </Drawer>
+                    </Drawer> */}
                 </>
             )}
             <Main>

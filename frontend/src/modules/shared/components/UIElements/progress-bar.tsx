@@ -1,67 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { useSpotifyPlayerContext } from '../../../spotify/context/player';
 import { convertDurationMs } from '../../utils/datetime';
 
 interface Props {
-    isPlaying: boolean;
     elaspedTime: number;
     songDurationMs: number;
 }
 
-const ProgressBar: React.FC<Props> = ({
-    elaspedTime: startingTime,
-    isPlaying,
-    songDurationMs,
-}) => {
-    const { playbackState } = useSpotifyPlayerContext();
-    const requestAnimationRef = useRef<number>(0);
-    const prevTimeRef = useRef<number>(undefined);
-
-    const [elaspedTime, setElaspedTime] = useState<number>(startingTime);
-
-    useEffect(() => {
-        setElaspedTime(playbackState.position);
-    }, [playbackState.position]);
-
-    const animate = useCallback((time) => {
-        if (prevTimeRef.current === undefined) {
-            prevTimeRef.current = time;
-        }
-
-        const elasped = time - prevTimeRef.current;
-
-        requestAnimationRef.current = requestAnimationFrame(animate);
-        setElaspedTime((et) => et + elasped);
-        prevTimeRef.current = time;
-    }, []);
-
-    useEffect(() => {
-        if (elaspedTime > songDurationMs) {
-            cancelAnimationFrame(requestAnimationRef.current);
-        }
-    }, [elaspedTime, songDurationMs]);
-
-    useEffect(() => {
-        if (!isPlaying) {
-            prevTimeRef.current = undefined;
-            cancelAnimationFrame(requestAnimationRef.current);
-        } else if (isPlaying) {
-            requestAnimationRef.current = requestAnimationFrame(animate);
-        }
-
-        return () => cancelAnimationFrame(requestAnimationRef.current);
-    }, [animate, isPlaying]);
-
+const ProgressBar: React.FC<Props> = ({ elaspedTime, songDurationMs }) => {
     return (
         <Container>
             <ElaspedTime>{convertDurationMs(elaspedTime)}</ElaspedTime>
             <ProgressBarContainer>
-                <Progress
-                    elaspedTime={elaspedTime}
-                    isPlaying={isPlaying}
-                    duration={songDurationMs}
-                />
+                <Progress elaspedTime={elaspedTime} duration={songDurationMs} />
             </ProgressBarContainer>
             <Duration>{convertDurationMs(songDurationMs)}</Duration>
         </Container>
@@ -87,8 +38,7 @@ const ProgressBarContainer = styled.div`
 `;
 
 interface ProgressProps {
-    elaspedTime?: number;
-    isPlaying: boolean;
+    elaspedTime: number;
     duration: number;
 }
 

@@ -1,14 +1,6 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    SearchContainer,
-    SearchInputContainer,
-    SearchIcon,
-    SearchInput,
-    SearchList,
-    SearchBarContainer,
-    SearchClearIcon,
-} from '../../styles/FormElements/search';
+import styled from 'styled-components';
 
 interface Props {
     onChange?: (searchTerm: string) => void;
@@ -149,6 +141,80 @@ const Search: React.FC<Props> = ({
         </SearchContainer>
     );
 };
+
+const searchIconWidth = '40px';
+const searchInputHeight = '32px';
+
+const SearchContainer = styled.div`
+    display: flex;
+    flex: 1 1;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+`;
+
+const SearchInputContainer = styled.div`
+    display: flex;
+    flex: 1 1;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+`;
+
+const SearchBarContainer = styled.div`
+    display: flex;
+    flex: 1 1;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+`;
+
+interface SearchListProps {
+    positionLeft: number;
+    positionTop: number;
+    width: number;
+}
+
+const SearchList = styled.div<SearchListProps>`
+    display: flex;
+    flex: 1 1;
+    position: fixed;
+    left: ${(props) => props.positionLeft}px;
+    top: ${(props) => props.positionTop + parseInt(searchInputHeight)}px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    width: ${(props) => props.width}px;
+    background-color: green;
+`;
+
+const SearchIcon = styled.span`
+    display: flex;
+    width: ${searchIconWidth};
+    top: 0;
+    left: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+`;
+
+const SearchClearIcon = styled.span`
+    display: flex;
+    width: ${searchIconWidth};
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+`;
+
+const SearchInput = styled.input`
+    flex: 1 1;
+    height: ${searchInputHeight};
+    padding: 0px 0px 0px ${searchIconWidth};
+`;
 
 Search.defaultProps = {
     placeholder: 'Search',

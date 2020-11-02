@@ -3,7 +3,6 @@ import SpotifyWebApi from 'spotify-web-api-js';
 import styled from 'styled-components';
 import Search from '../../shared/components/FormElements/search';
 
-import TrackList from '../../songs/components/song-list';
 import TrackItem from '../../spotify/components/track-item';
 import Player from '../../spotify/containers/player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
@@ -91,14 +90,18 @@ const Container = styled.div`
     background-color: green;
     justify-items: center;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    align-items: start;
 `;
 
 const QueueContainer = styled.div`
     justify-self: stretch;
 `;
 
-const SearchContainer = styled.div`
-    justify-self: stretch;
+const SearchContainer = styled.div``;
+
+const TrackList = styled.div`
+    display: flex;
+    flex-direction: column;
 `;
 
 export default Queue;
