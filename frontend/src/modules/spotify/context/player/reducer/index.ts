@@ -31,6 +31,7 @@ const initialState: SpotifyPlayerContextState = {
     playbackState: null,
     player: null,
     playerInstance: null,
+    playNext: false,
 };
 
 /**

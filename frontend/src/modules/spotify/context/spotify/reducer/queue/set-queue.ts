@@ -31,7 +31,7 @@ const reducer = (
         queue = state.queue.filter((q) => !trackIds.includes(q.id));
     }
 
-    localStorage.setItem('s_queue', JSON.stringify(queue));
+    localStorage.setItem('ls_queue', JSON.stringify(queue));
 
     return {
         ...state,

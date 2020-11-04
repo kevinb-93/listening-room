@@ -19,6 +19,8 @@ const Player: React.FC = () => {
         player,
         setPlayback,
         playerInstance,
+        playNext,
+        setPlayNext,
     } = useSpotifyPlayerContext();
 
     const [elaspedTime, setElaspedTime] = useState<number>(
@@ -33,21 +35,30 @@ const Player: React.FC = () => {
         // play next track
         if (
             queue.length &&
-            playbackState?.duration - playbackState?.position < 500
+            (playbackState?.duration - playbackState?.position < 500 ||
+                playNext)
         ) {
             const s = new SpotifyWebApi();
+            console.log(queue.length);
             s.play({ uris: [queue[0].uri] })
                 .then(() => {
                     playTrack(queue[0]);
                 })
-                .catch((e) => console.error('Could not play track', e));
+                .catch((e) => console.error('Could not play track', e))
+                .finally(() => {
+                    if (playNext) {
+                        setPlayNext(false);
+                    }
+                });
         }
     }, [
         elaspedTime,
+        playNext,
         playTrack,
         playbackState?.duration,
         playbackState?.position,
         queue,
+        setPlayNext,
     ]);
 
     useEffect(() => {

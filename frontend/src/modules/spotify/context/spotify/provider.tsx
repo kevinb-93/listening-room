@@ -36,7 +36,7 @@ export const Provider: React.FC = ({ children }) => {
 
     useEffect(() => {
         const queue =
-            JSON.parse(localStorage.getItem('s_queue')) ??
+            JSON.parse(localStorage.getItem('ls_queue')) ??
             ([] as SpotifyContextState['queue']);
 
         const nowPlaying =

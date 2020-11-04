@@ -4,6 +4,7 @@ export enum SpotifyPlayerReducerAction {
     setPlayback,
     setPlayer,
     setPlayerInstance,
+    setPlayNext,
 }
 
 export interface SpotifyPlayerReducerActionPayload<T> {

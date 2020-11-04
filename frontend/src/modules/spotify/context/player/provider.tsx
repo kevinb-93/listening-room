@@ -24,6 +24,11 @@ export const Provider: React.FC = ({ children }) => {
         [dispatch]
     );
 
+    const setPlayNext: SpotifyPlayerContextInterface['setPlayNext'] = useCallback(
+        (playNext) => actions.player.setPlayNext(dispatch, playNext),
+        [dispatch]
+    );
+
     useEffect(() => {
         if (spotifyToken) {
             loadScript(
@@ -57,9 +62,9 @@ export const Provider: React.FC = ({ children }) => {
             });
 
             // Playback status updates
-            player.addListener('player_state_changed', (state) => {
-                console.log(state);
-                setPlayback(state);
+            player.addListener('player_state_changed', (playbackstate) => {
+                console.log(playbackstate);
+                setPlayback(playbackstate);
             });
 
             // Ready
@@ -88,6 +93,7 @@ export const Provider: React.FC = ({ children }) => {
         setPlayback,
         setPlayer,
         setPlayerInstance,
+        setPlayNext,
     };
 
     return (
