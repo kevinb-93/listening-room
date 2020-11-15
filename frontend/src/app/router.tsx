@@ -14,7 +14,7 @@ import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
 
 const Router: React.FC = () => {
-    const { token, spotifyToken, actions } = useIdentityContext();
+    const { token, spotifyToken, logout } = useIdentityContext();
 
     return (
         <BrowserRouter>
@@ -35,9 +35,7 @@ const Router: React.FC = () => {
                                 icon={'cog'}
                             />
                         </NavMenu>
-                        <button onClick={() => actions.logout()}>
-                            Log out
-                        </button>
+                        <button onClick={() => logout()}>Log out</button>
                     </Header>
                     {/* <Drawer>
                         <SideNav>
@@ -61,7 +59,7 @@ const Router: React.FC = () => {
                     <PrivateRoute path="/settings">
                         <Settings />
                     </PrivateRoute>
-                    <Route path="/login">
+                    <Route path="/auth">
                         {token && spotifyToken ? (
                             <Redirect to={'/queue'} />
                         ) : (

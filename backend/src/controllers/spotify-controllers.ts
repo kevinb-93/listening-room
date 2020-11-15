@@ -133,7 +133,7 @@ export const refreshToken = (
                 });
             }
         })
-        .catch((e) => {
+        .catch(() => {
             next(
                 new HttpError('Something went wrong refreshing the token.', 500)
             );

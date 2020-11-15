@@ -6,7 +6,7 @@ import cors, { CorsOptions } from 'cors';
 import path from 'path';
 
 import spotifyRoutes from './routes/spotify-routes';
-import usersRoutes from './routes/users-routes';
+import partiesRoutes from './routes/parties-routes';
 import HttpError from './models/http-error';
 import { port } from './utils/server';
 import secret from './utils/secret';
@@ -29,7 +29,7 @@ app.use(bodyParser.json())
     .use(cors(corsOptions));
 
 app.use('/api/spotify', spotifyRoutes);
-app.use('/api/users', usersRoutes);
+app.use('/api/party', partiesRoutes);
 
 app.use(() => {
     const error = new HttpError('Could not find this route.', 404);

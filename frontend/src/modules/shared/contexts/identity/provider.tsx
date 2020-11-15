@@ -11,23 +11,35 @@ export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useIdentityReducer();
     const { sendRequest } = useApiRequest();
 
-    const value: IdentityContextInterface = {
-        ...state,
-        actions: {
-            login: (token, expirationDate) =>
-                actions.auth.login(dispatch, { token, expirationDate }),
-            logout: () => actions.auth.logout(dispatch),
-            spotifyLogin: (
+    const isLoggedIn = useCallback(
+        () => state.token?.length > 0 && state.spotifyToken?.length > 0,
+        [state.spotifyToken, state.token]
+    );
+
+    const login = useCallback(
+        (token, expirationDate) =>
+            actions.auth.login(dispatch, { token, expirationDate }),
+        [dispatch]
+    );
+
+    const logout = useCallback(() => actions.auth.logout(dispatch), [dispatch]);
+
+    const spotifyLogin = useCallback(
+        (spotifyToken, spotifyRefreshToken, spotifyExpirationDate) =>
+            actions.auth.spotifyLogin(dispatch, {
                 spotifyToken,
                 spotifyRefreshToken,
-                spotifyExpirationDate
-            ) =>
-                actions.auth.spotifyLogin(dispatch, {
-                    spotifyToken,
-                    spotifyRefreshToken,
-                    spotifyExpirationDate,
-                }),
-        },
+                spotifyExpirationDate,
+            }),
+        [dispatch]
+    );
+
+    const value: IdentityContextInterface = {
+        ...state,
+        login,
+        logout,
+        spotifyLogin,
+        isLoggedIn,
     };
 
     useEffect(() => {

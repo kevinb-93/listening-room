@@ -1,9 +1,12 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { useIdentityContext } from '../../shared/contexts/identity';
+import img from '../../shared/assets/logos/spotify/Spotify_Logo_RGB_Black.png';
+import Button from '../../shared/components/FormElements/button';
 
-const SpotifyAuth: React.FC = () => {
-    const { actions } = useIdentityContext();
+const SpotifyAuthButton: React.FC = () => {
+    const { spotifyLogin, spotifyToken } = useIdentityContext();
 
     const spotifyAuthHandler = () => {
         const url = `http://localhost:5000/api/spotify/login`;
@@ -42,7 +45,7 @@ const SpotifyAuth: React.FC = () => {
                         new Date().getTime() + 1000 * hash.expires_in
                     );
 
-                    actions.spotifyLogin(
+                    spotifyLogin(
                         hash.access_token,
                         hash.refresh_token,
                         tokenExpiration
@@ -54,11 +57,15 @@ const SpotifyAuth: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>Authorize Spotify</h2>
-            <button onClick={spotifyAuthHandler}>Authorize</button>
-        </div>
+        <Button onClick={() => spotifyAuthHandler()}>
+            <StyledImg width={70} src={img} />
+            <span>{spotifyToken ? 'authorized!' : 'authorise'}</span>
+        </Button>
     );
 };
 
-export default SpotifyAuth;
+const StyledImg = styled.img`
+    margin: 10px;
+`;
+
+export default SpotifyAuthButton;

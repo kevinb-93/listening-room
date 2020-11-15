@@ -7,7 +7,7 @@ import { loadScript } from '../../../shared/utils/load-script';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyPlayerReducer();
-    const { spotifyToken } = useIdentityContext();
+    const { spotifyToken, isLoggedIn } = useIdentityContext();
 
     const setPlayback: SpotifyPlayerContextInterface['setPlayback'] = useCallback(
         (playback) => actions.player.setPlayback(dispatch, playback),
@@ -30,13 +30,13 @@ export const Provider: React.FC = ({ children }) => {
     );
 
     useEffect(() => {
-        if (spotifyToken) {
+        if (isLoggedIn()) {
             loadScript(
                 'https://sdk.scdn.co/spotify-player.js',
                 'spotify-player'
             );
         }
-    }, [spotifyToken]);
+    }, [isLoggedIn]);
 
     useEffect(() => {
         window.onSpotifyWebPlaybackSDKReady = () => {

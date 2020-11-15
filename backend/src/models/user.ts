@@ -1,18 +1,18 @@
 import mongoose, { Document } from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
 
+import { Party } from './party';
+
 export interface User extends Document {
     name: string;
-    email: string;
-    password: string;
+    parties: Party[];
 }
 
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, minlength: 6 },
+const userSchema = new Schema<User>({
+    name: { type: String, required: true, unique: true },
+    parties: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Party' }],
 });
 
 userSchema.plugin(uniqueValidator);
