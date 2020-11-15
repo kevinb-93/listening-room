@@ -1,5 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
     entry: './src/app/index.tsx',
@@ -14,20 +16,38 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.css$/i,
+                use: ['css-loader'],
+            },
+            {
                 /* load all .ts and .tsx files through the ts-loader */
                 /* load all .ts and .tsx files through the stylint-loader for styled components */
                 test: /\.tsx?$/,
                 exclude: /(node_modules)/,
-                use: ['ts-loader', 'stylelint-custom-processor-loader'],
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        options: { plugins: ['react-refresh/babel'] },
+                    },
+                    {
+                        loader: 'ts-loader',
+                        options: { transpileOnly: true },
+                    },
+                    'stylelint-custom-processor-loader',
+                ].filter(Boolean),
             },
             {
-                // file loader to resolve importing files
+                // file loader to resolve importing imgs
                 test: /\.(png|jpe?g|gif)$/i,
                 use: [
                     {
                         loader: 'file-loader',
                     },
                 ],
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|svg)$/,
+                loader: 'url-loader?limit=100000',
             },
         ],
     },
@@ -51,6 +71,8 @@ module.exports = {
         port: 3000,
     },
     plugins: [
+        new ReactRefreshWebpackPlugin(),
+        new ForkTsCheckerWebpackPlugin(),
         /* The HtmlWebpackPlugin simplifies creation of HTML files to serve your webpack bundles. */
         new HtmlWebpackPlugin({
             template: 'src/app/index.html',
