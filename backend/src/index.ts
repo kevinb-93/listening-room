@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import cors, { CorsOptions } from 'cors';
 import path from 'path';
+import { initIO } from './utils/socket';
 
 import spotifyRoutes from './routes/spotify-routes';
 import partiesRoutes from './routes/parties-routes';
@@ -53,8 +54,12 @@ mongoose
         useCreateIndex: true,
     })
     .then(() => {
-        app.listen(port, () => {
+        const server = app.listen(port, () => {
             console.log(`Listening on ${port}`);
+        });
+        const io = initIO(server);
+        io.on('connection', (socket) => {
+            console.log('Client connected');
         });
     })
     .catch((err) => {

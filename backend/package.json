@@ -24,6 +24,7 @@
     "mongoose": "^5.7.8",
     "mongoose-unique-validator": "^2.0.3",
     "query-string": "^6.13.5",
+    "socket.io": "^3.0.1",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
