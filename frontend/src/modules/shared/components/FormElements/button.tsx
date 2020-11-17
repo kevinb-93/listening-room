@@ -1,19 +1,18 @@
-import React, { ButtonHTMLAttributes } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import { Button as MuiButton, ButtonProps } from '@material-ui/core';
 
-const Button: React.FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({
-    children,
-    ...props
-}) => {
+const Button: React.FC<ButtonProps> = ({ children, ...props }) => {
     return <StyledButton {...props}>{children}</StyledButton>;
 };
 
-const StyledButton = styled.button`
+const StyledButton = styled(MuiButton)`
     border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4px;
+    margin-top: ${({ theme }) => theme.spacing(2)}px;
 
     &:hover {
         box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2),

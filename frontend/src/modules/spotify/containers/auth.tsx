@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { useIdentityContext } from '../../shared/contexts/identity';
 import img from '../../shared/assets/logos/spotify/Spotify_Logo_RGB_Black.png';
-import Button from '../../shared/components/FormElements/button';
+import Button from '../../shared/components/FormElements/Button';
 
 const SpotifyAuthButton: React.FC = () => {
     const { spotifyLogin, spotifyToken } = useIdentityContext();
