@@ -7,6 +7,7 @@ import Party from '../models/party';
 import User from '../models/user';
 import HttpError from '../models/http-error';
 import secret from '../utils/secret';
+import { TokenPayload } from '../typings/token';
 
 export const create = async (
     req: Request,
@@ -64,7 +65,7 @@ export const create = async (
     let token;
     try {
         token = jwt.sign(
-            { userId: newUser.id, name: newUser.name },
+            { userId: newUser.id, name: newUser.name } as TokenPayload,
             secret.jwtPrivateKey,
             { expiresIn: '1h' }
         );
@@ -140,7 +141,7 @@ export const join = async (req: Request, res: Response, next: NextFunction) => {
     let token;
     try {
         token = jwt.sign(
-            { userId: newUser.id, name: newUser.name },
+            { userId: newUser.id, name: newUser.name } as TokenPayload,
             secret.jwtPrivateKey,
             { expiresIn: '1h' }
         );

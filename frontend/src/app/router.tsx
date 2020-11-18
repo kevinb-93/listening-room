@@ -8,18 +8,18 @@ import Header from '../modules/shared/components/header';
 import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
-import Login from '../modules/user/containers/login';
+import Login from '../modules/party/containers/login';
 import { useIdentityContext } from '../modules/shared/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
 
 const Router: React.FC = () => {
-    const { token, spotifyToken, logout } = useIdentityContext();
+    const { isLoggedIn, logout } = useIdentityContext();
 
     return (
         <BrowserRouter>
             <GlobalStyle />
-            {token && spotifyToken && (
+            {isLoggedIn() && (
                 <>
                     <Header>
                         <NavMenu>
@@ -60,11 +60,7 @@ const Router: React.FC = () => {
                         <Settings />
                     </PrivateRoute>
                     <Route path="/auth">
-                        {token && spotifyToken ? (
-                            <Redirect to={'/queue'} />
-                        ) : (
-                            <Login />
-                        )}
+                        {isLoggedIn() ? <Redirect to={'/queue'} /> : <Login />}
                     </Route>
                     {/* Fallback */}
                     <PrivateRoute path="/">

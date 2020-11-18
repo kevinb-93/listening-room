@@ -1,10 +1,14 @@
 import * as http from 'http';
-import { Server } from 'socket.io';
+import * as socketio from 'socket.io';
 
-let io: Server;
+let io: socketio.Server;
 
 export const initIO = (httpServer: http.Server) => {
-    io = new Server(httpServer);
+    io = new socketio.Server(httpServer, {
+        cors: {
+            origin: 'http://localhost:3000',
+        },
+    });
     return io;
 };
 

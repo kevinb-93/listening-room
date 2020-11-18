@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+import { baseUrl } from './server';
+
 export default axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: `${baseUrl}/api`,
     headers: {
         'Content-Type': 'application/json',
     },

@@ -7,6 +7,7 @@ import TrackItem from '../../spotify/components/track-item';
 import Player from '../../spotify/containers/player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
 import { useSpotifyContext } from '../../spotify/context/spotify';
+import Chat from '../../chat/containers/Chat';
 
 const Queue: React.FC = () => {
     const { queue } = useSpotifyContext();
@@ -66,19 +67,22 @@ const Queue: React.FC = () => {
 
     return (
         <Container>
-            {player && <Player />}
-            {queue && (
-                <QueueContainer>
-                    <SearchContainer>
-                        <Search
-                            onChange={changeHandler}
-                            searchTerm={searchTerm}
-                            onClear={clearHandler}
-                        />
-                    </SearchContainer>
-                    <TrackList>{renderTracks()}</TrackList>
-                </QueueContainer>
-            )}
+            <div>
+                {player && <Player />}
+                {queue && (
+                    <QueueContainer>
+                        <SearchContainer>
+                            <Search
+                                onChange={changeHandler}
+                                searchTerm={searchTerm}
+                                onClear={clearHandler}
+                            />
+                        </SearchContainer>
+                        <TrackList>{renderTracks()}</TrackList>
+                    </QueueContainer>
+                )}
+            </div>
+            <Chat />
         </Container>
     );
 };
@@ -88,7 +92,7 @@ const Container = styled.div`
     margin: 0 auto;
     grid-gap: 1rem;
     background-color: green;
-    justify-items: center;
+    justify-items: stretch;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     align-items: start;
 `;
