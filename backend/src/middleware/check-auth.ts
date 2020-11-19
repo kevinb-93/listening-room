@@ -4,7 +4,6 @@ import { Request, NextFunction, Response } from 'express';
 import HttpError from '../models/http-error';
 import secret from '../utils/secret';
 import { TokenPayload } from '../typings/token';
-// import { CheckAuthRequest } from '../typings/requests';
 
 export const checkAuth = (req: Request, _res: Response, next: NextFunction) => {
     if (req.method === 'OPTIONS') {
@@ -23,7 +22,6 @@ export const checkAuth = (req: Request, _res: Response, next: NextFunction) => {
         req.userData = { userId: decodedToken.userId };
         next();
     } catch (err) {
-        const error = new HttpError('Authentication failed!', 403);
-        return next(error);
+        return next(new HttpError('Authentication failed!', 403));
     }
 };

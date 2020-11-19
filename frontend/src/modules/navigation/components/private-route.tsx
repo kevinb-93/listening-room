@@ -4,13 +4,13 @@ import { useIdentityContext } from '../../shared/contexts/identity';
 
 // screen if you're not yet authenticated.
 const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
-    const { token } = useIdentityContext();
+    const { isLoggedIn } = useIdentityContext();
 
     return (
         <Route
             {...rest}
             render={({ location }) =>
-                token ? (
+                isLoggedIn() ? (
                     children
                 ) : (
                     <Redirect

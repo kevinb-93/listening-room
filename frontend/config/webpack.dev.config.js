@@ -5,13 +5,11 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
     entry: './src/app/index.tsx',
-    /* The output property tells webpack where to emit the bundles it creates
-     and how to name these files. */
+    /* how to emit the bundles */
     output: {
         path: path.resolve(__dirname, 'src'),
         filename: 'bundled.js',
     },
-    /* This option controls if and how source maps are generated */
     devtool: 'inline-source-map',
     module: {
         rules: [
@@ -20,8 +18,9 @@ module.exports = {
                 use: ['css-loader'],
             },
             {
-                /* load all .ts and .tsx files through the ts-loader */
-                /* load all .ts and .tsx files through the stylint-loader for styled components */
+                /* babel-loader for hot module replacement */
+                /* ts-loader for typescript */
+                /* stylint-loader for styled components */
                 test: /\.tsx?$/,
                 exclude: /(node_modules)/,
                 use: [
@@ -37,7 +36,7 @@ module.exports = {
                 ].filter(Boolean),
             },
             {
-                // file loader to resolve importing imgs
+                // file loader for imgs
                 test: /\.(png|jpe?g|gif)$/i,
                 use: [
                     {
@@ -46,6 +45,7 @@ module.exports = {
                 ],
             },
             {
+                // url loader for fonts
                 test: /\.(woff|woff2|eot|ttf|svg)$/,
                 loader: 'url-loader?limit=100000',
             },
@@ -60,10 +60,7 @@ module.exports = {
             // refresh browser if html file changes
             server._watch('./src/**/*.html');
         },
-        open: {
-            // open in chrome browser (guest mode)
-            app: ['Chrome'],
-        },
+        open: { app: ['Chrome'] },
         contentBase: path.join(__dirname, 'src'),
         historyApiFallback: true,
         hot: true,
@@ -71,9 +68,10 @@ module.exports = {
         port: 3000,
     },
     plugins: [
+        /* React hot module replacement */
         new ReactRefreshWebpackPlugin(),
         new ForkTsCheckerWebpackPlugin(),
-        /* The HtmlWebpackPlugin simplifies creation of HTML files to serve your webpack bundles. */
+        /* simplifies creation of HTML */
         new HtmlWebpackPlugin({
             template: 'src/app/index.html',
         }),

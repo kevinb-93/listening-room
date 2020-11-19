@@ -4,7 +4,7 @@ import HttpError from '../models/http-error';
 
 export const errorHandler = (
     err: HttpError,
-    req: Request,
+    _req: Request,
     res: Response,
     next: NextFunction
 ) => {

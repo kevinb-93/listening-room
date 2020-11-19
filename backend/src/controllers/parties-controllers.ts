@@ -146,11 +146,9 @@ export const join = async (req: Request, res: Response, next: NextFunction) => {
             { expiresIn: '1h' }
         );
     } catch (err) {
-        const error = new HttpError(
-            'Joining party failed, please try again later.',
-            500
+        return next(
+            new HttpError('Joining party failed, please try again later.', 500)
         );
-        return next(error);
     }
 
     res.status(201).json({ userId: newUser.id, name: newUser.name, token });
