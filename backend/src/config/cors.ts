@@ -6,7 +6,7 @@ export const corsOptions: CorsOptions = {
         'X-Requested-With',
         'Content-Type',
         'Accept',
-        'Authorization',
+        'Authorization'
     ],
-    methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
 };

@@ -3,7 +3,7 @@ import express from 'express';
 import {
     login,
     callback,
-    refreshToken,
+    refreshToken
 } from '../controllers/spotify-controllers';
 
 const router = express.Router();

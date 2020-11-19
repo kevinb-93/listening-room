@@ -7,11 +7,11 @@ import styled from 'styled-components';
 import { useApiRequest } from '../../shared/hooks/api-hook';
 import { useIdentityContext } from '../../shared/contexts/identity';
 import CreatePartyForm, {
-    CreatePartySubmit,
+    CreatePartySubmit
 } from '../components/CreatePartyForm';
 import JoinPartyForm, { JoinPartySubmit } from '../components/JoinPartyForm';
 import TabbedForm, {
-    TabbedForms,
+    TabbedForms
 } from '../../shared/components/FormElements/TabbedForm';
 
 const TransitionUp = (props: TransitionProps) => (
@@ -31,9 +31,9 @@ const Login: React.FC = () => {
         try {
             const response = await sendRequest(`party/create`, {
                 data: {
-                    name,
+                    name
                 },
-                method: 'POST',
+                method: 'POST'
             });
             login(response.data.token, null);
             console.log(response);
@@ -46,9 +46,9 @@ const Login: React.FC = () => {
         try {
             const response = await sendRequest(`party/join/${code}`, {
                 data: {
-                    name,
+                    name
                 },
-                method: 'POST',
+                method: 'POST'
             });
             login(response.data.token, null);
             console.log(response);
@@ -60,12 +60,12 @@ const Login: React.FC = () => {
     const tabbedForms: TabbedForms = [
         {
             tabText: 'Join',
-            form: <JoinPartyForm onSubmit={joinPartySubmitHandler} />,
+            form: <JoinPartyForm onSubmit={joinPartySubmitHandler} />
         },
         {
             tabText: 'Create',
-            form: <CreatePartyForm onSubmit={createPartySubmitHandler} />,
-        },
+            form: <CreatePartyForm onSubmit={createPartySubmitHandler} />
+        }
     ];
 
     const [showToastError, setShowToastError] = useState(error?.length > 0);

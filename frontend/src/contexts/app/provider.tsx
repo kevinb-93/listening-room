@@ -9,8 +9,8 @@ export const Provider: React.FC = ({ children }) => {
     const value: AppContextInterface = {
         ...state,
         actions: {
-            hideDrawer: (hide) => actions.drawer.hide(dispatch, hide),
-        },
+            hideDrawer: hide => actions.drawer.hide(dispatch, hide)
+        }
     };
 
     return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

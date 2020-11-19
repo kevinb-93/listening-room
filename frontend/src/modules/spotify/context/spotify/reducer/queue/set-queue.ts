@@ -9,7 +9,7 @@ const action = (
 ) => {
     dispatch({
         type: SpotifyReducerAction.setQueue,
-        payload,
+        payload
     });
 };
 
@@ -18,28 +18,26 @@ const reducer = (
     { action, tracks }: Payload
 ): SpotifyContextState => {
     let queue: SpotifyContextState['queue'];
-    const trackIds: SpotifyApi.TrackObjectFull['id'][] = tracks.map(
-        (t) => t.id
-    );
+    const trackIds: SpotifyApi.TrackObjectFull['id'][] = tracks.map(t => t.id);
 
     if (action === 'add') {
         queue = [
             ...state.queue,
-            ...tracks.filter((t) => !state.queue.includes(t)),
+            ...tracks.filter(t => !state.queue.includes(t))
         ];
     } else if (action === 'delete') {
-        queue = state.queue.filter((q) => !trackIds.includes(q.id));
+        queue = state.queue.filter(q => !trackIds.includes(q.id));
     }
 
     localStorage.setItem('ls_queue', JSON.stringify(queue));
 
     return {
         ...state,
-        queue,
+        queue
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

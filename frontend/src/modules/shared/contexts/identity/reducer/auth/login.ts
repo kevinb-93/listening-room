@@ -16,14 +16,14 @@ const action = (
 
     dispatch({
         type: IdentityReducerAction.login,
-        payload: { ...payload, expirationDate: tokenExpirationDate },
+        payload: { ...payload, expirationDate: tokenExpirationDate }
     });
 
     localStorage.setItem(
         'ls_user',
         JSON.stringify({
             token: payload.token,
-            expiration: tokenExpirationDate.toISOString(),
+            expiration: tokenExpirationDate.toISOString()
         })
     );
 };
@@ -35,11 +35,11 @@ const reducer = (
     return {
         ...state,
         token,
-        tokenExpirationDate: expirationDate,
+        tokenExpirationDate: expirationDate
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

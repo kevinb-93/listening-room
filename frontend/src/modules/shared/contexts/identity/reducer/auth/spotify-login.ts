@@ -16,8 +16,8 @@ const action = (
         type: IdentityReducerAction.spotifyLogin,
         payload: {
             ...payload,
-            spotifyExpirationDate: payload.spotifyExpirationDate,
-        },
+            spotifyExpirationDate: payload.spotifyExpirationDate
+        }
     });
 
     const spotifyApi = new SpotifyWebApi();
@@ -28,7 +28,7 @@ const action = (
         JSON.stringify({
             spotifyToken: payload.spotifyToken,
             spotifyRefreshToken: payload.spotifyRefreshToken,
-            spotifyExpirationDate: payload.spotifyExpirationDate.toISOString(),
+            spotifyExpirationDate: payload.spotifyExpirationDate.toISOString()
         })
     );
 };
@@ -41,11 +41,11 @@ const reducer = (
         ...state,
         spotifyToken: payload.spotifyToken,
         spotifyRefreshToken: payload.spotifyRefreshToken,
-        spotifyExpirationDate: payload.spotifyExpirationDate,
+        spotifyExpirationDate: payload.spotifyExpirationDate
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

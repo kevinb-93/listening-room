@@ -11,11 +11,11 @@ interface StyledProps {
 
 const StyledNavMenu = styled.div<StyledProps>`
     display: flex;
-    flex-direction: ${(props) => (props.vertical ? 'column' : 'row')};
+    flex-direction: ${props => (props.vertical ? 'column' : 'row')};
 `;
 
 StyledNavMenu.defaultProps = {
-    vertical: false,
+    vertical: false
 };
 
 export default NavMenu;

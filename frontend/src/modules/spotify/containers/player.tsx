@@ -12,7 +12,7 @@ const Player: React.FC = () => {
         activeDeviceId,
         setActiveDevice,
         queue,
-        playTrack,
+        playTrack
     } = useSpotifyContext();
     const {
         playbackState,
@@ -20,7 +20,7 @@ const Player: React.FC = () => {
         setPlayback,
         playerInstance,
         playNext,
-        setPlayNext,
+        setPlayNext
     } = useSpotifyPlayerContext();
 
     const [elaspedTime, setElaspedTime] = useState<number>(
@@ -44,7 +44,7 @@ const Player: React.FC = () => {
                 .then(() => {
                     playTrack(queue[0]);
                 })
-                .catch((e) => console.error('Could not play track', e))
+                .catch(e => console.error('Could not play track', e))
                 .finally(() => {
                     if (playNext) {
                         setPlayNext(false);
@@ -58,7 +58,7 @@ const Player: React.FC = () => {
         playbackState?.duration,
         playbackState?.position,
         queue,
-        setPlayNext,
+        setPlayNext
     ]);
 
     useEffect(() => {
@@ -67,7 +67,7 @@ const Player: React.FC = () => {
 
         if (playbackState?.paused === false) {
             intervalId = setInterval(() => {
-                setElaspedTime((et) => et + 500);
+                setElaspedTime(et => et + 500);
             }, 500);
         } else if (
             playbackState?.paused ||
@@ -102,12 +102,12 @@ const Player: React.FC = () => {
                 .then(() => {
                     setActiveDevice(playerInstance.device_id);
                 })
-                .catch((e) => console.error('Could not transfer playback', e));
+                .catch(e => console.error('Could not transfer playback', e));
         }
     }, [activeDeviceId, playerInstance?.device_id, setActiveDevice]);
 
     useEffect(() => {
-        player.getCurrentState().then((playback) => {
+        player.getCurrentState().then(playback => {
             setPlayback(playback);
         });
     }, [player, setPlayback]);
@@ -132,10 +132,10 @@ const Player: React.FC = () => {
                     ''
                 )
             )
-                .then((data) => {
+                .then(data => {
                     setArtistFullInfo(data);
                 })
-                .catch((e) => console.log(e));
+                .catch(e => console.log(e));
         }
     }, [artistFullInfo?.uri, playbackState?.track_window]);
 

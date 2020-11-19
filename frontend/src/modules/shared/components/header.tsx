@@ -12,7 +12,7 @@ const Header: React.FC = ({ children }) => {
 
 const StyledHeader = styled.div`
     position: fixed;
-    height: ${(props) => props.theme.header.height};
+    height: ${props => props.theme.header.height};
     z-index: 2;
     background-color: white;
     left: 0;

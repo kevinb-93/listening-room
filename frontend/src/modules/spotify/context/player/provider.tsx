@@ -10,22 +10,22 @@ export const Provider: React.FC = ({ children }) => {
     const { spotifyToken, isLoggedIn } = useIdentityContext();
 
     const setPlayback: SpotifyPlayerContextInterface['setPlayback'] = useCallback(
-        (playback) => actions.player.setPlayback(dispatch, playback),
+        playback => actions.player.setPlayback(dispatch, playback),
         [dispatch]
     );
 
     const setPlayer: SpotifyPlayerContextInterface['setPlayer'] = useCallback(
-        (player) => actions.player.setPlayer(dispatch, player),
+        player => actions.player.setPlayer(dispatch, player),
         [dispatch]
     );
 
     const setPlayerInstance: SpotifyPlayerContextInterface['setPlayerInstance'] = useCallback(
-        (instance) => actions.player.setPlayerInstance(dispatch, instance),
+        instance => actions.player.setPlayerInstance(dispatch, instance),
         [dispatch]
     );
 
     const setPlayNext: SpotifyPlayerContextInterface['setPlayNext'] = useCallback(
-        (playNext) => actions.player.setPlayNext(dispatch, playNext),
+        playNext => actions.player.setPlayNext(dispatch, playNext),
         [dispatch]
     );
 
@@ -42,9 +42,9 @@ export const Provider: React.FC = ({ children }) => {
         window.onSpotifyWebPlaybackSDKReady = () => {
             const player = new Spotify.Player({
                 name: 'Web Playback SDK Quick Start Player',
-                getOAuthToken: (cb) => {
+                getOAuthToken: cb => {
                     cb(spotifyToken);
-                },
+                }
             });
 
             // Error handling
@@ -62,13 +62,13 @@ export const Provider: React.FC = ({ children }) => {
             });
 
             // Playback status updates
-            player.addListener('player_state_changed', (playbackstate) => {
+            player.addListener('player_state_changed', playbackstate => {
                 console.log(playbackstate);
                 setPlayback(playbackstate);
             });
 
             // Ready
-            player.addListener('ready', (playerInstance) => {
+            player.addListener('ready', playerInstance => {
                 console.log('Ready with Device ID', playerInstance.device_id);
                 setPlayerInstance(playerInstance);
             });
@@ -79,7 +79,7 @@ export const Provider: React.FC = ({ children }) => {
             });
 
             // Connect to the player!
-            player.connect().then((success) => {
+            player.connect().then(success => {
                 console.log('player connected: ' + success);
                 if (success) {
                     setPlayer(player);
@@ -93,7 +93,7 @@ export const Provider: React.FC = ({ children }) => {
         setPlayback,
         setPlayer,
         setPlayerInstance,
-        setPlayNext,
+        setPlayNext
     };
 
     return (

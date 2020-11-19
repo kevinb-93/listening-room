@@ -42,10 +42,10 @@ interface ProgressProps {
     duration: number;
 }
 
-const Progress = styled.div.attrs<ProgressProps>((props) => ({
+const Progress = styled.div.attrs<ProgressProps>(props => ({
     style: {
-        width: `${(props.elaspedTime / props.duration) * 100}%`,
-    },
+        width: `${(props.elaspedTime / props.duration) * 100}%`
+    }
 }))<ProgressProps>`
     background-color: #fff;
 `;

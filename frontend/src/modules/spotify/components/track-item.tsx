@@ -14,7 +14,7 @@ interface Props {
 const TrackItem: React.FC<Props> = ({ track }) => {
     const { queue, playTrack, setQueue } = useSpotifyContext();
 
-    const isQueued = queue.some((q) => q.id === track.id);
+    const isQueued = queue.some(q => q.id === track.id);
     const queueAction: SetSpotifyQueueParams['action'] = isQueued
         ? 'delete'
         : 'add';
@@ -26,7 +26,7 @@ const TrackItem: React.FC<Props> = ({ track }) => {
             .then(() => {
                 playTrack(track);
             })
-            .catch((e) => console.error('Unable to play track', e));
+            .catch(e => console.error('Unable to play track', e));
     };
 
     return (
@@ -34,29 +34,29 @@ const TrackItem: React.FC<Props> = ({ track }) => {
             <img
                 height={64}
                 width={64}
-                src={track.album.images.find((i) => i.height === 64).url}
+                src={track.album.images.find(i => i.height === 64).url}
             ></img>
             <div
                 style={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    flexDirection: 'column'
                 }}
             >
                 <span>{track.name}</span>
-                <span>{track.artists.map((a) => a.name).join(', ')}</span>
+                <span>{track.artists.map(a => a.name).join(', ')}</span>
                 <span>{convertDurationMs(track.duration_ms)}</span>
             </div>
             <div
                 style={{
                     display: 'flex',
-                    flexDirection: 'column',
+                    flexDirection: 'column'
                 }}
             >
                 <span
                     onClick={() =>
                         setQueue({
                             action: queueAction,
-                            tracks: [track],
+                            tracks: [track]
                         })
                     }
                 >

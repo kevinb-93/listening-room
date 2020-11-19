@@ -16,7 +16,7 @@ const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
                     <Redirect
                         to={{
                             pathname: '/auth',
-                            state: { from: location },
+                            state: { from: location }
                         }}
                     />
                 )

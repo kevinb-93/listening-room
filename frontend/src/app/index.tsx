@@ -8,7 +8,7 @@ import {
     faTimes,
     faPlus,
     faPlay,
-    faPause,
+    faPause
 } from '@fortawesome/free-solid-svg-icons';
 
 // Material UI Typography

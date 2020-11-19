@@ -23,7 +23,7 @@ export const login = (req: Request, res: Response) => {
         client_id: spotify.clientId,
         scope: spotify.scope,
         redirect_uri: spotify.redirectUri,
-        state: state,
+        state: state
     });
 
     // request spotify authorization
@@ -41,7 +41,7 @@ export const callback = (req: Request, res: Response) => {
         res.redirect(
             '/#' +
                 queryString.stringify({
-                    error: 'state_mismatch',
+                    error: 'state_mismatch'
                 })
         );
     } else {
@@ -53,7 +53,7 @@ export const callback = (req: Request, res: Response) => {
                 queryString.stringify({
                     code: code as string,
                     redirect_uri: spotify.redirectUri,
-                    grant_type: 'authorization_code',
+                    grant_type: 'authorization_code'
                 }),
                 {
                     headers: {
@@ -63,11 +63,11 @@ export const callback = (req: Request, res: Response) => {
                                 spotify.clientId +
                                     ':' +
                                     secret.spotifyClientSecret
-                            ).toString('base64'),
-                    },
+                            ).toString('base64')
+                    }
                 }
             )
-            .then((response) => {
+            .then(response => {
                 if (response.status === 200) {
                     const accessToken = response.data.access_token;
                     const refreshToken = response.data.refresh_token;
@@ -77,7 +77,7 @@ export const callback = (req: Request, res: Response) => {
                         `/spotify-auth.html#${queryString.stringify({
                             access_token: accessToken,
                             refresh_token: refreshToken,
-                            expires_in: expiresIn,
+                            expires_in: expiresIn
                         })}`
                     );
 
@@ -91,7 +91,7 @@ export const callback = (req: Request, res: Response) => {
             .catch(() => {
                 res.redirect(
                     `/spotify-auth.html#${queryString.stringify({
-                        error: 'invalid_token',
+                        error: 'invalid_token'
                     })}`
                 );
             });
@@ -112,8 +112,8 @@ export const refreshToken = (
                 'Basic ' +
                 Buffer.from(
                     spotify.clientId + ':' + secret.spotifyClientSecret
-                ).toString('base64'),
-        },
+                ).toString('base64')
+        }
     };
 
     axios
@@ -121,15 +121,15 @@ export const refreshToken = (
             'https://accounts.spotify.com/api/token',
             queryString.stringify({
                 grant_type: 'refresh_token',
-                refresh_token: refreshToken as string,
+                refresh_token: refreshToken as string
             }),
             config
         )
-        .then((response) => {
+        .then(response => {
             if (response.status === 200) {
                 res.send({
                     access_token: response.data.access_token,
-                    expires_in: response.data.expires_in,
+                    expires_in: response.data.expires_in
                 });
             }
         })

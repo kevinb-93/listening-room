@@ -18,11 +18,11 @@ const reducer = (
 ): AppContextState => {
     return {
         ...state,
-        isDrawerHidden: hideDrawer,
+        isDrawerHidden: hideDrawer
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

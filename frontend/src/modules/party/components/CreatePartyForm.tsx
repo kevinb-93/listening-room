@@ -23,12 +23,12 @@ interface CreatePartyFormProps {
 
 const CreatePartyForm: React.FC<CreatePartyFormProps> = ({
     onSubmit,
-    submitDisabled,
+    submitDisabled
 }) => {
     const { spotifyToken } = useIdentityContext();
 
     const validationSchema = Yup.object<CreatePartyFormValues>({
-        name: Yup.string().required('Required'),
+        name: Yup.string().required('Required')
     });
 
     const canSubmit = useCallback(() => {
@@ -97,7 +97,7 @@ const StyledFormInputSection = styled.div`
 `;
 
 CreatePartyForm.defaultProps = {
-    submitDisabled: false,
+    submitDisabled: false
 };
 
 export default CreatePartyForm;

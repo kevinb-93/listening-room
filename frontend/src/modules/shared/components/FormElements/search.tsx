@@ -21,7 +21,7 @@ const Search: React.FC<Props> = ({
     searchTerm,
     placeholder,
     searchResults,
-    onClear,
+    onClear
 }) => {
     const changeHandler = (event: ChangeEvent<HTMLInputElement>) => {
         onChange(event.target.value);
@@ -41,7 +41,7 @@ const Search: React.FC<Props> = ({
         setSearchListPosition({
             left: searchBarRect.left,
             top: searchBarRect.top,
-            width: searchBarRect.width,
+            width: searchBarRect.width
         });
     }, []);
 
@@ -55,7 +55,7 @@ const Search: React.FC<Props> = ({
                 setSearchListPosition({
                     left: searchBarRect.left,
                     top: searchBarRect.top,
-                    width: searchBarRect.width,
+                    width: searchBarRect.width
                 });
             }
         }
@@ -179,12 +179,12 @@ const SearchList = styled.div<SearchListProps>`
     display: flex;
     flex: 1 1;
     position: fixed;
-    left: ${(props) => props.positionLeft}px;
-    top: ${(props) => props.positionTop + parseInt(searchInputHeight)}px;
+    left: ${props => props.positionLeft}px;
+    top: ${props => props.positionTop + parseInt(searchInputHeight)}px;
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    width: ${(props) => props.width}px;
+    width: ${props => props.width}px;
     background-color: green;
 `;
 
@@ -220,7 +220,7 @@ Search.defaultProps = {
     placeholder: 'Search',
     searchTerm: '',
     onChange: () => null,
-    searchResults: null,
+    searchResults: null
 };
 
 export default Search;

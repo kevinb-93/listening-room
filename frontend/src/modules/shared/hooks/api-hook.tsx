@@ -25,7 +25,7 @@ export const useApiRequest = () => {
 
                 const response = await axios({
                     url,
-                    ...requestConfig,
+                    ...requestConfig
                 });
 
                 // activeHttpRequests.current = activeHttpRequests.current.filter(

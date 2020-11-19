@@ -5,12 +5,12 @@ import { IdentityContextState } from '../types';
 
 // Combine the actions from the sub-modules
 export const actions = {
-    auth: Auth.actions,
+    auth: Auth.actions
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
-    ...Auth.reducers,
+    ...Auth.reducers
 };
 
 const Reducer = (
@@ -32,7 +32,7 @@ const initialState: IdentityContextState = {
     tokenExpirationDate: null,
     spotifyToken: null,
     spotifyRefreshToken: null,
-    spotifyExpirationDate: null,
+    spotifyExpirationDate: null
 };
 
 /**
@@ -40,5 +40,5 @@ const initialState: IdentityContextState = {
  */
 export const __useIdentityReducer = () =>
     React.useReducer<React.Reducer<IdentityContextState, unknown>>(Reducer, {
-        ...initialState,
+        ...initialState
     });

@@ -4,4 +4,6 @@ module.exports = {
     printWidth: 80, // Specify the line length that the printer will wrap on.
     tabWidth: 4, //Specify the number of spaces per indentation-level.
     endOfLine: 'auto',
+    arrowParens: 'avoid',
+    trailingComma: 'none'
 };

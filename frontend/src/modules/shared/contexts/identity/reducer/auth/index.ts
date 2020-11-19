@@ -6,16 +6,16 @@ import { IdentityReducerAction, IdentityReducerMap } from '../types';
 const reducers: IdentityReducerMap = {
     [IdentityReducerAction.login]: Login.reducer,
     [IdentityReducerAction.logout]: Logout.reducer,
-    [IdentityReducerAction.spotifyLogin]: SpotifyLogin.reducer,
+    [IdentityReducerAction.spotifyLogin]: SpotifyLogin.reducer
 };
 
 const actions = {
     login: Login.action,
     logout: Logout.action,
-    spotifyLogin: SpotifyLogin.action,
+    spotifyLogin: SpotifyLogin.action
 };
 
 export const _ = {
     reducers,
-    actions,
+    actions
 };

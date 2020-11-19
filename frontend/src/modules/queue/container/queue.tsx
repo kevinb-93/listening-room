@@ -22,10 +22,10 @@ const Queue: React.FC = () => {
         const s = new SpotifyWebApi();
 
         s.search(searchTerm, ['track'], { market: 'from_token' }).then(
-            (data) => {
+            data => {
                 setSearchResponseData(data);
             },
-            (err) => {
+            err => {
                 console.log(err);
             }
         );
@@ -41,10 +41,10 @@ const Queue: React.FC = () => {
         return (
             <>
                 {searchResponseData
-                    ? searchResponseData.tracks.items.slice(0, 10).map((t) => {
+                    ? searchResponseData.tracks.items.slice(0, 10).map(t => {
                           return <TrackItem track={t} key={t.id} />;
                       })
-                    : queue.map((t) => <TrackItem track={t} key={t.id} />)}
+                    : queue.map(t => <TrackItem track={t} key={t.id} />)}
             </>
         );
     };

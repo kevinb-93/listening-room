@@ -9,7 +9,7 @@ const action = (
 ) => {
     dispatch({
         type: SpotifyReducerAction.setActiveDevice,
-        payload,
+        payload
     });
 };
 
@@ -19,11 +19,11 @@ const reducer = (
 ): SpotifyContextState => {
     return {
         ...state,
-        activeDeviceId: payload,
+        activeDeviceId: payload
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

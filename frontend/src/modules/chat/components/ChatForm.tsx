@@ -17,7 +17,7 @@ export interface ChatFormProps {
 
 const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
     const validationSchema = Yup.object<ChatFormValues>({
-        message: Yup.string().required('Required'),
+        message: Yup.string().required('Required')
     });
 
     const initialValues: ChatFormValues = { message: '' };

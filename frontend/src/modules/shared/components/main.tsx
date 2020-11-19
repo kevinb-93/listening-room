@@ -13,7 +13,7 @@ interface StyledMain {
 }
 
 const StyledMain = styled.div<StyledMain>`
-    margin-top: ${(props) =>
+    margin-top: ${props =>
         props.useHeaderHeight ? props.theme.header.height : ''};
     height: 100%;
     width: 100%;

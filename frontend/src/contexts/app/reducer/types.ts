@@ -1,7 +1,7 @@
 import { AppContextState } from '../types';
 
 export enum AppReducerAction {
-    hideDrawer,
+    hideDrawer
 }
 
 export interface AppReducerActionPayload<T> {

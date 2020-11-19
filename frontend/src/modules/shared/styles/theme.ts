@@ -5,9 +5,9 @@ import type {} from '@material-ui/lab/themeAugmentation';
 
 export const theme = createMuiTheme({
     header: {
-        height: '55px',
+        height: '55px'
     },
     drawer: {
-        width: '72px',
-    },
+        width: '72px'
+    }
 });

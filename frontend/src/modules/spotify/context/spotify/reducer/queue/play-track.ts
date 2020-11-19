@@ -9,7 +9,7 @@ const action = (
 ) => {
     dispatch({
         type: SpotifyReducerAction.playTrack,
-        payload,
+        payload
     });
 };
 
@@ -19,7 +19,7 @@ const reducer = (
 ): SpotifyContextState => {
     const trackId = payload.id;
 
-    const queue = state.queue.filter((q) => trackId !== q.id);
+    const queue = state.queue.filter(q => trackId !== q.id);
 
     localStorage.setItem('ls_queue', JSON.stringify(queue));
     localStorage.setItem('ls_now_playing', JSON.stringify(payload));
@@ -27,11 +27,11 @@ const reducer = (
     return {
         ...state,
         queue,
-        nowPlaying: payload,
+        nowPlaying: payload
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

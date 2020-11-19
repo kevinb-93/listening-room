@@ -8,17 +8,17 @@ const reducers: SpotifyPlayerReducerMap = {
     [SpotifyPlayerReducerAction.setPlayback]: SetPlayback.reducer,
     [SpotifyPlayerReducerAction.setPlayer]: SetPlayer.reducer,
     [SpotifyPlayerReducerAction.setPlayerInstance]: SetPlayerInstance.reducer,
-    [SpotifyPlayerReducerAction.setPlayNext]: SetPlayNext.reducer,
+    [SpotifyPlayerReducerAction.setPlayNext]: SetPlayNext.reducer
 };
 
 const actions = {
     setPlayback: SetPlayback.action,
     setPlayer: SetPlayer.action,
     setPlayerInstance: SetPlayerInstance.action,
-    setPlayNext: SetPlayNext.action,
+    setPlayNext: SetPlayNext.action
 };
 
 export const _ = {
     reducers,
-    actions,
+    actions
 };

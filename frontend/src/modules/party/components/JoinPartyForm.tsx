@@ -22,11 +22,11 @@ interface JoinPartyFormProps {
 
 const JoinPartyForm: React.FC<JoinPartyFormProps> = ({
     onSubmit,
-    submitDisabled,
+    submitDisabled
 }) => {
     const validationSchema = Yup.object<JoinPartyFormValues>({
         name: Yup.string().required('Required'),
-        code: Yup.string().required('Required'),
+        code: Yup.string().required('Required')
     });
 
     const initialValues: JoinPartyFormValues = { name: '', code: '' };
@@ -87,7 +87,7 @@ const StyledFormInputSection = styled.div`
 `;
 
 JoinPartyForm.defaultProps = {
-    submitDisabled: false,
+    submitDisabled: false
 };
 
 export default JoinPartyForm;

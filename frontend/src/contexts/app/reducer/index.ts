@@ -5,12 +5,12 @@ import { AppContextState } from '../types';
 
 // Combine the actions from the sub-modules
 export const actions = {
-    drawer: Drawer.actions,
+    drawer: Drawer.actions
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
-    ...Drawer.reducers,
+    ...Drawer.reducers
 };
 
 const Reducer = (
@@ -28,7 +28,7 @@ const Reducer = (
 };
 
 const initialState: AppContextState = {
-    isDrawerHidden: true,
+    isDrawerHidden: true
 };
 
 /**
@@ -36,5 +36,5 @@ const initialState: AppContextState = {
  */
 export const __useAppReducer = () =>
     React.useReducer<React.Reducer<AppContextState, unknown>>(Reducer, {
-        ...initialState,
+        ...initialState
     });

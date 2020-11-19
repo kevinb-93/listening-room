@@ -7,22 +7,22 @@ export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyReducer();
 
     const setQueue = useCallback(
-        (params) => actions.queue.setQueue(dispatch, params),
+        params => actions.queue.setQueue(dispatch, params),
         [dispatch]
     );
 
     const playTrack = useCallback(
-        (track) => actions.queue.playTrack(dispatch, track),
+        track => actions.queue.playTrack(dispatch, track),
         [dispatch]
     );
 
     const setDevices = useCallback(
-        (devices) => actions.devices.setDevices(dispatch, devices),
+        devices => actions.devices.setDevices(dispatch, devices),
         [dispatch]
     );
 
     const setActiveDevice = useCallback(
-        (id) => actions.devices.setActiveDevice(dispatch, id),
+        id => actions.devices.setActiveDevice(dispatch, id),
         [dispatch]
     );
 
@@ -31,7 +31,7 @@ export const Provider: React.FC = ({ children }) => {
         setQueue,
         playTrack,
         setDevices,
-        setActiveDevice,
+        setActiveDevice
     };
 
     useEffect(() => {
@@ -47,7 +47,7 @@ export const Provider: React.FC = ({ children }) => {
 
         actions.queue.setQueue(dispatch, {
             action: 'add',
-            tracks: queue,
+            tracks: queue
         });
 
         if (nowPlaying) {

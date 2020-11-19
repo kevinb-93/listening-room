@@ -13,7 +13,7 @@ const PlayerControls: React.FC<Props> = ({
     color,
     isPlaying,
     playHandler,
-    pauseHandler,
+    pauseHandler
 }) => {
     return (
         <Controls>
@@ -35,7 +35,7 @@ const PlayerControls: React.FC<Props> = ({
 };
 
 PlayerControls.defaultProps = {
-    color: '#000',
+    color: '#000'
 };
 
 const Controls = styled.div`

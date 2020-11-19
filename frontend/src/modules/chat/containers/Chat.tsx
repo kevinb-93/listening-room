@@ -22,13 +22,13 @@ const Chat: React.FC = () => {
             ...posts,
             {
                 id: (posts.length + 1).toString(),
-                message,
-            },
+                message
+            }
         ]);
     };
 
     const deletePostHandler: OnDeletePost = (message: Message['message']) => {
-        setPosts(posts.filter((p) => p.message !== message));
+        setPosts(posts.filter(p => p.message !== message));
     };
 
     const [posts, setPosts] = useState<Message[]>([]);
@@ -36,7 +36,7 @@ const Chat: React.FC = () => {
     return (
         <Container>
             <ChatWindow>
-                {posts.map((p) => {
+                {posts.map(p => {
                     return (
                         <ChatPost
                             onDeletePost={deletePostHandler}

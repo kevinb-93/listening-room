@@ -50,7 +50,7 @@ export const create = async (
         await newUser.save({ session });
         const newParty = new Party({
             creator: newUser.id,
-            host: newUser.id,
+            host: newUser.id
         });
         await newParty.save({ session });
         newUser.parties.push(newParty.id);

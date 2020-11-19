@@ -15,7 +15,7 @@ const FormTab: React.FC<FormTabProps> = ({ active, onTabClick, children }) => {
 };
 
 FormTab.defaultProps = {
-    active: false,
+    active: false
 };
 
 interface StyledFormTab {

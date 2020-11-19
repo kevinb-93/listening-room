@@ -3,7 +3,7 @@ import { IdentityContextState } from '../types';
 export enum IdentityReducerAction {
     login,
     logout,
-    spotifyLogin,
+    spotifyLogin
 }
 
 export interface IdentityReducerActionPayload<T> {

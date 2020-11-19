@@ -34,7 +34,7 @@ mongoose
     .connect(secret.mongoCluster, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        useCreateIndex: true,
+        useCreateIndex: true
     })
     .then(() => {
         const server = http.createServer(app);
@@ -46,6 +46,6 @@ mongoose
 
         server.listen(port, () => console.log(`Listening on ${port}`));
     })
-    .catch((err) => {
+    .catch(err => {
         console.log(err);
     });

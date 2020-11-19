@@ -3,7 +3,7 @@ import { check } from 'express-validator';
 
 import {
     createMessage,
-    deleteMessage,
+    deleteMessage
 } from '../controllers/messages-controllers';
 import { checkAuth } from '../middleware/check-auth';
 

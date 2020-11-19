@@ -7,13 +7,13 @@ import { SpotifyContextState } from '../types';
 // Combine the actions from the sub-modules
 export const actions = {
     queue: Queue.actions,
-    devices: Devices.actions,
+    devices: Devices.actions
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
     ...Queue.reducers,
-    ...Devices.reducers,
+    ...Devices.reducers
 };
 
 const Reducer = (
@@ -34,7 +34,7 @@ const initialState: SpotifyContextState = {
     nowPlaying: null,
     queue: [],
     devices: [],
-    activeDeviceId: '',
+    activeDeviceId: ''
 };
 
 /**
@@ -42,5 +42,5 @@ const initialState: SpotifyContextState = {
  */
 export const __useSpotifyReducer = () =>
     React.useReducer<React.Reducer<SpotifyContextState, unknown>>(Reducer, {
-        ...initialState,
+        ...initialState
     });

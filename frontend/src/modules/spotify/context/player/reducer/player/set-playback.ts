@@ -1,6 +1,6 @@
 import {
     SpotifyPlayerReducerActionPayload,
-    SpotifyPlayerReducerAction,
+    SpotifyPlayerReducerAction
 } from '../types';
 import { SpotifyPlayerContextState } from '../../types';
 
@@ -12,7 +12,7 @@ const action = (
 ) => {
     dispatch({
         type: SpotifyPlayerReducerAction.setPlayback,
-        payload,
+        payload
     });
 };
 
@@ -34,11 +34,11 @@ const reducer = (
     return {
         ...state,
         playbackState: payload,
-        playNext,
+        playNext
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

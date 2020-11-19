@@ -8,14 +8,14 @@ const Settings: React.FC = () => {
         devices,
         setDevices,
         setActiveDevice,
-        activeDeviceId,
+        activeDeviceId
     } = useSpotifyContext();
 
     useEffect(() => {
         const s = new SpotifyWebApi();
         s.getMyDevices()
-            .then((data) => setDevices(data.devices))
-            .catch((e) => console.log(e));
+            .then(data => setDevices(data.devices))
+            .catch(e => console.log(e));
 
         console.log('get devices');
     }, [setDevices]);
@@ -28,12 +28,12 @@ const Settings: React.FC = () => {
         const s = new SpotifyWebApi();
         s.transferMyPlayback([id])
             .then(() => setActiveDevice(id))
-            .catch((e) => console.error('Could not transfer playback', e));
+            .catch(e => console.error('Could not transfer playback', e));
     };
 
     return (
         <div>
-            {devices.map((d) => {
+            {devices.map(d => {
                 return (
                     <div key={d.id}>
                         <button

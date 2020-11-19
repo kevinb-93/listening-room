@@ -6,7 +6,7 @@ const action = (
 ) => {
     dispatch({
         type: IdentityReducerAction.logout,
-        payload: null,
+        payload: null
     });
 
     localStorage.removeItem('ls_user');
@@ -16,11 +16,11 @@ const reducer = (state: IdentityContextState): IdentityContextState => {
     return {
         ...state,
         token: null,
-        tokenExpirationDate: null,
+        tokenExpirationDate: null
     };
 };
 
 export const _ = {
     action,
-    reducer,
+    reducer
 };

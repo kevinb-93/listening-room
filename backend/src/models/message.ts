@@ -11,7 +11,7 @@ const Schema = mongoose.Schema;
 const messageSchema = new Schema({
     senderId: { type: mongoose.Types.ObjectId, required: true, ref: 'User' },
     partyId: { type: mongoose.Types.ObjectId, required: true, ref: 'Party' },
-    message: { type: String, required: true },
+    message: { type: String, required: true }
 });
 
 // messageSchema.virtual('admin', {

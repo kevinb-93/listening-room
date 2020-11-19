@@ -17,7 +17,7 @@ const NavigationLink: React.FC<Props> = ({ to, icon, label, activePaths }) => {
         if (!activePaths) {
             return match ? true : false;
         }
-        return activePaths.some((path) => location.pathname === path);
+        return activePaths.some(path => location.pathname === path);
     };
 
     return (
@@ -30,12 +30,12 @@ const NavigationLink: React.FC<Props> = ({ to, icon, label, activePaths }) => {
     );
 };
 
-const StyledNavLink = styled(NavLink).attrs((props) => {
+const StyledNavLink = styled(NavLink).attrs(props => {
     props.activeClassName;
 })`
     color: lightgray;
 
-    &.${(props) => props.activeClassName} {
+    &.${props => props.activeClassName} {
         color: green;
     }
 `;
@@ -54,7 +54,7 @@ const StyledNavLinkLabel = styled.span`
 
 NavigationLink.defaultProps = {
     activePaths: null,
-    icon: null,
+    icon: null
 };
 
 export default NavigationLink;

@@ -81,7 +81,7 @@ export const deleteMessage = async (
             .populate('senderId', 'id')
             .populate({
                 path: 'partyId',
-                populate: { path: 'host', select: 'id' },
+                populate: { path: 'host', select: 'id' }
             });
     } catch (err) {
         const error = new HttpError(

@@ -4,15 +4,15 @@ import { SpotifyReducerAction, SpotifyReducerMap } from '../types';
 
 const reducers: SpotifyReducerMap = {
     [SpotifyReducerAction.setDevices]: Set.reducer,
-    [SpotifyReducerAction.setActiveDevice]: SetActive.reducer,
+    [SpotifyReducerAction.setActiveDevice]: SetActive.reducer
 };
 
 const actions = {
     setDevices: Set.action,
-    setActiveDevice: SetActive.action,
+    setActiveDevice: SetActive.action
 };
 
 export const _ = {
     reducers,
-    actions,
+    actions
 };

@@ -37,7 +37,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         if (isHost) {
             newParty = new Party({
                 createdAt: new Date(),
-                creator: newUser.id,
+                creator: newUser.id
             });
             await newParty.save({ session });
             newUser.parties.push(newParty);

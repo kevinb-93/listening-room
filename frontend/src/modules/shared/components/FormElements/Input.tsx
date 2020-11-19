@@ -18,7 +18,7 @@ interface InputReducerAction {
 
 enum InputReducerActionTypes {
     touch,
-    change,
+    change
 }
 
 const inputReducer = (state: InputReducerState, action: InputReducerAction) => {
@@ -27,12 +27,12 @@ const inputReducer = (state: InputReducerState, action: InputReducerAction) => {
             return {
                 ...state,
                 value: action.val,
-                isValid: validate(action.val, action.validators),
+                isValid: validate(action.val, action.validators)
             };
         case InputReducerActionTypes.touch: {
             return {
                 ...state,
-                isTouched: true,
+                isTouched: true
             };
         }
         default:
@@ -65,12 +65,12 @@ const Input: React.FC<Props> = ({
     rows,
     label,
     errorText,
-    validators,
+    validators
 }) => {
     const [inputState, dispatch] = useReducer(inputReducer, {
         value: initialValue,
         isTouched: false,
-        isValid: initialValid,
+        isValid: initialValid
     });
     const { value, isValid } = inputState;
 
@@ -84,13 +84,13 @@ const Input: React.FC<Props> = ({
         dispatch({
             type: InputReducerActionTypes.change,
             val: event.target.value,
-            validators: validators,
+            validators: validators
         });
     };
 
     const touchHandler = () => {
         dispatch({
-            type: InputReducerActionTypes.touch,
+            type: InputReducerActionTypes.touch
         });
     };
 
@@ -127,7 +127,7 @@ Input.defaultProps = {
     rows: 3,
     initialValue: '',
     initialValid: false,
-    placeholder: '',
+    placeholder: ''
 };
 
 export default Input;

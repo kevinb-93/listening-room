@@ -29,7 +29,7 @@ export const Provider: React.FC = ({ children }) => {
             actions.auth.spotifyLogin(dispatch, {
                 spotifyToken,
                 spotifyRefreshToken,
-                spotifyExpirationDate,
+                spotifyExpirationDate
             }),
         [dispatch]
     );
@@ -39,7 +39,7 @@ export const Provider: React.FC = ({ children }) => {
         login,
         logout,
         spotifyLogin,
-        isLoggedIn,
+        isLoggedIn
     };
 
     useEffect(() => {
@@ -55,7 +55,7 @@ export const Provider: React.FC = ({ children }) => {
         ) {
             actions.auth.login(dispatch, {
                 token: storeduser.token,
-                expirationDate: new Date(storeduser.expiration),
+                expirationDate: new Date(storeduser.expiration)
             });
         }
 
@@ -71,7 +71,7 @@ export const Provider: React.FC = ({ children }) => {
                 spotifyRefreshToken: storedSpotify.spotifyRefreshToken,
                 spotifyExpirationDate: new Date(
                     storedSpotify.spotifyExpirationDate
-                ),
+                )
             });
         }
     }, [dispatch]);
@@ -82,7 +82,7 @@ export const Provider: React.FC = ({ children }) => {
                 const response = await sendRequest(
                     'http://localhost:5000/api/spotify/refresh_token',
                     {
-                        params: { refresh_token: state.spotifyRefreshToken },
+                        params: { refresh_token: state.spotifyRefreshToken }
                     }
                 );
 
@@ -93,7 +93,7 @@ export const Provider: React.FC = ({ children }) => {
                 actions.auth.spotifyLogin(dispatch, {
                     spotifyToken: response.data.access_token,
                     spotifyRefreshToken: state.spotifyRefreshToken,
-                    spotifyExpirationDate: expirationDate,
+                    spotifyExpirationDate: expirationDate
                 });
             } catch (e) {
                 console.log(e);
@@ -137,7 +137,7 @@ export const Provider: React.FC = ({ children }) => {
         state.spotifyRefreshToken,
         state.spotifyExpirationDate,
         refreshSpotifyToken,
-        dispatch,
+        dispatch
     ]);
 
     return (

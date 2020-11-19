@@ -30,7 +30,7 @@ const SpotifyAuthButton: React.FC = () => {
 
         window.addEventListener(
             'message',
-            (event) => {
+            event => {
                 if (event.origin !== 'http://localhost:5000') {
                     return;
                 }

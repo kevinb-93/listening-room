@@ -5,12 +5,12 @@ import { SpotifyPlayerContextState } from '../types';
 
 // Combine the actions from the sub-modules
 export const actions = {
-    player: Player.actions,
+    player: Player.actions
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
-    ...Player.reducers,
+    ...Player.reducers
 };
 
 const Reducer = (
@@ -31,7 +31,7 @@ const initialState: SpotifyPlayerContextState = {
     playbackState: null,
     player: null,
     playerInstance: null,
-    playNext: false,
+    playNext: false
 };
 
 /**
@@ -41,6 +41,6 @@ export const __useSpotifyPlayerReducer = () =>
     React.useReducer<React.Reducer<SpotifyPlayerContextState, unknown>>(
         Reducer,
         {
-            ...initialState,
+            ...initialState
         }
     );
