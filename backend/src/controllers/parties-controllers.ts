@@ -1,52 +1,43 @@
 import { validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
 import Party from '../models/party';
-import User from '../models/user';
+import User, { UserType } from '../models/user';
 import HttpError from '../models/http-error';
-import secret from '../utils/secret';
-import { TokenPayload } from '../typings/token';
 
 export const create = async (
     req: Request,
     res: Response,
     next: NextFunction
 ) => {
-    // validate request
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return next(
-            new HttpError('Invalid inputs passed, please check your data.', 422)
-        );
-    }
-
-    const { name } = req.body;
-
-    let existingUser;
     try {
-        existingUser = await User.findOne({ name });
-    } catch (e) {
-        return next(
-            new HttpError('Creating party failed, please try again later.', 500)
-        );
-    }
+        // validate request
+        const errors = validationResult(req);
 
-    if (existingUser) {
-        return next(new HttpError('User already exists', 422));
-    }
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
 
-    const newUser = new User({ name });
+        const { name } = req.body;
+        const existingUser = await User.findOne({ name });
 
-    // save new user
-    try {
+        if (existingUser) {
+            return next(new HttpError('User already exists', 422));
+        }
+
+        // save new user
         await User.createCollection();
         await Party.createCollection();
 
         const session = await mongoose.startSession();
         session.startTransaction();
+        const newUser = new User({ name, userType: UserType.Host });
         await newUser.save({ session });
         const newParty = new Party({
             creator: newUser.id,
@@ -56,100 +47,77 @@ export const create = async (
         newUser.parties.push(newParty.id);
         await newUser.save({ session });
         await session.commitTransaction();
+
+        const accessToken = await newUser.createAccessToken();
+        const refreshToken = await newUser.createRefreshToken();
+
+        res.status(201).json({
+            userId: newUser.id,
+            name: newUser.name,
+            accessToken,
+            refreshToken,
+            partyId: newParty.id
+        });
     } catch (e) {
-        return next(
-            new HttpError('Creating party failed, please try again later.', 500)
-        );
+        console.error(e);
+        return next(new HttpError('Internal Server Error', 500));
     }
-
-    let token;
-    try {
-        token = jwt.sign(
-            { userId: newUser.id, name: newUser.name } as TokenPayload,
-            secret.jwtPrivateKey,
-            { expiresIn: '1h' }
-        );
-    } catch (err) {
-        const error = new HttpError(
-            'Creating party failed, please try again later.',
-            500
-        );
-        return next(error);
-    }
-
-    res.status(201).json({ userId: newUser.id, name: newUser.name, token });
 };
 
 export const join = async (req: Request, res: Response, next: NextFunction) => {
-    // validate request
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return next(
-            new HttpError('Invalid inputs passed, please check your data.', 422)
-        );
-    }
-
-    const { name } = req.body;
-
-    let existingUser;
     try {
-        existingUser = await User.findOne({ name });
-    } catch (e) {
-        return next(
-            new HttpError('Joining party failed, please try again later.', 500)
-        );
-    }
+        // validate request
+        const errors = validationResult(req);
 
-    if (existingUser) {
-        return next(new HttpError('User already exists', 422));
-    }
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
 
-    const partyId = req.params.pid;
+        const { name } = req.body;
 
-    // find party
-    let party;
-    try {
-        party = await Party.findById(partyId);
-    } catch (err) {
-        return next(
-            new HttpError('Something went wrong, could not join party', 500)
-        );
-    }
+        const existingUser = await User.findOne({ name });
 
-    if (!party) {
-        return next(new HttpError('Could not find a party for this id', 404));
-    }
+        if (existingUser) {
+            return next(new HttpError('User already exists', 422));
+        }
 
-    const newUser = new User({ name });
+        const partyId = req.params.pid;
 
-    // save new user
-    try {
+        // find party
+        const party = await Party.findById(partyId);
+
+        if (!party) {
+            return next(
+                new HttpError('Could not find a party for this id', 404)
+            );
+        }
+
+        // save new user
         await User.createCollection();
-
         const session = await mongoose.startSession();
         session.startTransaction();
+        const newUser = new User({ name, userType: UserType.Guest });
         newUser.parties.push(party.id);
         await newUser.save({ session });
         await session.commitTransaction();
+
+        const accessToken = await newUser.createAccessToken();
+        const refreshToken = await newUser.createRefreshToken();
+
+        res.status(201).json({
+            userId: newUser.id,
+            name: newUser.name,
+            accessToken,
+            refreshToken,
+            partyId: partyId
+        });
     } catch (e) {
-        return next(
-            new HttpError('Joining party failed, please try again later.', 500)
-        );
+        console.error(e);
+        return next(new HttpError('Internal Server Error', 500));
     }
-
-    let token;
-    try {
-        token = jwt.sign(
-            { userId: newUser.id, name: newUser.name } as TokenPayload,
-            secret.jwtPrivateKey,
-            { expiresIn: '1h' }
-        );
-    } catch (err) {
-        return next(
-            new HttpError('Joining party failed, please try again later.', 500)
-        );
-    }
-
-    res.status(201).json({ userId: newUser.id, name: newUser.name, token });
 };

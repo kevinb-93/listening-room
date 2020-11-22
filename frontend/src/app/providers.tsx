@@ -7,6 +7,7 @@ import { theme } from '../modules/shared/styles/theme';
 import { IdentityContextProvider } from '../modules/shared/contexts/identity';
 import { SpotifyContextProvider } from '../modules/spotify/context/spotify';
 import { SpotifyPlayerContextProvider } from '../modules/spotify/context/player';
+import { PartyContextProvider } from '../modules/party/context';
 
 export const Providers: React.FC = ({ children }) => {
     return (
@@ -15,11 +16,13 @@ export const Providers: React.FC = ({ children }) => {
                 <ThemeProvider theme={theme}>
                     <IdentityContextProvider>
                         <AppContextProvider>
-                            <SpotifyContextProvider>
-                                <SpotifyPlayerContextProvider>
-                                    {children}
-                                </SpotifyPlayerContextProvider>
-                            </SpotifyContextProvider>
+                            <PartyContextProvider>
+                                <SpotifyContextProvider>
+                                    <SpotifyPlayerContextProvider>
+                                        {children}
+                                    </SpotifyPlayerContextProvider>
+                                </SpotifyContextProvider>
+                            </PartyContextProvider>
                         </AppContextProvider>
                     </IdentityContextProvider>
                 </ThemeProvider>

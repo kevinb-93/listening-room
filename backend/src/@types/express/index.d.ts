@@ -1,9 +1,9 @@
-interface UserData {
+interface User {
     userId: string;
 }
 
 declare namespace Express {
     interface Request {
-        userData?: UserData;
+        user?: User;
     }
 }

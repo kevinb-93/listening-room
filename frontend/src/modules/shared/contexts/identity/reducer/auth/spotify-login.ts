@@ -1,6 +1,10 @@
 import SpotifyWebApi from 'spotify-web-api-js';
 import { IdentityReducerActionPayload, IdentityReducerAction } from '../types';
 import { IdentityContextState } from '../../types';
+import {
+    LocalStorageItemNames,
+    setLocalStorage
+} from '../../../../utils/local-storage';
 
 interface Payload {
     spotifyToken: IdentityContextState['spotifyToken'];
@@ -12,25 +16,25 @@ const action = (
     dispatch: React.Dispatch<IdentityReducerActionPayload<Payload>>,
     payload: Payload
 ) => {
+    const {
+        spotifyToken,
+        spotifyRefreshToken,
+        spotifyExpirationDate
+    } = payload;
+
     dispatch({
         type: IdentityReducerAction.spotifyLogin,
-        payload: {
-            ...payload,
-            spotifyExpirationDate: payload.spotifyExpirationDate
-        }
+        payload
     });
 
     const spotifyApi = new SpotifyWebApi();
-    spotifyApi.setAccessToken(payload.spotifyToken);
+    spotifyApi.setAccessToken(spotifyToken);
 
-    localStorage.setItem(
-        'ls_spotify',
-        JSON.stringify({
-            spotifyToken: payload.spotifyToken,
-            spotifyRefreshToken: payload.spotifyRefreshToken,
-            spotifyExpirationDate: payload.spotifyExpirationDate.toISOString()
-        })
-    );
+    setLocalStorage(LocalStorageItemNames.Spotify, {
+        spotifyToken,
+        spotifyRefreshToken,
+        spotifyExpirationDate
+    });
 };
 
 const reducer = (

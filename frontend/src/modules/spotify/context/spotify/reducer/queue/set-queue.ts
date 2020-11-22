@@ -1,5 +1,9 @@
 import { SpotifyReducerActionPayload, SpotifyReducerAction } from '../types';
 import { SetSpotifyQueueParams, SpotifyContextState } from '../../types';
+import {
+    LocalStorageItemNames,
+    setLocalStorage
+} from '../../../../../shared/utils/local-storage';
 
 type Payload = SetSpotifyQueueParams;
 
@@ -29,7 +33,7 @@ const reducer = (
         queue = state.queue.filter(q => !trackIds.includes(q.id));
     }
 
-    localStorage.setItem('ls_queue', JSON.stringify(queue));
+    setLocalStorage(LocalStorageItemNames.Queue, queue);
 
     return {
         ...state,

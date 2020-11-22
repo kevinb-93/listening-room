@@ -12,9 +12,15 @@ import Login from '../modules/party/containers/login';
 import { useIdentityContext } from '../modules/shared/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
+import { usePartyContext } from '../modules/party/context';
 
 const Router: React.FC = () => {
-    const { isLoggedIn, logout } = useIdentityContext();
+    const { isLoggedIn, logout, isRestoring } = useIdentityContext();
+    const { activeParty } = usePartyContext();
+
+    if (isRestoring) {
+        return <div>Restoring Token</div>;
+    }
 
     return (
         <BrowserRouter>
@@ -34,6 +40,7 @@ const Router: React.FC = () => {
                                 label={'Settings'}
                                 icon={'cog'}
                             />
+                            <div id="partyId">{activeParty}</div>
                         </NavMenu>
                         <button onClick={() => logout()}>Log out</button>
                     </Header>

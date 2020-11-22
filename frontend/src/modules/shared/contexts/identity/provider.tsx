@@ -1,28 +1,56 @@
 import React, { useCallback, useEffect } from 'react';
 import { IdentityContext } from './context';
-import { IdentityContextInterface } from './types';
+import { IdentityContextInterface, UserType } from './types';
 import { __useIdentityReducer, actions } from './reducer';
 import { useApiRequest } from '../../hooks/api-hook';
+import { baseUrl } from '../../config/api';
+import {
+    getLocalStorage,
+    LocalStorageItemNames
+} from '../../utils/local-storage';
 
-let userLogoutTimer: number;
+// let userLogoutTimer: number;
 let spotifyRefreshTokenTimer: number;
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useIdentityReducer();
     const { sendRequest } = useApiRequest();
+    const {
+        sendRequest: sendRestoreUserRequest,
+        error: restoreUserError,
+        clearError: clearRestoreUserError
+    } = useApiRequest();
+    const { sendRequest: sendLogoutRequest } = useApiRequest();
 
-    const isLoggedIn = useCallback(
-        () => state.token?.length > 0 && state.spotifyToken?.length > 0,
-        [state.spotifyToken, state.token]
-    );
+    const isLoggedIn = useCallback(() => {
+        if (!state.token || !state.user?.userType) {
+            return false;
+        }
 
-    const login = useCallback(
-        (token, expirationDate) =>
-            actions.auth.login(dispatch, { token, expirationDate }),
+        if (state.user?.userType === UserType.Host && !state.spotifyToken) {
+            return false;
+        }
+
+        return true;
+    }, [state.spotifyToken, state.token, state.user?.userType]);
+
+    const login = useCallback<IdentityContextInterface['login']>(
+        (token, refreshToken, user) =>
+            actions.auth.login(dispatch, {
+                token,
+                refreshToken,
+                user
+            }),
         [dispatch]
     );
 
-    const logout = useCallback(() => actions.auth.logout(dispatch), [dispatch]);
+    const logout = useCallback(() => {
+        actions.auth.logout(dispatch);
+        sendLogoutRequest(`${baseUrl}/api/user/logout`, {
+            method: 'DELETE',
+            data: { refreshToken: state.refreshToken }
+        });
+    }, [dispatch, sendLogoutRequest, state.refreshToken]);
 
     const spotifyLogin = useCallback(
         (spotifyToken, spotifyRefreshToken, spotifyExpirationDate) =>
@@ -34,53 +62,90 @@ export const Provider: React.FC = ({ children }) => {
         [dispatch]
     );
 
+    const setRestoreState = useCallback(
+        state => {
+            actions.auth.restoreState(dispatch, { restoreState: state });
+        },
+        [dispatch]
+    );
+
     const value: IdentityContextInterface = {
         ...state,
         login,
         logout,
         spotifyLogin,
-        isLoggedIn
+        isLoggedIn,
+        setRestoreState
     };
 
     useEffect(() => {
-        const storeduser = JSON.parse(localStorage.getItem('ls_user'));
+        const restoreToken = async () => {
+            try {
+                // restore user token
+                const { token, refreshToken } = getLocalStorage(
+                    LocalStorageItemNames.User
+                );
 
-        // restore token on first load
-        console.log('checking restore token...');
+                if (token && refreshToken) {
+                    console.log('restoring token...');
 
-        if (
-            storeduser?.token &&
-            storeduser?.expiration &&
-            new Date(storeduser?.expiration) > new Date()
-        ) {
-            actions.auth.login(dispatch, {
-                token: storeduser.token,
-                expirationDate: new Date(storeduser.expiration)
-            });
+                    const response = await sendRestoreUserRequest(
+                        `${baseUrl}/api/user`,
+                        {}
+                    );
+
+                    actions.auth.login(dispatch, {
+                        token,
+                        refreshToken,
+                        user: {
+                            userId: response.data._id,
+                            userType: response.data.user.userType
+                        }
+                    });
+                } else {
+                    setRestoreState(false);
+                    return;
+                }
+
+                // restore spotify token
+                const {
+                    spotifyToken,
+                    spotifyRefreshToken,
+                    spotifyExpirationDate
+                } = getLocalStorage(LocalStorageItemNames.Spotify);
+
+                if (
+                    spotifyToken &&
+                    spotifyRefreshToken &&
+                    new Date(spotifyExpirationDate) > new Date()
+                ) {
+                    console.log('restoring spotify token');
+                    actions.auth.spotifyLogin(dispatch, {
+                        spotifyToken,
+                        spotifyRefreshToken,
+                        spotifyExpirationDate: new Date(spotifyExpirationDate)
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                setRestoreState(false);
+            }
+        };
+        restoreToken();
+    }, [dispatch, sendRestoreUserRequest, setRestoreState]);
+
+    useEffect(() => {
+        if (restoreUserError) {
+            setRestoreState(false);
+            clearRestoreUserError();
         }
-
-        const storedSpotify = JSON.parse(localStorage.getItem('ls_spotify'));
-
-        if (
-            storedSpotify?.spotifyToken &&
-            storedSpotify?.spotifyRefreshToken &&
-            new Date(storedSpotify?.spotifyExpirationDate) > new Date()
-        ) {
-            actions.auth.spotifyLogin(dispatch, {
-                spotifyToken: storedSpotify.spotifyToken,
-                spotifyRefreshToken: storedSpotify.spotifyRefreshToken,
-                spotifyExpirationDate: new Date(
-                    storedSpotify.spotifyExpirationDate
-                )
-            });
-        }
-    }, [dispatch]);
+    }, [clearRestoreUserError, restoreUserError, setRestoreState]);
 
     const refreshSpotifyToken = useCallback(() => {
         const refreshToken = async () => {
             try {
                 const response = await sendRequest(
-                    'http://localhost:5000/api/spotify/refresh_token',
+                    `${baseUrl}/api/spotify/refresh_token`,
                     {
                         params: { refresh_token: state.spotifyRefreshToken }
                     }
@@ -102,19 +167,19 @@ export const Provider: React.FC = ({ children }) => {
         refreshToken();
     }, [dispatch, sendRequest, state.spotifyRefreshToken]);
 
-    React.useEffect(() => {
-        console.log('checking user token remaining time...');
-        if (state.token && state.tokenExpirationDate) {
-            const remainingTime =
-                state.tokenExpirationDate.getTime() - new Date().getTime();
-            userLogoutTimer = setTimeout(
-                () => actions.auth.logout(dispatch),
-                remainingTime
-            );
-        } else {
-            clearTimeout(userLogoutTimer);
-        }
-    }, [state.token, state.tokenExpirationDate, dispatch]);
+    // React.useEffect(() => {
+    //     console.log('checking user token remaining time...');
+    //     if (state.token && state.tokenExpirationDate) {
+    //         const remainingTime =
+    //             state.tokenExpirationDate.getTime() - new Date().getTime();
+    //         userLogoutTimer = setTimeout(
+    //             () => actions.auth.logout(dispatch),
+    //             remainingTime
+    //         );
+    //     } else {
+    //         clearTimeout(userLogoutTimer);
+    //     }
+    // }, [state.token, state.tokenExpirationDate, dispatch]);
 
     React.useEffect(() => {
         console.log('checking spotify token remaining time...');

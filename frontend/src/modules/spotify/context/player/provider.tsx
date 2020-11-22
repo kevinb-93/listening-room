@@ -4,10 +4,11 @@ import { SpotifyPlayerContextInterface } from './types';
 import { __useSpotifyPlayerReducer, actions } from './reducer';
 import { useIdentityContext } from '../../../shared/contexts/identity';
 import { loadScript } from '../../../shared/utils/load-script';
+import { UserType } from '../../../shared/contexts/identity/types';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyPlayerReducer();
-    const { spotifyToken, isLoggedIn } = useIdentityContext();
+    const { spotifyToken, isLoggedIn, user } = useIdentityContext();
 
     const setPlayback: SpotifyPlayerContextInterface['setPlayback'] = useCallback(
         playback => actions.player.setPlayback(dispatch, playback),
@@ -30,13 +31,13 @@ export const Provider: React.FC = ({ children }) => {
     );
 
     useEffect(() => {
-        if (isLoggedIn()) {
+        if (isLoggedIn() && user?.userType === UserType.Host) {
             loadScript(
                 'https://sdk.scdn.co/spotify-player.js',
                 'spotify-player'
             );
         }
-    }, [isLoggedIn]);
+    }, [isLoggedIn, user?.userType]);
 
     useEffect(() => {
         window.onSpotifyWebPlaybackSDKReady = () => {

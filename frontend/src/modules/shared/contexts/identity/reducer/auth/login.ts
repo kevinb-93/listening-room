@@ -1,41 +1,39 @@
 import { IdentityReducerActionPayload, IdentityReducerAction } from '../types';
-import { IdentityContextState } from '../../types';
+import { IdentityContextState, User } from '../../types';
+import {
+    LocalStorageItemNames,
+    setLocalStorage
+} from '../../../../utils/local-storage';
 
 interface Payload {
     token: IdentityContextState['token'];
-    expirationDate: IdentityContextState['tokenExpirationDate'];
+    refreshToken: IdentityContextState['refreshToken'];
+    user: User;
 }
 
 const action = (
     dispatch: React.Dispatch<IdentityReducerActionPayload<Payload>>,
     payload: Payload
 ) => {
-    const tokenExpirationDate =
-        payload.expirationDate ||
-        new Date(new Date().getTime() + 1000 * 60 * 60);
-
     dispatch({
         type: IdentityReducerAction.login,
-        payload: { ...payload, expirationDate: tokenExpirationDate }
+        payload
     });
 
-    localStorage.setItem(
-        'ls_user',
-        JSON.stringify({
-            token: payload.token,
-            expiration: tokenExpirationDate.toISOString()
-        })
-    );
+    const { token, refreshToken } = payload;
+    setLocalStorage(LocalStorageItemNames.User, { token, refreshToken });
 };
 
 const reducer = (
     state: IdentityContextState,
-    { token, expirationDate }: Payload
+    { token, refreshToken, user }: Payload
 ): IdentityContextState => {
     return {
         ...state,
         token,
-        tokenExpirationDate: expirationDate
+        refreshToken,
+        user,
+        isRestoring: false
     };
 };
 

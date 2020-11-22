@@ -1,5 +1,9 @@
 import { IdentityReducerActionPayload, IdentityReducerAction } from '../types';
 import { IdentityContextState } from '../../types';
+import {
+    LocalStorageItemNames,
+    removeLocalStorage
+} from '../../../../utils/local-storage';
 
 const action = (
     dispatch: React.Dispatch<IdentityReducerActionPayload<null>>
@@ -9,14 +13,20 @@ const action = (
         payload: null
     });
 
-    localStorage.removeItem('ls_user');
+    removeLocalStorage(LocalStorageItemNames.User);
+    removeLocalStorage(LocalStorageItemNames.Spotify);
 };
 
 const reducer = (state: IdentityContextState): IdentityContextState => {
     return {
         ...state,
         token: null,
-        tokenExpirationDate: null
+        refreshToken: null,
+        spotifyToken: null,
+        spotifyRefreshToken: null,
+        spotifyExpirationDate: null,
+        user: null,
+        isRestoring: false
     };
 };
 

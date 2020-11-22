@@ -29,7 +29,9 @@ const Reducer = (
 
 const initialState: IdentityContextState = {
     token: null,
-    tokenExpirationDate: null,
+    isRestoring: true,
+    refreshToken: null,
+    user: null,
     spotifyToken: null,
     spotifyRefreshToken: null,
     spotifyExpirationDate: null

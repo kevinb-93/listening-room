@@ -1,200 +1,109 @@
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
-import mongoose from 'mongoose';
 
 import HttpError from '../models/http-error';
 import User from '../models/user';
+import Token from '../models/token';
 import { NextFunction, Request, Response } from 'express';
-import secret from '../utils/secret';
-import Party, { Party as PartyConstructor } from '../models/party';
+import secret from '../config/secret';
+import { TokenPayload } from 'typings/token';
 
-export const auth = async (req: Request, res: Response, next: NextFunction) => {
-    // validate request
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-        return next(
-            new HttpError('Invalid inputs passed, please check your data.', 422)
-        );
-    }
-
-    const { name, isHost } = req.body;
-
-    const newUser = new User({ name, isHost });
-
-    let newParty: PartyConstructor;
-
-    // save new user
+export const refreshToken = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     try {
-        await User.createCollection();
-        if (isHost) {
-            await Party.createCollection();
-        }
-        const session = await mongoose.startSession();
-        session.startTransaction();
+        // validate request
+        const errors = validationResult(req);
 
-        await newUser.save({ session });
-        if (isHost) {
-            newParty = new Party({
-                createdAt: new Date(),
-                creator: newUser.id
-            });
-            await newParty.save({ session });
-            newUser.parties.push(newParty);
-            await newUser.save({ session });
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
         }
-        await session.commitTransaction();
+
+        const { refreshToken } = req.body;
+
+        // check if token is still valid
+        const tokenDoc = await Token.findOne({ token: refreshToken });
+
+        if (!tokenDoc) {
+            return next(new HttpError('Token expired', 401));
+        }
+
+        // extract payload from refresh token
+        const payload = jwt.verify(
+            tokenDoc.token,
+            secret.REFRESH_TOKEN_KEY
+        ) as TokenPayload;
+
+        // generate new access token
+        const accessToken = jwt.sign(
+            { userId: payload.userId, name: payload.name } as TokenPayload,
+            secret.ACCESS_TOKEN_KEY,
+            {
+                expiresIn: '10m'
+            }
+        );
+
+        res.status(200).json({ accessToken });
     } catch (e) {
-        return next(new HttpError('Auth failed, please try again later.', 500));
+        console.error(e);
+        return next(new HttpError('Internal Server Error!', 500));
     }
-
-    let token;
-    try {
-        token = jwt.sign(
-            { userId: newUser.id, name: newUser.name },
-            secret.jwtPrivateKey,
-            { expiresIn: '1h' }
-        );
-    } catch (err) {
-        const error = new HttpError(
-            'Auth failed, please try again later.',
-            500
-        );
-        return next(error);
-    }
-
-    res.status(201).json({ userId: newUser.id, name: newUser.name, token });
 };
 
-// export const signup = async (
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//     // validate request
-//     const errors = validationResult(req);
+export const logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        // validate request
+        const errors = validationResult(req);
 
-//     if (!errors.isEmpty()) {
-//         return next(
-//             new HttpError('Invalid inputs passed, please check your data.', 422)
-//         );
-//     }
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
 
-//     const { name, email, password } = req.body;
+        // delete the refresh token saved in database
+        const { refreshToken } = req.body;
 
-//     let existingUser;
+        // check if token is still valid
+        await Token.findOneAndDelete({ token: refreshToken });
 
-//     // check for an existing user
-//     try {
-//         existingUser = await User.findOne({ email });
-//     } catch (e) {
-//         return next(
-//             new HttpError('Signing up failed, please try again later.', 500)
-//         );
-//     }
+        res.status(200).json({ success: 'User logged out!' });
+    } catch (e) {
+        console.error(e);
+        return next(new HttpError('Internal Server Error!', 500));
+    }
+};
 
-//     if (existingUser) {
-//         return next(
-//             new HttpError('User exists already, please login instead.', 422)
-//         );
-//     }
+export const currentUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const user = req.user;
+        const userDoc = await User.findById(user?.userId);
 
-//     let hashedPassword;
+        if (!userDoc) {
+            return next(new HttpError('User not found', 401));
+        }
 
-//     try {
-//         hashedPassword = await bcrypt.hash(password, 12);
-//     } catch (err) {
-//         return next(
-//             new HttpError('Could not create user, please try again.', 500)
-//         );
-//     }
-
-//     const newUser = new User({ name, email, password: hashedPassword });
-
-//     // save new user
-//     try {
-//         await newUser.save();
-//     } catch (e) {
-//         return next(
-//             new HttpError('Signing up failed, please try again later.', 500)
-//         );
-//     }
-
-//     let token;
-//     try {
-//         token = jwt.sign(
-//             { userId: newUser.id, email: newUser.email },
-//             secret.jwtPrivateKey,
-//             { expiresIn: '1h' }
-//         );
-//     } catch (err) {
-//         const error = new HttpError(
-//             'Signing up failed, please try again later.',
-//             500
-//         );
-//         return next(error);
-//     }
-
-//     res.status(201).json({ userId: newUser.id, email: newUser.email, token });
-// };
-
-// export const login = async (
-//     req: Request,
-//     res: Response,
-//     next: NextFunction
-// ) => {
-//     const { email, password } = req.body;
-
-//     let existingUser;
-
-//     try {
-//         existingUser = await User.findOne({ email });
-//     } catch (err) {
-//         return next(
-//             new HttpError('Logging in failed, please try again later.', 500)
-//         );
-//     }
-
-//     if (!existingUser) {
-//         return next(
-//             new HttpError('Invalid credentials, could not log you in.', 403)
-//         );
-//     }
-
-//     let isValidPassword = false;
-//     try {
-//         isValidPassword = await bcrypt.compare(password, existingUser.password);
-//     } catch (err) {
-//         return next(
-//             new HttpError(
-//                 'Could not log you in, please check your credentials and try again.',
-//                 500
-//             )
-//         );
-//     }
-
-//     if (!isValidPassword) {
-//         return next(
-//             new HttpError('Invalid credentials, could not log you in.', 403)
-//         );
-//     }
-
-//     let token;
-//     try {
-//         token = jwt.sign(
-//             { userId: existingUser.id, email: existingUser.email },
-//             secret.jwtPrivateKey,
-//             { expiresIn: '1h' }
-//         );
-//     } catch (err) {
-//         return next(
-//             new HttpError('Logging in failed, please try again later.', 500)
-//         );
-//     }
-
-//     res.json({
-//         userId: existingUser.id,
-//         email: existingUser.email,
-//         token,
-//     });
-// };
+        res.status(200).json({ user: userDoc.toObject() });
+    } catch (e) {
+        console.error(e);
+        return next(new HttpError('Internal Server Error!', 500));
+    }
+};

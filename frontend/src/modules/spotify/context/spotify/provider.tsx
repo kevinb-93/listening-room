@@ -2,9 +2,15 @@ import React, { useCallback, useEffect } from 'react';
 import { SpotifyContext } from './context';
 import { SpotifyContextInterface, SpotifyContextState } from './types';
 import { __useSpotifyReducer, actions } from './reducer';
+import {
+    getLocalStorage,
+    LocalStorageItemNames
+} from '../../../shared/utils/local-storage';
+import { useIdentityContext } from '../../../shared/contexts/identity';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyReducer();
+    const { isLoggedIn } = useIdentityContext();
 
     const setQueue = useCallback(
         params => actions.queue.setQueue(dispatch, params),
@@ -35,25 +41,29 @@ export const Provider: React.FC = ({ children }) => {
     };
 
     useEffect(() => {
-        const queue =
-            JSON.parse(localStorage.getItem('ls_queue')) ??
-            ([] as SpotifyContextState['queue']);
+        if (isLoggedIn()) {
+            const queue =
+                getLocalStorage(LocalStorageItemNames.Queue) ??
+                ([] as SpotifyContextState['queue']);
 
-        const nowPlaying =
-            JSON.parse(localStorage.getItem('ls_now_playing')) ??
-            (null as SpotifyContextState['nowPlaying']);
+            const nowPlaying =
+                getLocalStorage(LocalStorageItemNames.NowPlaying) ??
+                (null as SpotifyContextState['nowPlaying']);
 
-        console.log(queue);
+            console.log(queue);
 
-        actions.queue.setQueue(dispatch, {
-            action: 'add',
-            tracks: queue
-        });
+            // update queue from local storage
+            setQueue({
+                action: 'add',
+                tracks: queue
+            });
 
-        if (nowPlaying) {
-            actions.queue.playTrack(dispatch, nowPlaying);
+            // update play track from local storage
+            if (nowPlaying) {
+                playTrack(nowPlaying);
+            }
         }
-    }, [dispatch]);
+    }, [dispatch, isLoggedIn, playTrack, setQueue]);
 
     return (
         <SpotifyContext.Provider value={value}>

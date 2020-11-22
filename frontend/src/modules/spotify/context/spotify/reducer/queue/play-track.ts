@@ -1,5 +1,9 @@
 import { SpotifyReducerActionPayload, SpotifyReducerAction } from '../types';
 import { SpotifyContextState } from '../../types';
+import {
+    LocalStorageItemNames,
+    setLocalStorage
+} from '../../../../../shared/utils/local-storage';
 
 type Payload = SpotifyApi.TrackObjectFull;
 
@@ -21,8 +25,8 @@ const reducer = (
 
     const queue = state.queue.filter(q => trackId !== q.id);
 
-    localStorage.setItem('ls_queue', JSON.stringify(queue));
-    localStorage.setItem('ls_now_playing', JSON.stringify(payload));
+    setLocalStorage(LocalStorageItemNames.Queue, queue);
+    setLocalStorage(LocalStorageItemNames.NowPlaying, payload);
 
     return {
         ...state,

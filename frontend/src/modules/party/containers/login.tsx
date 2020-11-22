@@ -13,6 +13,8 @@ import JoinPartyForm, { JoinPartySubmit } from '../components/JoinPartyForm';
 import TabbedForm, {
     TabbedForms
 } from '../../shared/components/FormElements/TabbedForm';
+import { usePartyContext } from '../context';
+import { UserType } from '../../shared/contexts/identity/types';
 
 const TransitionUp = (props: TransitionProps) => (
     <Slide {...props} direction="up" />
@@ -20,6 +22,7 @@ const TransitionUp = (props: TransitionProps) => (
 
 const Login: React.FC = () => {
     const { login } = useIdentityContext();
+    const { createParty, createPartyUser } = usePartyContext();
 
     const { sendRequest, error, clearError } = useApiRequest();
 
@@ -35,7 +38,15 @@ const Login: React.FC = () => {
                 },
                 method: 'POST'
             });
-            login(response.data.token, null);
+            login(response.data.accessToken, response.data.refreshToken, {
+                userType: UserType.Host,
+                userId: response.data.userId
+            });
+            createParty({
+                partyId: response.data.partyId,
+                userIds: [response.data.userId],
+                hostId: response.data.userId
+            });
             console.log(response);
         } catch (e) {
             console.log(e);
@@ -50,7 +61,11 @@ const Login: React.FC = () => {
                 },
                 method: 'POST'
             });
-            login(response.data.token, null);
+            login(response.data.accessToken, response.data.refreshToken, {
+                userId: response.data.userId,
+                userType: UserType.Guest
+            });
+            createPartyUser(response.data.userId, response.data.partyId);
             console.log(response);
         } catch (e) {
             console.log(e);

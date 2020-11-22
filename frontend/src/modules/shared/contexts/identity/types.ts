@@ -1,7 +1,8 @@
 export interface IdentityContextInterface extends IdentityContextState {
     login: (
         token: IdentityContextState['token'],
-        tokenExpirationDate: IdentityContextState['tokenExpirationDate']
+        refreshToken: IdentityContextState['refreshToken'],
+        user: User
     ) => void;
     logout: () => void;
     spotifyLogin: (
@@ -10,11 +11,24 @@ export interface IdentityContextInterface extends IdentityContextState {
         expirationDate: Date
     ) => void;
     isLoggedIn: () => boolean;
+    setRestoreState: (state: IdentityContextState['isRestoring']) => void;
+}
+
+export enum UserType {
+    Guest,
+    Host
+}
+
+export interface User {
+    userId: string;
+    userType: UserType;
 }
 
 export interface IdentityContextState {
     token: string;
-    tokenExpirationDate: Date;
+    refreshToken: string;
+    user: User;
+    isRestoring: boolean;
     spotifyToken: string;
     spotifyRefreshToken: string;
     spotifyExpirationDate: Date;

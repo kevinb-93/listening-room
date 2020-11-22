@@ -3,18 +3,11 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { Response, Request, NextFunction } from 'express';
 
 import spotify from '../utils/spotify';
-import secret from '../utils/secret';
+import secret from '../config/secret';
 import { generateRandomString } from '../utils/string';
 import HttpError from '../models/http-error';
 
 export const login = (req: Request, res: Response) => {
-    /**
-     * An opaque value used by the client to maintain
-         state between the request and callback.  The authorization
-         server includes this value when redirecting the user-agent back
-         to the client.  The parameter SHOULD be used for preventing
-         cross-site request forgery
-    */
     const state = generateRandomString(16);
     res.cookie(spotify.stateKey, state);
 
@@ -32,7 +25,6 @@ export const login = (req: Request, res: Response) => {
 
 export const callback = (req: Request, res: Response) => {
     // request refresh and access tokens after checking state param
-
     const code = req.query.code || null;
     const state = req.query.state || null;
     const storedState = req.cookies ? req.cookies[spotify.stateKey] : null;
@@ -60,9 +52,7 @@ export const callback = (req: Request, res: Response) => {
                         Authorization:
                             'Basic ' +
                             Buffer.from(
-                                spotify.clientId +
-                                    ':' +
-                                    secret.spotifyClientSecret
+                                spotify.clientId + ':' + secret.SPOTIFY_CLIENT
                             ).toString('base64')
                     }
                 }
@@ -80,12 +70,6 @@ export const callback = (req: Request, res: Response) => {
                             expires_in: expiresIn
                         })}`
                     );
-
-                    // axios.get("https://api.spotify.com/v1/me", {
-                    //     headers: { 'Authorization': 'Bearer ' + access_token }
-                    // }).then((response) => {
-                    //     console.log(response.data);
-                    // });
                 }
             })
             .catch(() => {
@@ -111,7 +95,7 @@ export const refreshToken = (
             Authorization:
                 'Basic ' +
                 Buffer.from(
-                    spotify.clientId + ':' + secret.spotifyClientSecret
+                    spotify.clientId + ':' + secret.SPOTIFY_CLIENT
                 ).toString('base64')
         }
     };
