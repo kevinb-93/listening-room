@@ -5,7 +5,6 @@ import HttpError from '../models/http-error';
 import secret from '../config/secret';
 import { TokenPayload } from '../typings/token';
 
-// check if incoming request is authenticated
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
     // Header = Authorization: Bearer 'Token'
     const token = req.get('Authorization')?.split(' ')[1];

@@ -16,6 +16,7 @@ import { errorHandler } from './middleware/error';
 import { notFound } from './middleware/not-found';
 import { corsOptions } from './config/cors';
 import { initIO } from './utils/socket';
+import { Server } from 'socket.io';
 
 // initialize express app
 const app = express();
@@ -46,8 +47,9 @@ mongoose
         // setup websocket connection
         const io = initIO(server);
 
-        io.on('connection', () => {
-            console.log('Client connected');
+        io.on('connection', (socket: Server) => {
+            console.log('a client connected');
+            socket.on('disconnect', () => console.log('client disconnected'));
         });
 
         server.listen(port, () => console.log(`Listening on ${port}`));

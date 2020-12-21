@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 
 import ChatForm, { ChatFormSubmit } from '../components/ChatForm';
 import ChatPost, { OnDeletePost } from '../components/ChatPost';
@@ -16,9 +16,10 @@ interface Message {
 
 const Chat: React.FC = () => {
     const [posts, setPosts] = useState<Message[]>([]);
+    const [socket, setSocket] = useState<Socket>(null);
+
     const { token } = useIdentityContext();
     const { activeParty } = usePartyContext();
-
     const { sendRequest } = useApiRequest();
 
     const deletePostHandler: OnDeletePost = useCallback(
@@ -28,24 +29,43 @@ const Chat: React.FC = () => {
         [posts]
     );
 
-    // useEffect(() => {
-    //     const socket = io(baseUrl);
+    useEffect(() => {
+        const socket = io(baseUrl);
 
-    //     socket.on('messages', (data: unknown) => {
-    //         console.log(data);
-    //         // switch (data.action) {
-    //         //     case 'create':
-    //         //         setPosts([
-    //         //             ...posts,
-    //         //             { id: data.id, message: data.message }
-    //         //         ]);
-    //         //         break;
-    //         //     case 'delete':
-    //         //         deletePostHandler(data.messageId);
-    //         //         break;
-    //         // }
-    //     });
-    // }, []);
+        socket.on('connect', () => {
+            console.log('socket connected');
+        });
+
+        socket.on('disconnect', (reason: string) => {
+            console.log('socket disconnected, reason: ' + reason);
+            if (reason === 'io server disconnect') {
+                // the disconnection was initiated by the server, you need to reconnect manually
+                socket.connect();
+            }
+            // else the socket will automatically try to reconnect
+        });
+
+        socket.on('connect_error', (e: unknown) => {
+            console.error(e);
+        });
+
+        socket.on('messages', (data: unknown) => {
+            console.log(data);
+            // switch (data.action) {
+            //     case 'create':
+            //         setPosts([
+            //             ...posts,
+            //             { id: data.id, message: data.message }
+            //         ]);
+            //         break;
+            //     case 'delete':
+            //         deletePostHandler(data.messageId);
+            //         break;
+            // }
+        });
+
+        return () => socket.disconnect();
+    }, []);
 
     const submitHandler: ChatFormSubmit = async ({ message }) => {
         console.log('form submitted');
