@@ -46,7 +46,7 @@ export const refreshToken = async (
             { userId: payload.userId, name: payload.name } as TokenPayload,
             secret.ACCESS_TOKEN_KEY,
             {
-                expiresIn: '10m'
+                expiresIn: '1m'
             }
         );
 

@@ -8,14 +8,14 @@ module.exports = {
     /* how to emit the bundles */
     output: {
         path: path.resolve(__dirname, 'src'),
-        filename: 'bundled.js',
+        filename: 'bundled.js'
     },
     devtool: 'inline-source-map',
     module: {
         rules: [
             {
                 test: /\.css$/i,
-                use: ['css-loader'],
+                use: ['css-loader']
             },
             {
                 /* babel-loader for hot module replacement */
@@ -26,33 +26,33 @@ module.exports = {
                 use: [
                     {
                         loader: 'babel-loader',
-                        options: { plugins: ['react-refresh/babel'] },
+                        options: { plugins: ['react-refresh/babel'] }
                     },
                     {
                         loader: 'ts-loader',
-                        options: { transpileOnly: true },
+                        options: { transpileOnly: true }
                     },
-                    'stylelint-custom-processor-loader',
-                ].filter(Boolean),
+                    'stylelint-custom-processor-loader'
+                ].filter(Boolean)
             },
             {
                 // file loader for imgs
                 test: /\.(png|jpe?g|gif)$/i,
                 use: [
                     {
-                        loader: 'file-loader',
-                    },
-                ],
+                        loader: 'file-loader'
+                    }
+                ]
             },
             {
                 // url loader for fonts
                 test: /\.(woff|woff2|eot|ttf|svg)$/,
-                loader: 'url-loader?limit=100000',
-            },
-        ],
+                loader: 'url-loader?limit=100000'
+            }
+        ]
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.js'],
+        extensions: ['.tsx', '.ts', '.js']
     },
     mode: 'development',
     devServer: {
@@ -65,7 +65,7 @@ module.exports = {
         historyApiFallback: true,
         hot: true,
         compress: true,
-        port: 3000,
+        port: 3000
     },
     plugins: [
         /* React hot module replacement */
@@ -73,7 +73,7 @@ module.exports = {
         new ForkTsCheckerWebpackPlugin(),
         /* simplifies creation of HTML */
         new HtmlWebpackPlugin({
-            template: 'src/app/index.html',
-        }),
-    ],
+            template: 'src/app/index.html'
+        })
+    ]
 };

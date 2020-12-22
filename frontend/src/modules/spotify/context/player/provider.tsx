@@ -68,7 +68,6 @@ export const Provider: React.FC = ({ children }) => {
 
             // Playback status updates
             player.addListener('player_state_changed', playbackstate => {
-                console.log(playbackstate);
                 setPlayback(playbackstate);
             });
 

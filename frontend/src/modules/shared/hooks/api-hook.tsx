@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { AxiosRequestConfig } from 'axios';
 
 import axios from '../config/api';

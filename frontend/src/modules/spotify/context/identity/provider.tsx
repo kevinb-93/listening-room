@@ -38,7 +38,7 @@ export const Provider: React.FC = ({ children }) => {
                 spotifyRefreshToken &&
                 new Date(spotifyExpirationDate) > new Date()
             ) {
-                console.log('restoring spotify token');
+                console.log('restoring spotify token...');
                 actions.auth.spotifyLogin(dispatch, {
                     spotifyToken,
                     spotifyRefreshToken,

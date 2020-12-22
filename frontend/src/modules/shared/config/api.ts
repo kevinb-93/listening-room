@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import {
     setLocalStorage,
     LocalStorageItemNames,
@@ -15,29 +15,28 @@ const api = axios.create({
     responseType: 'json'
 });
 
-//request interceptor to add the auth token header to requests
-axios.interceptors.request.use(
-    config => {
-        const { userToken } = getLocalStorage(LocalStorageItemNames.User);
+const addAuthHeader = (config: AxiosRequestConfig) => {
+    const { userToken } = getLocalStorage(LocalStorageItemNames.User) || {};
 
-        if (userToken) {
-            config.headers['Authorization'] = `Bearer ${userToken}`;
-        }
-        return config;
-    },
+    if (userToken) {
+        config.headers['Authorization'] = `Bearer ${userToken}`;
+    }
+    return config;
+};
+
+api.interceptors.request.use(
+    config => addAuthHeader(config),
     error => {
         Promise.reject(error);
     }
 );
 
-//response interceptor to refresh token on receiving token expired error
-axios.interceptors.response.use(
+api.interceptors.response.use(
     response => response,
     error => {
         const originalRequest = error.config;
-        const { userRefreshToken } = getLocalStorage(
-            LocalStorageItemNames.User
-        );
+        const { userRefreshToken } =
+            getLocalStorage(LocalStorageItemNames.User) || {};
         if (
             userRefreshToken &&
             error.response.status === 401 &&
@@ -45,17 +44,16 @@ axios.interceptors.response.use(
         ) {
             originalRequest._retry = true;
             return api
-                .post(`${baseUrl}/api/refresh-token`, {
-                    userRefreshToken
+                .post(`${baseUrl}/api/user/refresh-token`, {
+                    refreshToken: userRefreshToken
                 })
                 .then(res => {
                     if (res.status === 200) {
                         setLocalStorage(LocalStorageItemNames.User, {
-                            userToken: res.data.token,
+                            userToken: res.data.accessToken,
                             userRefreshToken
                         });
-                        console.log('Access token refreshed!');
-                        return axios(originalRequest);
+                        return api(originalRequest);
                     }
                 });
         }

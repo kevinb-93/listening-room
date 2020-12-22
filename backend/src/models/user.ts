@@ -33,7 +33,7 @@ userSchema.methods.createAccessToken = async function () {
             { userId: _id, name } as TokenPayload,
             secret.ACCESS_TOKEN_KEY,
             {
-                expiresIn: '10m'
+                expiresIn: '1m'
             }
         );
         return accessToken;

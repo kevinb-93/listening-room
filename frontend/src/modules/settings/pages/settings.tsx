@@ -15,9 +15,7 @@ const Settings: React.FC = () => {
         const s = new SpotifyWebApi();
         s.getMyDevices()
             .then(data => setDevices(data.devices))
-            .catch(e => console.log(e));
-
-        console.log('get devices');
+            .catch(e => console.error(e));
     }, [setDevices]);
 
     const isActiveDevice = (id: SpotifyApi.UserDevice['id']) => {

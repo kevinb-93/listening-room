@@ -47,9 +47,8 @@ const Login: React.FC = () => {
                 userIds: [response.data.userId],
                 hostId: response.data.userId
             });
-            console.log(response);
         } catch (e) {
-            console.log(e);
+            throw new Error(e);
         }
     };
 
@@ -66,9 +65,8 @@ const Login: React.FC = () => {
                 userType: UserType.Guest
             });
             createPartyUser(response.data.userId, response.data.partyId);
-            console.log(response);
         } catch (e) {
-            console.log(e);
+            throw new Error(e);
         }
     };
 

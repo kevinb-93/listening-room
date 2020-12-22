@@ -50,8 +50,6 @@ export const Provider: React.FC = ({ children }) => {
                 getLocalStorage(LocalStorageItemNames.NowPlaying) ??
                 (null as SpotifyContextState['nowPlaying']);
 
-            console.log(queue);
-
             setQueue({
                 action: 'add',
                 tracks: queue

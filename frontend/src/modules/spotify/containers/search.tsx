@@ -18,7 +18,7 @@ const SpotifySearch: React.FC = () => {
                 setSearchResponseData(data);
             },
             err => {
-                console.log(err);
+                console.error(err);
             }
         );
     }, []);
@@ -52,7 +52,6 @@ const SpotifySearch: React.FC = () => {
 
     const changeHandler = (searchTerm: string) => {
         setSearchTerm(searchTerm);
-        console.log('search change handler');
     };
 
     const clearHandler = () => {

@@ -6,8 +6,7 @@ import { useApiRequest } from '../../hooks/api-hook';
 import { baseUrl } from '../../config/api';
 import {
     getLocalStorage,
-    LocalStorageItemNames,
-    removeLocalStorage
+    LocalStorageItemNames
 } from '../../utils/local-storage';
 import useActions from './useActions';
 
@@ -40,11 +39,7 @@ export const Provider: React.FC = ({ children }) => {
 
             console.log('restoring token...');
 
-            const response = await sendRequest(`${baseUrl}/api/user`, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`
-                }
-            });
+            const response = await sendRequest(`${baseUrl}/api/user`, {});
 
             const user: User = {
                 userId: response.data.user._id,
@@ -63,7 +58,6 @@ export const Provider: React.FC = ({ children }) => {
 
     useEffect(() => {
         if (error) {
-            removeLocalStorage(LocalStorageItemNames.User);
             setRestoreState(false);
             clearError();
         }

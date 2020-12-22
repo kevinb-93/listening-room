@@ -37,12 +37,10 @@ const Chat: React.FC = () => {
         });
 
         socket.on('disconnect', (reason: string) => {
-            console.log('socket disconnected, reason: ' + reason);
+            console.log('socket disconnected: ' + reason);
             if (reason === 'io server disconnect') {
-                // the disconnection was initiated by the server, you need to reconnect manually
                 socket.connect();
             }
-            // else the socket will automatically try to reconnect
         });
 
         socket.on('connect_error', (e: unknown) => {
@@ -68,8 +66,6 @@ const Chat: React.FC = () => {
     }, []);
 
     const submitHandler: ChatFormSubmit = async ({ message }) => {
-        console.log('form submitted');
-
         const response = await sendRequest(`${baseUrl}/api/message/create`, {
             method: 'POST',
             data: { message, partyId: activeParty }

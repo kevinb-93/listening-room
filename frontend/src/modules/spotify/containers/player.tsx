@@ -39,7 +39,6 @@ const Player: React.FC = () => {
                 playNext)
         ) {
             const s = new SpotifyWebApi();
-            console.log(queue.length);
             s.play({ uris: [queue[0].uri] })
                 .then(() => {
                     playTrack(queue[0]);
@@ -135,7 +134,7 @@ const Player: React.FC = () => {
                 .then(data => {
                     setArtistFullInfo(data);
                 })
-                .catch(e => console.log(e));
+                .catch(e => console.error(e));
         }
     }, [artistFullInfo?.uri, playbackState?.track_window]);
 
