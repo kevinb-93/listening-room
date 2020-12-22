@@ -1,30 +1,29 @@
-import { IdentityReducerActionPayload, IdentityReducerAction } from '../types';
-import { IdentityContextState } from '../../types';
+import {
+    UserIdentityReducerActionPayload,
+    UserIdentityReducerAction
+} from '../types';
+import { UserIdentityContextState } from '../../types';
 import {
     LocalStorageItemNames,
     removeLocalStorage
 } from '../../../../utils/local-storage';
 
 const action = (
-    dispatch: React.Dispatch<IdentityReducerActionPayload<null>>
+    dispatch: React.Dispatch<UserIdentityReducerActionPayload<null>>
 ) => {
     dispatch({
-        type: IdentityReducerAction.logout,
+        type: UserIdentityReducerAction.userLogout,
         payload: null
     });
 
     removeLocalStorage(LocalStorageItemNames.User);
-    removeLocalStorage(LocalStorageItemNames.Spotify);
 };
 
-const reducer = (state: IdentityContextState): IdentityContextState => {
+const reducer = (state: UserIdentityContextState): UserIdentityContextState => {
     return {
         ...state,
-        token: null,
-        refreshToken: null,
-        spotifyToken: null,
-        spotifyRefreshToken: null,
-        spotifyExpirationDate: null,
+        userToken: null,
+        userRefreshToken: null,
         user: null,
         isRestoring: false
     };

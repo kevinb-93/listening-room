@@ -18,10 +18,10 @@ const api = axios.create({
 //request interceptor to add the auth token header to requests
 axios.interceptors.request.use(
     config => {
-        const { token } = getLocalStorage(LocalStorageItemNames.User);
+        const { userToken } = getLocalStorage(LocalStorageItemNames.User);
 
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        if (userToken) {
+            config.headers['Authorization'] = `Bearer ${userToken}`;
         }
         return config;
     },
@@ -35,22 +35,24 @@ axios.interceptors.response.use(
     response => response,
     error => {
         const originalRequest = error.config;
-        const { refreshToken } = getLocalStorage(LocalStorageItemNames.User);
+        const { userRefreshToken } = getLocalStorage(
+            LocalStorageItemNames.User
+        );
         if (
-            refreshToken &&
+            userRefreshToken &&
             error.response.status === 401 &&
             !originalRequest._retry
         ) {
             originalRequest._retry = true;
             return api
                 .post(`${baseUrl}/api/refresh-token`, {
-                    refreshToken
+                    userRefreshToken
                 })
                 .then(res => {
                     if (res.status === 200) {
                         setLocalStorage(LocalStorageItemNames.User, {
-                            token: res.data.token,
-                            refreshToken
+                            userToken: res.data.token,
+                            userRefreshToken
                         });
                         console.log('Access token refreshed!');
                         return axios(originalRequest);

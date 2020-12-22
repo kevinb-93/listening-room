@@ -4,7 +4,8 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 
 import { AppContextProvider } from '../contexts/app';
 import { theme } from '../modules/shared/styles/theme';
-import { IdentityContextProvider } from '../modules/shared/contexts/identity';
+import { UserIdentityContextProvider } from '../modules/shared/contexts/identity';
+import { SpotifyIdentityContextProvider } from '../modules/spotify/context/identity';
 import { SpotifyContextProvider } from '../modules/spotify/context/spotify';
 import { SpotifyPlayerContextProvider } from '../modules/spotify/context/player';
 import { PartyContextProvider } from '../modules/party/context';
@@ -14,17 +15,19 @@ export const Providers: React.FC = ({ children }) => {
         <StylesProvider injectFirst>
             <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
-                    <IdentityContextProvider>
+                    <UserIdentityContextProvider>
                         <AppContextProvider>
                             <PartyContextProvider>
-                                <SpotifyContextProvider>
-                                    <SpotifyPlayerContextProvider>
-                                        {children}
-                                    </SpotifyPlayerContextProvider>
-                                </SpotifyContextProvider>
+                                <SpotifyIdentityContextProvider>
+                                    <SpotifyContextProvider>
+                                        <SpotifyPlayerContextProvider>
+                                            {children}
+                                        </SpotifyPlayerContextProvider>
+                                    </SpotifyContextProvider>
+                                </SpotifyIdentityContextProvider>
                             </PartyContextProvider>
                         </AppContextProvider>
-                    </IdentityContextProvider>
+                    </UserIdentityContextProvider>
                 </ThemeProvider>
             </MuiThemeProvider>
         </StylesProvider>

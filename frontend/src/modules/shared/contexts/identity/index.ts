@@ -1,7 +1,8 @@
 import { Provider } from './provider';
 import React from 'react';
-import { IdentityContext } from './context';
+import { UserIdentityContext } from './context';
 
-export const IdentityContextProvider = Provider;
+export const UserIdentityContextProvider = Provider;
 
-export const useIdentityContext = () => React.useContext(IdentityContext);
+export const useUserIdentityContext = () =>
+    React.useContext(UserIdentityContext);

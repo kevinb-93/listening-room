@@ -9,13 +9,15 @@ import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
 import Login from '../modules/party/containers/login';
-import { useIdentityContext } from '../modules/shared/contexts/identity';
+import { useUserIdentityContext } from '../modules/shared/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
 import { usePartyContext } from '../modules/party/context';
+import useAppIdentity from '../modules/shared/hooks/useAppIdentity';
 
 const Router: React.FC = () => {
-    const { isLoggedIn, logout, isRestoring } = useIdentityContext();
+    const { isRestoring } = useUserIdentityContext();
+    const { isLoggedIn, logout } = useAppIdentity();
     const { activeParty } = usePartyContext();
 
     if (isRestoring) {

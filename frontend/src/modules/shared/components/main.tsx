@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useIdentityContext } from '../contexts/identity';
+import useAppIdentity from '../hooks/useAppIdentity';
 
 const Main: React.FC = ({ children }) => {
-    const { isLoggedIn } = useIdentityContext();
+    const { isLoggedIn } = useAppIdentity();
 
     return <StyledMain useHeaderHeight={isLoggedIn()}>{children}</StyledMain>;
 };

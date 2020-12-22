@@ -5,7 +5,7 @@ import { Formik, Field, Form } from 'formik';
 import { TextField } from 'formik-material-ui';
 
 import SpotifyAuth from '../../spotify/containers/auth';
-import { useIdentityContext } from '../../shared/contexts/identity';
+import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import Button from '../../shared/components/FormElements/Button';
 
 interface CreatePartyFormValues {
@@ -25,7 +25,7 @@ const CreatePartyForm: React.FC<CreatePartyFormProps> = ({
     onSubmit,
     submitDisabled
 }) => {
-    const { spotifyToken } = useIdentityContext();
+    const { spotifyToken } = useSpotifyIdentityContext();
 
     const validationSchema = Yup.object<CreatePartyFormValues>({
         name: Yup.string().required('Required')

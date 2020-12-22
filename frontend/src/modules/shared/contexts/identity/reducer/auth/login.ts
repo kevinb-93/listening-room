@@ -1,37 +1,43 @@
-import { IdentityReducerActionPayload, IdentityReducerAction } from '../types';
-import { IdentityContextState, User } from '../../types';
+import {
+    UserIdentityReducerActionPayload,
+    UserIdentityReducerAction
+} from '../types';
+import { UserIdentityContextState, User } from '../../types';
 import {
     LocalStorageItemNames,
     setLocalStorage
 } from '../../../../utils/local-storage';
 
 interface Payload {
-    token: IdentityContextState['token'];
-    refreshToken: IdentityContextState['refreshToken'];
+    userToken: UserIdentityContextState['userToken'];
+    userRefreshToken: UserIdentityContextState['userRefreshToken'];
     user: User;
 }
 
 const action = (
-    dispatch: React.Dispatch<IdentityReducerActionPayload<Payload>>,
+    dispatch: React.Dispatch<UserIdentityReducerActionPayload<Payload>>,
     payload: Payload
 ) => {
     dispatch({
-        type: IdentityReducerAction.login,
+        type: UserIdentityReducerAction.userLogin,
         payload
     });
 
-    const { token, refreshToken } = payload;
-    setLocalStorage(LocalStorageItemNames.User, { token, refreshToken });
+    const { userToken, userRefreshToken } = payload;
+    setLocalStorage(LocalStorageItemNames.User, {
+        userToken,
+        userRefreshToken
+    });
 };
 
 const reducer = (
-    state: IdentityContextState,
-    { token, refreshToken, user }: Payload
-): IdentityContextState => {
+    state: UserIdentityContextState,
+    { userToken, userRefreshToken, user }: Payload
+): UserIdentityContextState => {
     return {
         ...state,
-        token,
-        refreshToken,
+        userToken,
+        userRefreshToken,
         user,
         isRestoring: false
     };

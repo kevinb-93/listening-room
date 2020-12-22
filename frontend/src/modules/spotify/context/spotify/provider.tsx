@@ -6,11 +6,11 @@ import {
     getLocalStorage,
     LocalStorageItemNames
 } from '../../../shared/utils/local-storage';
-import { useIdentityContext } from '../../../shared/contexts/identity';
+import useAppIdentity from '../../../shared/hooks/useAppIdentity';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyReducer();
-    const { isLoggedIn } = useIdentityContext();
+    const { isLoggedIn } = useAppIdentity();
 
     const setQueue = useCallback(
         params => actions.queue.setQueue(dispatch, params),
@@ -52,13 +52,11 @@ export const Provider: React.FC = ({ children }) => {
 
             console.log(queue);
 
-            // update queue from local storage
             setQueue({
                 action: 'add',
                 tracks: queue
             });
 
-            // update play track from local storage
             if (nowPlaying) {
                 playTrack(nowPlaying);
             }

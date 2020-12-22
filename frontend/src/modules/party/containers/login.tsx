@@ -5,7 +5,7 @@ import { Alert } from '@material-ui/lab';
 import styled from 'styled-components';
 
 import { useApiRequest } from '../../shared/hooks/api-hook';
-import { useIdentityContext } from '../../shared/contexts/identity';
+import { useUserIdentityContext } from '../../shared/contexts/identity';
 import CreatePartyForm, {
     CreatePartySubmit
 } from '../components/CreatePartyForm';
@@ -21,7 +21,7 @@ const TransitionUp = (props: TransitionProps) => (
 );
 
 const Login: React.FC = () => {
-    const { login } = useIdentityContext();
+    const { userLogin } = useUserIdentityContext();
     const { createParty, createPartyUser } = usePartyContext();
 
     const { sendRequest, error, clearError } = useApiRequest();
@@ -38,7 +38,7 @@ const Login: React.FC = () => {
                 },
                 method: 'POST'
             });
-            login(response.data.accessToken, response.data.refreshToken, {
+            userLogin(response.data.accessToken, response.data.refreshToken, {
                 userType: UserType.Host,
                 userId: response.data.userId
             });
@@ -61,7 +61,7 @@ const Login: React.FC = () => {
                 },
                 method: 'POST'
             });
-            login(response.data.accessToken, response.data.refreshToken, {
+            userLogin(response.data.accessToken, response.data.refreshToken, {
                 userId: response.data.userId,
                 userType: UserType.Guest
             });

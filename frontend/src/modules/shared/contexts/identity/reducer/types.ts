@@ -1,21 +1,23 @@
-import { IdentityContextState } from '../types';
+import { UserIdentityContextState } from '../types';
 
-export enum IdentityReducerAction {
-    login,
-    logout,
-    spotifyLogin,
+export enum UserIdentityReducerAction {
+    userLogin,
+    userLogout,
     restoreState
 }
 
-export interface IdentityReducerActionPayload<T> {
-    type: IdentityReducerAction;
+export interface UserIdentityReducerActionPayload<T> {
+    type: UserIdentityReducerAction;
     payload: T;
 }
 
-export interface IdentityReducer {
-    (state: IdentityContextState, payload: unknown): IdentityContextState;
+export interface UserIdentityReducer {
+    (
+        state: UserIdentityContextState,
+        payload: unknown
+    ): UserIdentityContextState;
 }
 
-export interface IdentityReducerMap {
-    [key: string]: IdentityReducer;
+export interface UserIdentityReducerMap {
+    [key: string]: UserIdentityReducer;
 }

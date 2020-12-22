@@ -5,7 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import ChatForm, { ChatFormSubmit } from '../components/ChatForm';
 import ChatPost, { OnDeletePost } from '../components/ChatPost';
 import { useApiRequest } from '../../shared/hooks/api-hook';
-import { useIdentityContext } from '../../shared/contexts/identity';
+import { useUserIdentityContext } from '../../shared/contexts/identity';
 import { usePartyContext } from '../../party/context';
 import { baseUrl } from '../../shared/config/api';
 
@@ -18,7 +18,7 @@ const Chat: React.FC = () => {
     const [posts, setPosts] = useState<Message[]>([]);
     const [socket, setSocket] = useState<Socket>(null);
 
-    const { token } = useIdentityContext();
+    const { userToken } = useUserIdentityContext();
     const { activeParty } = usePartyContext();
     const { sendRequest } = useApiRequest();
 

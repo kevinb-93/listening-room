@@ -2,13 +2,17 @@ import React, { useCallback, useEffect } from 'react';
 import { SpotifyPlayerContext } from './context';
 import { SpotifyPlayerContextInterface } from './types';
 import { __useSpotifyPlayerReducer, actions } from './reducer';
-import { useIdentityContext } from '../../../shared/contexts/identity';
 import { loadScript } from '../../../shared/utils/load-script';
 import { UserType } from '../../../shared/contexts/identity/types';
+import { useSpotifyIdentityContext } from '../identity';
+import useAppIdentity from '../../../shared/hooks/useAppIdentity';
+import { useUserIdentityContext } from '../../../shared/contexts/identity';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyPlayerReducer();
-    const { spotifyToken, isLoggedIn, user } = useIdentityContext();
+    const { isLoggedIn } = useAppIdentity();
+    const { user } = useUserIdentityContext();
+    const { spotifyToken } = useSpotifyIdentityContext();
 
     const setPlayback: SpotifyPlayerContextInterface['setPlayback'] = useCallback(
         playback => actions.player.setPlayback(dispatch, playback),

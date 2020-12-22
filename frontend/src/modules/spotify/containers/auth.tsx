@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { useIdentityContext } from '../../shared/contexts/identity';
+import { useSpotifyIdentityContext } from '../context/identity';
 import img from '../../shared/assets/logos/spotify/Spotify_Logo_RGB_Black.png';
 import Button from '../../shared/components/FormElements/Button';
 
 const SpotifyAuthButton: React.FC = () => {
-    const { spotifyLogin, spotifyToken } = useIdentityContext();
+    const { spotifyLogin, spotifyToken } = useSpotifyIdentityContext();
 
     const spotifyAuthHandler = () => {
         const url = `http://localhost:5000/api/spotify/login`;

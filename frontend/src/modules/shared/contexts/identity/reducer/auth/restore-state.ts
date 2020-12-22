@@ -1,24 +1,27 @@
-import { IdentityReducerActionPayload, IdentityReducerAction } from '../types';
-import { IdentityContextState } from '../../types';
+import {
+    UserIdentityReducerActionPayload,
+    UserIdentityReducerAction
+} from '../types';
+import { UserIdentityContextState } from '../../types';
 
 interface Payload {
-    restoreState: IdentityContextState['isRestoring'];
+    restoreState: UserIdentityContextState['isRestoring'];
 }
 
 const action = (
-    dispatch: React.Dispatch<IdentityReducerActionPayload<Payload>>,
+    dispatch: React.Dispatch<UserIdentityReducerActionPayload<Payload>>,
     payload: Payload
 ) => {
     dispatch({
-        type: IdentityReducerAction.restoreState,
+        type: UserIdentityReducerAction.restoreState,
         payload
     });
 };
 
 const reducer = (
-    state: IdentityContextState,
+    state: UserIdentityContextState,
     { restoreState }: Payload
-): IdentityContextState => {
+): UserIdentityContextState => {
     return {
         ...state,
         isRestoring: restoreState
