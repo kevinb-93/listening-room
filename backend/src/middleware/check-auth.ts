@@ -1,9 +1,7 @@
-import jwt from 'jsonwebtoken';
 import { Request, NextFunction, Response } from 'express';
 
 import HttpError from '../models/http-error';
-import secret from '../config/secret';
-import { TokenPayload } from '../typings/token';
+import { TokenTypes, verifyToken } from '../utils/token';
 
 export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
     // Header = Authorization: Bearer 'Token'
@@ -13,11 +11,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
         return next(new HttpError('Access denied, token missing!', 401));
     } else {
         try {
-            const payload = jwt.verify(
-                token,
-                secret.ACCESS_TOKEN_KEY
-            ) as TokenPayload;
-            req.user = { userId: payload.userId };
+            const { userId } = verifyToken(token, TokenTypes.Access);
+            req.user = { userId };
             next();
         } catch (e) {
             if (e.name === 'TokenExpiredError') {

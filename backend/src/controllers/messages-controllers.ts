@@ -12,7 +12,6 @@ export const createMessage = async (
     next: NextFunction
 ) => {
     try {
-        // validate request
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -39,7 +38,6 @@ export const createMessage = async (
             partyId: party.id
         });
 
-        // save new message
         await newMessage.save();
         getIO().emit('messages', {
             action: 'create',
@@ -59,7 +57,6 @@ export const deleteMessage = async (
     next: NextFunction
 ) => {
     try {
-        // validate request
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {

@@ -12,7 +12,6 @@ export const create = async (
     next: NextFunction
 ) => {
     try {
-        // validate request
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -31,7 +30,6 @@ export const create = async (
             return next(new HttpError('User already exists', 422));
         }
 
-        // save new user
         await User.createCollection();
         await Party.createCollection();
 
@@ -66,7 +64,6 @@ export const create = async (
 
 export const join = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // validate request
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -88,7 +85,6 @@ export const join = async (req: Request, res: Response, next: NextFunction) => {
 
         const partyId = req.params.pid;
 
-        // find party
         const party = await Party.findById(partyId);
 
         if (!party) {
@@ -97,7 +93,6 @@ export const join = async (req: Request, res: Response, next: NextFunction) => {
             );
         }
 
-        // save new user
         await User.createCollection();
         const session = await mongoose.startSession();
         session.startTransaction();
