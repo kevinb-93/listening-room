@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect } from 'react';
 import { UserIdentityContext } from './context';
-import { UserIdentityContextInterface, User } from './types';
+import { UserIdentityContextInterface } from './types';
 import { __useUserIdentityReducer } from './reducer';
-import { useApiRequest } from '../../hooks/api-hook';
-import { baseUrl } from '../../config/api';
 import {
     getLocalStorage,
     LocalStorageItemNames
-} from '../../utils/local-storage';
+} from '../../../shared/utils/local-storage';
 import useActions from './useActions';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useUserIdentityReducer();
-
-    const { sendRequest, error, clearError } = useApiRequest();
 
     const { userLogin, userLogout, setRestoreState } = useActions(
         state,
@@ -39,29 +35,15 @@ export const Provider: React.FC = ({ children }) => {
 
             console.log('restoring token...');
 
-            const response = await sendRequest(`${baseUrl}/api/user`, {});
-
-            const user: User = {
-                userId: response.data.user._id,
-                userType: response.data.user.userType
-            };
-
-            userLogin(userToken, userRefreshToken, user);
+            userLogin(userToken, userRefreshToken);
         } catch (e) {
             setRestoreState(false);
         }
-    }, [sendRequest, setRestoreState, userLogin]);
+    }, [setRestoreState, userLogin]);
 
     useEffect(() => {
         restoreUserToken();
     }, [dispatch, restoreUserToken]);
-
-    useEffect(() => {
-        if (error) {
-            setRestoreState(false);
-            clearError();
-        }
-    }, [clearError, error, setRestoreState]);
 
     return (
         <UserIdentityContext.Provider value={value}>

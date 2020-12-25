@@ -6,7 +6,7 @@ import { UserIdentityContextState } from '../../types';
 import {
     LocalStorageItemNames,
     removeLocalStorage
-} from '../../../../utils/local-storage';
+} from '../../../../../shared/utils/local-storage';
 
 const action = (
     dispatch: React.Dispatch<UserIdentityReducerActionPayload<null>>
@@ -24,7 +24,6 @@ const reducer = (state: UserIdentityContextState): UserIdentityContextState => {
         ...state,
         userToken: null,
         userRefreshToken: null,
-        user: null,
         isRestoring: false
     };
 };

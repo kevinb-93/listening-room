@@ -2,16 +2,15 @@ import {
     UserIdentityReducerActionPayload,
     UserIdentityReducerAction
 } from '../types';
-import { UserIdentityContextState, User } from '../../types';
+import { UserIdentityContextState } from '../../types';
 import {
     LocalStorageItemNames,
     setLocalStorage
-} from '../../../../utils/local-storage';
+} from '../../../../../shared/utils/local-storage';
 
 interface Payload {
     userToken: UserIdentityContextState['userToken'];
     userRefreshToken: UserIdentityContextState['userRefreshToken'];
-    user: User;
 }
 
 const action = (
@@ -32,13 +31,12 @@ const action = (
 
 const reducer = (
     state: UserIdentityContextState,
-    { userToken, userRefreshToken, user }: Payload
+    { userToken, userRefreshToken }: Payload
 ): UserIdentityContextState => {
     return {
         ...state,
         userToken,
         userRefreshToken,
-        user,
         isRestoring: false
     };
 };

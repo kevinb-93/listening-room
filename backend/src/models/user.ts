@@ -1,11 +1,8 @@
 import mongoose, { Document } from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
-import jwt from 'jsonwebtoken';
 
 import { Party } from './party';
-import secret from '../config/secret';
 import Token from '../models/token';
-import { TokenPayload } from '../typings/token';
 import { createToken, TokenTypes } from '../utils/token';
 
 export enum UserType {
@@ -16,7 +13,7 @@ export enum UserType {
 export interface UserDocument extends Document {
     name: string;
     userType: UserType;
-    parties: Party[];
+    party: Party;
     createAccessToken(): Promise<string | undefined>;
     createRefreshToken(): Promise<string | undefined>;
 }
@@ -24,7 +21,7 @@ export interface UserDocument extends Document {
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     userType: { type: Number, required: true },
-    parties: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Party' }]
+    party: { type: mongoose.Types.ObjectId, ref: 'Party' }
 });
 
 userSchema.methods.createAccessToken = async function () {

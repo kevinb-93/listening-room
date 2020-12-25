@@ -9,16 +9,16 @@ import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
 import Login from '../modules/party/containers/login';
-import { useUserIdentityContext } from '../modules/shared/contexts/identity';
+import { useUserIdentityContext } from '../modules/user/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
-import { usePartyContext } from '../modules/party/context';
 import useAppIdentity from '../modules/shared/hooks/useAppIdentity';
+import { useUserProfileContext } from '../modules/user/contexts/profile';
 
 const Router: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
     const { isLoggedIn, logout } = useAppIdentity();
-    const { activeParty } = usePartyContext();
+    const { userProfile } = useUserProfileContext();
 
     if (isRestoring) {
         return <div>Restoring Token</div>;
@@ -42,7 +42,7 @@ const Router: React.FC = () => {
                                 label={'Settings'}
                                 icon={'cog'}
                             />
-                            <div id="partyId">{activeParty}</div>
+                            <div id="partyId">{userProfile.partyId}</div>
                         </NavMenu>
                         <button onClick={() => logout()}>Log out</button>
                     </Header>

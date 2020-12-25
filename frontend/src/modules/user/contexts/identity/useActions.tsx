@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { actions } from './reducer';
-import { baseUrl } from '../../config/api';
-import { useApiRequest } from '../../hooks/api-hook';
+import { baseUrl } from '../../../shared/config/api';
+import { useApiRequest } from '../../../shared/hooks/api-hook';
 import {
     UserIdentityContextInterface,
     UserIdentityContextState
@@ -14,11 +14,10 @@ const useActions = (
     const { sendRequest: sendLogoutRequest } = useApiRequest();
 
     const userLogin = useCallback<UserIdentityContextInterface['userLogin']>(
-        (userToken, userRefreshToken, user) =>
+        (userToken, userRefreshToken) =>
             actions.auth.login(dispatch, {
                 userToken,
-                userRefreshToken,
-                user
+                userRefreshToken
             }),
         [dispatch]
     );

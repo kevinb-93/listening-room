@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import { SpotifyIdentityContextState } from '../../spotify/context/identity/types';
-import { useUserIdentityContext } from '../contexts/identity';
+import { useUserIdentityContext } from '../../user/contexts/identity';
 import {
     UserIdentityContextState,
     User,
     UserType
-} from '../contexts/identity/types';
+} from '../../user/contexts/identity/types';
+import { useUserProfileContext } from '../../user/contexts/profile';
 
 const isValidToken = (token: UserIdentityContextState['userToken']) => {
     return Boolean(token?.trim());
@@ -42,18 +43,19 @@ const isValidUser = ({ userToken, spotifyToken, userType }: ValidUser) => {
 };
 
 const useAppIdentity = () => {
-    const { userToken, user, userLogout } = useUserIdentityContext();
+    const { userToken, userLogout } = useUserIdentityContext();
+    const { userProfile } = useUserProfileContext();
     const { spotifyToken, spotifyLogout } = useSpotifyIdentityContext();
 
     const isLoggedIn = useCallback(() => {
         const userIsValid = isValidUser({
             userToken,
-            userType: user?.userType,
+            userType: userProfile?.userType,
             spotifyToken
         });
 
         return userIsValid;
-    }, [spotifyToken, user?.userType, userToken]);
+    }, [spotifyToken, userProfile?.userType, userToken]);
 
     const logout = useCallback(() => {
         userLogout();

@@ -1,8 +1,7 @@
 export interface UserIdentityContextInterface extends UserIdentityContextState {
     userLogin: (
         token: UserIdentityContextState['userToken'],
-        refreshToken: UserIdentityContextState['userRefreshToken'],
-        user: User
+        refreshToken: UserIdentityContextState['userRefreshToken']
     ) => void;
     userLogout: () => void;
     setRestoreState: (state: UserIdentityContextState['isRestoring']) => void;
@@ -21,6 +20,5 @@ export interface User {
 export interface UserIdentityContextState {
     userToken: string;
     userRefreshToken: string;
-    user: User;
     isRestoring: boolean;
 }

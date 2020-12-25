@@ -27,8 +27,7 @@ const Reducer = (
 const initialState: UserIdentityContextState = {
     userToken: null,
     isRestoring: true,
-    userRefreshToken: null,
-    user: null
+    userRefreshToken: null
 };
 
 export const __useUserIdentityReducer = () =>

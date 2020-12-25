@@ -5,7 +5,7 @@ import { io, Socket } from 'socket.io-client';
 import ChatForm, { ChatFormSubmit } from '../components/ChatForm';
 import ChatPost, { OnDeletePost } from '../components/ChatPost';
 import { useApiRequest } from '../../shared/hooks/api-hook';
-import { useUserIdentityContext } from '../../shared/contexts/identity';
+import { useUserIdentityContext } from '../../user/contexts/identity';
 import { usePartyContext } from '../../party/context';
 import { baseUrl } from '../../shared/config/api';
 

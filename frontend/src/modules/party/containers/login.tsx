@@ -5,7 +5,7 @@ import { Alert } from '@material-ui/lab';
 import styled from 'styled-components';
 
 import { useApiRequest } from '../../shared/hooks/api-hook';
-import { useUserIdentityContext } from '../../shared/contexts/identity';
+import { useUserIdentityContext } from '../../user/contexts/identity';
 import CreatePartyForm, {
     CreatePartySubmit
 } from '../components/CreatePartyForm';
@@ -14,7 +14,6 @@ import TabbedForm, {
     TabbedForms
 } from '../../shared/components/FormElements/TabbedForm';
 import { usePartyContext } from '../context';
-import { UserType } from '../../shared/contexts/identity/types';
 
 const TransitionUp = (props: TransitionProps) => (
     <Slide {...props} direction="up" />
@@ -38,10 +37,7 @@ const Login: React.FC = () => {
                 },
                 method: 'POST'
             });
-            userLogin(response.data.accessToken, response.data.refreshToken, {
-                userType: UserType.Host,
-                userId: response.data.userId
-            });
+            userLogin(response.data.accessToken, response.data.refreshToken);
             createParty({
                 partyId: response.data.partyId,
                 userIds: [response.data.userId],
@@ -60,10 +56,7 @@ const Login: React.FC = () => {
                 },
                 method: 'POST'
             });
-            userLogin(response.data.accessToken, response.data.refreshToken, {
-                userId: response.data.userId,
-                userType: UserType.Guest
-            });
+            userLogin(response.data.accessToken, response.data.refreshToken);
             createPartyUser(response.data.userId, response.data.partyId);
         } catch (e) {
             throw new Error(e);

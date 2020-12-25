@@ -3,15 +3,15 @@ import { SpotifyPlayerContext } from './context';
 import { SpotifyPlayerContextInterface } from './types';
 import { __useSpotifyPlayerReducer, actions } from './reducer';
 import { loadScript } from '../../../shared/utils/load-script';
-import { UserType } from '../../../shared/contexts/identity/types';
+import { UserType } from '../../../user/contexts/identity/types';
 import { useSpotifyIdentityContext } from '../identity';
 import useAppIdentity from '../../../shared/hooks/useAppIdentity';
-import { useUserIdentityContext } from '../../../shared/contexts/identity';
+import { useUserProfileContext } from '../../../user/contexts/profile';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyPlayerReducer();
     const { isLoggedIn } = useAppIdentity();
-    const { user } = useUserIdentityContext();
+    const { userProfile } = useUserProfileContext();
     const { spotifyToken } = useSpotifyIdentityContext();
 
     const setPlayback: SpotifyPlayerContextInterface['setPlayback'] = useCallback(
@@ -35,13 +35,13 @@ export const Provider: React.FC = ({ children }) => {
     );
 
     useEffect(() => {
-        if (isLoggedIn() && user?.userType === UserType.Host) {
+        if (isLoggedIn() && userProfile?.userType === UserType.Host) {
             loadScript(
                 'https://sdk.scdn.co/spotify-player.js',
                 'spotify-player'
             );
         }
-    }, [isLoggedIn, user?.userType]);
+    }, [isLoggedIn, userProfile?.userType]);
 
     useEffect(() => {
         window.onSpotifyWebPlaybackSDKReady = () => {

@@ -15,7 +15,7 @@ type SpotifyItem = {
 
 type QueueItem = SpotifyApi.TrackObjectFull[];
 
-type UserItem = {
+export type UserItem = {
     userToken: string;
     userRefreshToken: string;
 };

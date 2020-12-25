@@ -44,11 +44,10 @@ mongoose
     })
     .then(() => {
         const server = http.createServer(app);
-        // setup websocket connection
         const io = initIO(server);
 
         io.on('connection', (socket: Server) => {
-            console.log('a client connected');
+            console.log('client connected');
             socket.on('disconnect', () => console.log('client disconnected'));
         });
 

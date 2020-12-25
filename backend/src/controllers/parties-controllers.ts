@@ -42,7 +42,7 @@ export const create = async (
             host: newUser.id
         });
         await newParty.save({ session });
-        newUser.parties.push(newParty.id);
+        newUser.party = newParty.id;
         await newUser.save({ session });
         await session.commitTransaction();
 
@@ -97,7 +97,7 @@ export const join = async (req: Request, res: Response, next: NextFunction) => {
         const session = await mongoose.startSession();
         session.startTransaction();
         const newUser = new User({ name, userType: UserType.Guest });
-        newUser.parties.push(party.id);
+        newUser.party = party.id;
         await newUser.save({ session });
         await session.commitTransaction();
 
@@ -110,6 +110,42 @@ export const join = async (req: Request, res: Response, next: NextFunction) => {
             accessToken,
             refreshToken,
             partyId: partyId
+        });
+    } catch (e) {
+        console.error(e);
+        return next(new HttpError('Internal Server Error', 500));
+    }
+};
+
+export const party = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
+
+        const partyId = req.params.pid;
+
+        const party = await Party.findById(partyId);
+
+        if (!party) {
+            return next(
+                new HttpError('Could not find a party for this id', 404)
+            );
+        }
+
+        res.status(201).json({
+            party: party.toObject()
         });
     } catch (e) {
         console.error(e);

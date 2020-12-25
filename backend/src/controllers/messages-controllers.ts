@@ -39,10 +39,10 @@ export const createMessage = async (
         });
 
         await newMessage.save();
-        getIO().emit('messages', {
-            action: 'create',
-            message: newMessage.toObject()
-        });
+        // getIO().emit('messages', {
+        //     action: 'create',
+        //     message: newMessage.toObject()
+        // });
 
         res.status(201).json({ messageId: newMessage.id });
     } catch (e) {

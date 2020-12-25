@@ -2,10 +2,15 @@ import axios, { AxiosRequestConfig } from 'axios';
 import {
     setLocalStorage,
     LocalStorageItemNames,
-    getLocalStorage
+    getLocalStorage,
+    removeLocalStorage,
+    UserItem
 } from '../utils/local-storage';
 
+type RequestConfig = Record<string, unknown>;
+
 export const baseUrl = 'http://localhost:5000';
+const refreshTokenUrl = `${baseUrl}/api/user/refresh-token`;
 
 const api = axios.create({
     baseURL: `${baseUrl}/api`,
@@ -31,34 +36,69 @@ api.interceptors.request.use(
     }
 );
 
+const isRefreshTokenRequest = (requestConfig: RequestConfig) => {
+    return requestConfig.url === refreshTokenUrl;
+};
+
+const refreshToken = (requestConfig: RequestConfig, refreshToken: string) => {
+    requestConfig._retry = true;
+    return api
+        .post(refreshTokenUrl, {
+            refreshToken
+        })
+        .then(res => {
+            if (res.status === 200) {
+                setLocalStorage(LocalStorageItemNames.User, {
+                    userToken: res.data.accessToken,
+                    userRefreshToken: refreshToken
+                });
+            }
+            return api(requestConfig);
+        });
+};
+
+interface CheckRefreshTokenParams {
+    userRefreshToken: string;
+    status: number;
+    requestConfig: RequestConfig;
+}
+
+const shouldRefreshToken = ({
+    userRefreshToken,
+    status,
+    requestConfig
+}: CheckRefreshTokenParams) =>
+    userRefreshToken &&
+    status === 401 &&
+    !isRefreshTokenRequest(requestConfig) &&
+    !requestConfig._retry;
+
+const errorInterceptor = (error: {
+    config: RequestConfig;
+    response: { status: number };
+}) => {
+    const originalRequest = error.config;
+    const { userRefreshToken } =
+        getLocalStorage(LocalStorageItemNames.User) || {};
+
+    if (
+        shouldRefreshToken({
+            userRefreshToken,
+            status: error.response.status,
+            requestConfig: originalRequest
+        })
+    ) {
+        return refreshToken(originalRequest, userRefreshToken);
+    } else {
+        removeLocalStorage(LocalStorageItemNames.User);
+    }
+
+    return Promise.reject(error);
+};
+
 api.interceptors.response.use(
     response => response,
-    error => {
-        const originalRequest = error.config;
-        const { userRefreshToken } =
-            getLocalStorage(LocalStorageItemNames.User) || {};
-        if (
-            userRefreshToken &&
-            error.response.status === 401 &&
-            !originalRequest._retry
-        ) {
-            originalRequest._retry = true;
-            return api
-                .post(`${baseUrl}/api/user/refresh-token`, {
-                    refreshToken: userRefreshToken
-                })
-                .then(res => {
-                    if (res.status === 200) {
-                        setLocalStorage(LocalStorageItemNames.User, {
-                            userToken: res.data.accessToken,
-                            userRefreshToken
-                        });
-                        return api(originalRequest);
-                    }
-                });
-        }
-        return Promise.reject(error);
-    }
+    error => errorInterceptor(error)
 );
 
 export default api;
