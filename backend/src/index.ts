@@ -16,7 +16,8 @@ import { errorHandler } from './middleware/error';
 import { notFound } from './middleware/not-found';
 import { corsOptions } from './config/cors';
 import { initIO } from './utils/socket';
-import { Server } from 'socket.io';
+import Party from './models/party';
+import Message from './models/message';
 
 // initialize express app
 const app = express();
@@ -35,6 +36,12 @@ app.use('/api/message', messagesRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+interface MessageData {
+    message: string;
+    partyId: string;
+    senderId: string;
+}
+
 // setup database connection
 mongoose
     .connect(secret.MONGO_CLUSTER, {
@@ -46,9 +53,43 @@ mongoose
         const server = http.createServer(app);
         const io = initIO(server);
 
-        io.on('connection', (socket: Server) => {
+        io.on('connection', socket => {
             console.log('client connected');
             socket.on('disconnect', () => console.log('client disconnected'));
+
+            socket.on('join', async (party: string) => {
+                socket.join(party);
+                console.log('client has joined party');
+            });
+
+            socket.on('message', async (data: MessageData) => {
+                try {
+                    const { message, partyId, senderId } = data;
+
+                    const party = await Party.findById(partyId);
+
+                    if (!party) {
+                        socket
+                            .in(partyId)
+                            .emit('message_error', 'Party not found');
+                    }
+
+                    const newMessage = new Message({
+                        senderId,
+                        message,
+                        partyId: party?.id
+                    });
+
+                    await newMessage.save();
+
+                    io.in(partyId).emit('message', newMessage.toObject());
+                } catch (e) {
+                    console.error(e);
+                    socket
+                        .in(data.partyId)
+                        .emit('message_error', 'Internal server error');
+                }
+            });
         });
 
         server.listen(port, () => console.log(`Listening on ${port}`));
