@@ -5,7 +5,7 @@ import useAppIdentity from '../hooks/useAppIdentity';
 const Main: React.FC = ({ children }) => {
     const { isLoggedIn } = useAppIdentity();
 
-    return <StyledMain useHeaderHeight={isLoggedIn()}>{children}</StyledMain>;
+    return <StyledMain useHeaderHeight={isLoggedIn}>{children}</StyledMain>;
 };
 
 interface StyledMain {

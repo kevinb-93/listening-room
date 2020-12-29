@@ -16,8 +16,6 @@ import { errorHandler } from './middleware/error';
 import { notFound } from './middleware/not-found';
 import { corsOptions } from './config/cors';
 import { initIO } from './utils/socket';
-import Party from './models/party';
-import Message from './models/message';
 
 // initialize express app
 const app = express();
@@ -37,10 +35,13 @@ app.use(notFound);
 app.use(errorHandler);
 
 interface MessageData {
+    messageId: string;
     message: string;
     partyId: string;
     senderId: string;
 }
+
+type JoinCallback = (err: null | Error, response?: { room: string }) => void;
 
 // setup database connection
 mongoose
@@ -55,34 +56,39 @@ mongoose
 
         io.on('connection', socket => {
             console.log('client connected');
-            socket.on('disconnect', () => console.log('client disconnected'));
+            console.log(socket.rooms);
 
-            socket.on('join', async (party: string) => {
-                socket.join(party);
-                console.log('client has joined party');
+            socket.on('disconnect', () => {
+                console.log('client disconnected');
             });
 
-            socket.on('message', async (data: MessageData) => {
+            socket.on('disconnecting', () => {
+                console.log(socket.rooms);
+                console.log('client disconnected');
+            });
+
+            socket.on('join', (room: string, callback: JoinCallback) => {
+                socket.join(room);
+                console.log(socket.rooms);
+                callback(null, { room });
+            });
+
+            socket.on('add_message', async (data: MessageData) => {
                 try {
-                    const { message, partyId, senderId } = data;
+                    socket.in(data.partyId).emit('add_message', data);
+                } catch (e) {
+                    console.error(e);
+                    socket
+                        .in(data.partyId)
+                        .emit('message_error', 'Internal server error');
+                }
+            });
 
-                    const party = await Party.findById(partyId);
-
-                    if (!party) {
-                        socket
-                            .in(partyId)
-                            .emit('message_error', 'Party not found');
-                    }
-
-                    const newMessage = new Message({
-                        senderId,
-                        message,
-                        partyId: party?.id
-                    });
-
-                    await newMessage.save();
-
-                    io.in(partyId).emit('message', newMessage.toObject());
+            socket.on('delete_message', async (data: MessageData) => {
+                try {
+                    socket
+                        .in(data.partyId)
+                        .emit('delete_message', { messageId: data.messageId });
                 } catch (e) {
                     console.error(e);
                     socket

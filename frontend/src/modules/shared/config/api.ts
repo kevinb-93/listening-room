@@ -89,7 +89,7 @@ const errorInterceptor = (error: {
         })
     ) {
         return refreshToken(originalRequest, userRefreshToken);
-    } else {
+    } else if (isRefreshTokenRequest(originalRequest)) {
         removeLocalStorage(LocalStorageItemNames.User);
     }
 

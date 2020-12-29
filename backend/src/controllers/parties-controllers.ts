@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 import Party from '../models/party';
+import Message from '../models/message';
 import User, { UserType } from '../models/user';
 import HttpError from '../models/http-error';
 
@@ -146,6 +147,36 @@ export const party = async (
 
         res.status(201).json({
             party: party.toObject()
+        });
+    } catch (e) {
+        console.error(e);
+        return next(new HttpError('Internal Server Error', 500));
+    }
+};
+
+export const messages = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
+
+        const partyId = req.params.pid;
+
+        const messages = await Message.find({ partyId: partyId }).exec();
+
+        res.status(200).json({
+            messages: messages
         });
     } catch (e) {
         console.error(e);

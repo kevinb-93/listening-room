@@ -41,7 +41,7 @@ export const Provider: React.FC = ({ children }) => {
     };
 
     useEffect(() => {
-        if (isLoggedIn()) {
+        if (isLoggedIn) {
             const queue =
                 getLocalStorage(LocalStorageItemNames.Queue) ??
                 ([] as SpotifyContextState['queue']);

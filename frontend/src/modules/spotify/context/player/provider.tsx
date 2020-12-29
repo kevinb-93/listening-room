@@ -35,7 +35,7 @@ export const Provider: React.FC = ({ children }) => {
     );
 
     useEffect(() => {
-        if (isLoggedIn() && userProfile?.userType === UserType.Host) {
+        if (isLoggedIn && userProfile?.userType === UserType.Host) {
             loadScript(
                 'https://sdk.scdn.co/spotify-player.js',
                 'spotify-player'

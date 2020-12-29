@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import { SpotifyIdentityContextState } from '../../spotify/context/identity/types';
 import { useUserIdentityContext } from '../../user/contexts/identity';
@@ -47,7 +47,7 @@ const useAppIdentity = () => {
     const { userProfile } = useUserProfileContext();
     const { spotifyToken, spotifyLogout } = useSpotifyIdentityContext();
 
-    const isLoggedIn = useCallback(() => {
+    const isLoggedIn = useMemo(() => {
         const userIsValid = isValidUser({
             userToken,
             userType: userProfile?.userType,

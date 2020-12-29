@@ -17,6 +17,6 @@ router.post(
     createMessage
 );
 
-router.post('/delete/:mid', deleteMessage);
+router.delete('/delete/:messageId', deleteMessage);
 
 export default router;

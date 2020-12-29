@@ -10,6 +10,7 @@ import { SpotifyContextProvider } from '../modules/spotify/context/spotify';
 import { SpotifyPlayerContextProvider } from '../modules/spotify/context/player';
 import { PartyContextProvider } from '../modules/party/context';
 import { UserProfileContextProvider } from '../modules/user/contexts/profile';
+import { WebSocketContextProvider } from '../modules/shared/contexts/websocket';
 
 export const Providers: React.FC = ({ children }) => {
     return (
@@ -23,7 +24,9 @@ export const Providers: React.FC = ({ children }) => {
                                     <SpotifyIdentityContextProvider>
                                         <SpotifyContextProvider>
                                             <SpotifyPlayerContextProvider>
-                                                {children}
+                                                <WebSocketContextProvider>
+                                                    {children}
+                                                </WebSocketContextProvider>
                                             </SpotifyPlayerContextProvider>
                                         </SpotifyContextProvider>
                                     </SpotifyIdentityContextProvider>

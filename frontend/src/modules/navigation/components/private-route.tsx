@@ -10,7 +10,7 @@ const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
         <Route
             {...rest}
             render={({ location }) =>
-                isLoggedIn() ? (
+                isLoggedIn ? (
                     children
                 ) : (
                     <Redirect

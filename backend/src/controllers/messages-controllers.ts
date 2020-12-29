@@ -4,7 +4,6 @@ import { NextFunction, Request, Response } from 'express';
 import Message from '../models/message';
 import Party from '../models/party';
 import HttpError from '../models/http-error';
-import { getIO } from '../utils/socket';
 
 export const createMessage = async (
     req: Request,
@@ -39,12 +38,8 @@ export const createMessage = async (
         });
 
         await newMessage.save();
-        // getIO().emit('messages', {
-        //     action: 'create',
-        //     message: newMessage.toObject()
-        // });
 
-        res.status(201).json({ messageId: newMessage.id });
+        res.status(201).json(newMessage.toObject());
     } catch (e) {
         console.error(e);
         return next(new HttpError('Internal Server Error', 500));
@@ -68,7 +63,7 @@ export const deleteMessage = async (
             );
         }
 
-        const messageId = req.params.mid;
+        const messageId = req.params.messageId;
 
         const message = await Message.findById(messageId)
             .populate('senderId', 'id')
@@ -95,12 +90,11 @@ export const deleteMessage = async (
         }
 
         await message.remove();
-        getIO().emit('messages', {
-            action: 'delete',
-            messageId: messageId
-        });
 
-        res.status(200).json({ message: 'Message deleted.' });
+        res.status(200).json({
+            messageId: message._id,
+            partyId: message.partyId._id
+        });
     } catch (e) {
         console.error(e);
         return next(new HttpError('Internal Server Error!', 500));

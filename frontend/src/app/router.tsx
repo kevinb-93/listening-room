@@ -3,7 +3,6 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 
 import Settings from '../modules/settings/pages/settings';
 import Queue from '../modules/queue/container/queue';
-import Drawer from '../modules/drawer/components';
 import Header from '../modules/shared/components/header';
 import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
@@ -27,7 +26,7 @@ const Router: React.FC = () => {
     return (
         <BrowserRouter>
             <GlobalStyle />
-            {isLoggedIn() && (
+            {isLoggedIn && (
                 <>
                     <Header>
                         <NavMenu>
@@ -69,7 +68,7 @@ const Router: React.FC = () => {
                         <Settings />
                     </PrivateRoute>
                     <Route path="/auth">
-                        {isLoggedIn() ? <Redirect to={'/queue'} /> : <Login />}
+                        {isLoggedIn ? <Redirect to={'/queue'} /> : <Login />}
                     </Route>
                     {/* Fallback */}
                     <PrivateRoute path="/">
