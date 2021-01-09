@@ -17,7 +17,6 @@ import {
 import { useSpotifyContext } from '../spotify';
 import { SpotifyPlayerReducerActionType } from './reducer/types';
 import { spotifyApi } from '../../config/spotify-web-api';
-// import { playTrack, dispatchMiddleware } from './actions';
 
 const SpotifyPlayerProvider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyPlayerReducer();
@@ -25,36 +24,12 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
     const { userProfile } = useUserProfileContext();
     const { spotifyToken } = useSpotifyIdentityContext();
     const { activeDeviceId, setActiveDevice } = useSpotifyContext();
-    // const {
-    //     playTrack,
-    //     setPlayNext,
-    //     setPlayerInstance,
-    //     setPlayer,
-    //     setPlayback,
-    //     setQueue,
-    //     setPlaybackPosition
-    // } = useActions(state, dispatch);
-    // const actions = useActions(state, dispatch);
 
     const { player, playerInstance, playbackState, queue, playNext } = state;
 
     const playbackTimer = useRef<number>();
     const elaspedTime = useRef<number>();
     const playbackListener = useRef<Spotify.PlaybackState>(null);
-
-    // const getCurrentPlayerState = useCallback(() => {
-    //     if (!player) {
-    //         return;
-    //     }
-
-    //     player.getCurrentState().then(playback => {
-    //         actions.setPlayback(playback);
-    //     });
-    // }, [actions, player]);
-
-    // useEffect(() => {
-    //     getCurrentPlayerState();
-    // }, [getCurrentPlayerState]);
 
     useEffect(
         function getCurrentPlayerState() {
@@ -310,15 +285,6 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
         [dispatch]
     );
 
-    // const triggerPlayNextTrack = useCallback(() => {
-    //     console.log('trigger play next callback check before');
-    //     if (playNext) {
-    //         console.log('trigger play next');
-    //         setPlayNext(false);
-    //         playTrack(queue[0]);
-    //     }
-    // }, [playNext, playTrack, queue, setPlayNext]);
-
     useEffect(
         function triggerPlayNextTrack() {
             console.log('trigger play next callback check before');
@@ -330,20 +296,6 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
                 });
                 const track = queue[0];
                 playTrack(track);
-                // dispatch(playTrack(track));
-                // spotifyApi
-                //     .play({ uris: [track.uri] })
-                //     .then(() => {
-                //         dispatch({
-                //             type: SpotifyPlayerReducerActionType.PlayTrack,
-                //             payload: track
-                //         });
-                //         dispatch({
-                //             type: SpotifyPlayerReducerActionType.QueueDelete,
-                //             payload: { trackId: track.id }
-                //         });
-                //     })
-                //     .catch(e => console.error('Unable to play track', e));
             }
         },
         [dispatch, playNext, playTrack, queue]

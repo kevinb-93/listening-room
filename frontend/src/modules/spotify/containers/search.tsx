@@ -3,16 +3,20 @@ import React, { useCallback } from 'react';
 import Search from '../../shared/components/FormElements/search';
 import { convertDurationMs } from '../../shared/utils/datetime';
 import TrackItem, { TrackItemProps } from '../components/track-item';
-import { spotifyApi } from '../config/spotify-web-api';
 import { useSpotifyPlayerContext } from '../context/player';
-// import { playTrack } from '../context/player/actions';
 import { SpotifyPlayerReducerActionType } from '../context/player/reducer/types';
 import useSpotifySearch from '../hooks/useSpotifySearch';
 import { getArtists, getTrackImage } from '../utils/track';
 
 const SpotifySearch: React.FC = () => {
     const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
-    const { queue, dispatch, playTrack } = useSpotifyPlayerContext();
+    const {
+        queue,
+        dispatch,
+        playTrack,
+        playbackState,
+        player
+    } = useSpotifyPlayerContext();
 
     const isTrackQueued = useCallback(
         (trackId: SpotifyApi.TrackObjectFull['id']) => {
@@ -21,22 +25,27 @@ const SpotifySearch: React.FC = () => {
         [queue]
     );
 
-    const playTrackHandler = (id: string) => {
+    const isCurrentTrack = useCallback(
+        (id: string) => {
+            return playbackState?.track_window?.current_track?.id === id;
+        },
+        [playbackState?.track_window?.current_track?.id]
+    );
+
+    const isTrackPlaying = useCallback(
+        (id: SpotifyApi.TrackObjectFull['id']) => {
+            return isCurrentTrack(id) && playbackState?.paused === false;
+        },
+        [isCurrentTrack, playbackState?.paused]
+    );
+
+    const pressPlaybackHandler = (id: string) => {
         const track = getTrackFromSearchResults(id);
-        playTrack(track);
-        // spotifyApi
-        //     .play({ uris: [track.uri] })
-        //     .then(() => {
-        //         dispatch({
-        //             type: SpotifyPlayerReducerActionType.PlayTrack,
-        //             payload: track
-        //         });
-        //         dispatch({
-        //             type: SpotifyPlayerReducerActionType.QueueDelete,
-        //             payload: { trackId: track.id }
-        //         });
-        //     })
-        //     .catch(e => console.error('Unable to play track', e));
+
+        if (!isCurrentTrack(id)) {
+            playTrack(track);
+        }
+        player.togglePlay();
     };
 
     const getTrackFromSearchResults = useCallback(
@@ -83,12 +92,14 @@ const SpotifySearch: React.FC = () => {
                     };
 
                     const isQueued = isTrackQueued(t.id);
+                    const isPlaying = isTrackPlaying(t.id);
 
                     return (
                         <TrackItem
-                            onPlayTrack={playTrackHandler}
+                            onPressPlayback={pressPlaybackHandler}
                             onQueueTrack={queueTrackHandler}
                             isQueued={isQueued}
+                            isPlaying={isPlaying}
                             track={track}
                             image={image}
                             key={t.id}

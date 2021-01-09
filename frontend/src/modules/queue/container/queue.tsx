@@ -10,11 +10,15 @@ import { convertDurationMs } from '../../shared/utils/datetime';
 import useSpotifySearch from '../../spotify/hooks/useSpotifySearch';
 import { getArtists, getTrackImage } from '../../spotify/utils/track';
 import { SpotifyPlayerReducerActionType } from '../../spotify/context/player/reducer/types';
-import { spotifyApi } from '../../spotify/config/spotify-web-api';
-import { playTrack } from '../../spotify/context/player/actions';
 
 const Queue: React.FC = () => {
-    const { player, queue, dispatch, playTrack } = useSpotifyPlayerContext();
+    const {
+        player,
+        queue,
+        dispatch,
+        playTrack,
+        playbackState
+    } = useSpotifyPlayerContext();
     const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
 
     const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
@@ -26,10 +30,23 @@ const Queue: React.FC = () => {
         [queue]
     );
 
+    const isCurrentTrack = useCallback(
+        (id: string) => {
+            return playbackState?.track_window?.current_track?.id === id;
+        },
+        [playbackState?.track_window?.current_track?.id]
+    );
+
+    const isTrackPlaying = useCallback(
+        (id: SpotifyApi.TrackObjectFull['id']) => {
+            return isCurrentTrack(id) && playbackState?.paused === false;
+        },
+        [isCurrentTrack, playbackState?.paused]
+    );
     const getTrackList = useCallback(() => {
         if (searchResults?.tracks?.items?.length > 0) {
             setTracks(searchResults.tracks.items);
-        } else if (queue?.length > 0) {
+        } else {
             setTracks(queue);
         }
     }, [queue, searchResults?.tracks?.items]);
@@ -45,26 +62,16 @@ const Queue: React.FC = () => {
         [tracks]
     );
 
-    const playTrackHandler = useCallback(
+    const pressPlaybackHandler = useCallback(
         (id: string) => {
             const track = getTrack(id);
-            playTrack(track);
 
-            // spotifyApi
-            //     .play({ uris: [track.uri] })
-            //     .then(() => {
-            //         dispatch({
-            //             type: SpotifyPlayerReducerActionType.PlayTrack,
-            //             payload: track
-            //         });
-            //         dispatch({
-            //             type: SpotifyPlayerReducerActionType.QueueDelete,
-            //             payload: { trackId: track.id }
-            //         });
-            //     })
-            //     .catch(e => console.error('Unable to play track', e));
+            if (!isCurrentTrack(id)) {
+                playTrack(track);
+            }
+            player.togglePlay();
         },
-        [getTrack, playTrack]
+        [getTrack, isCurrentTrack, playTrack, player]
     );
 
     const queueTrackHandler = useCallback(
@@ -103,12 +110,14 @@ const Queue: React.FC = () => {
                     };
 
                     const isQueued = isTrackQueued(t.id);
+                    const isPlaying = isTrackPlaying(t.id);
 
                     return (
                         <TrackItem
-                            onPlayTrack={playTrackHandler}
+                            onPressPlayback={pressPlaybackHandler}
                             onQueueTrack={queueTrackHandler}
                             isQueued={isQueued}
+                            isPlaying={isPlaying}
                             track={track}
                             image={image}
                             key={t.id}
@@ -117,7 +126,13 @@ const Queue: React.FC = () => {
                 })}
             </>
         );
-    }, [isTrackQueued, playTrackHandler, queueTrackHandler, tracks]);
+    }, [
+        isTrackPlaying,
+        isTrackQueued,
+        pressPlaybackHandler,
+        queueTrackHandler,
+        tracks
+    ]);
 
     const changeHandler = (searchTerm: string) => {
         setSearchTerm(searchTerm);
