@@ -1,19 +1,19 @@
 import React from 'react';
-import { _ as Queue } from './queue';
 import { _ as Devices } from './devices';
+// import { _ as Api } from './api';
 import { SpotifyReducerActionPayload } from './types';
 import { SpotifyContextState } from '../types';
 
 // Combine the actions from the sub-modules
 export const actions = {
-    queue: Queue.actions,
     devices: Devices.actions
+    // api: Api.actions
 };
 
 // Combine the reducers from sub-modules
 export const reducers = {
-    ...Queue.reducers,
     ...Devices.reducers
+    // ...Api.reducers
 };
 
 const Reducer = (
@@ -31,10 +31,9 @@ const Reducer = (
 };
 
 const initialState: SpotifyContextState = {
-    nowPlaying: null,
-    queue: [],
     devices: [],
     activeDeviceId: ''
+    // api: null
 };
 
 /**

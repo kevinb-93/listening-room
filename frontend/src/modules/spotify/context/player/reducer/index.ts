@@ -1,46 +1,101 @@
 import React from 'react';
-import { _ as Player } from './player';
-import { SpotifyPlayerReducerActionPayload } from './types';
+import {
+    SpotifyPlayerReducerAction,
+    SpotifyPlayerReducerActionType
+} from './types';
 import { SpotifyPlayerContextState } from '../types';
-
-// Combine the actions from the sub-modules
-export const actions = {
-    player: Player.actions
-};
-
-// Combine the reducers from sub-modules
-export const reducers = {
-    ...Player.reducers
-};
+import {
+    setLocalStorage,
+    LocalStorageItemNames
+} from '../../../../shared/utils/local-storage';
 
 const Reducer = (
     state: SpotifyPlayerContextState,
-    action: SpotifyPlayerReducerActionPayload<unknown>
+    action: SpotifyPlayerReducerAction
 ): SpotifyPlayerContextState => {
-    // first see if there's a reducer for this action
-    if (reducers[action.type] === undefined) {
-        // return current state
-        return state;
-    }
+    switch (action.type) {
+        case SpotifyPlayerReducerActionType.setPlayback:
+            return {
+                ...state,
+                playbackState: action.payload
+            };
+        case SpotifyPlayerReducerActionType.SetPlaybackPosition:
+            return {
+                ...state,
+                playbackState: {
+                    ...state.playbackState,
+                    position: action.payload.position
+                }
+            };
+        case SpotifyPlayerReducerActionType.setPlayNext:
+            return {
+                ...state,
+                playNext: action.payload
+            };
+        case SpotifyPlayerReducerActionType.setPlayerInstance:
+            return {
+                ...state,
+                playerInstance: action.payload
+            };
+        case SpotifyPlayerReducerActionType.setPlayer:
+            return {
+                ...state,
+                player: action.payload
+            };
+        case SpotifyPlayerReducerActionType.PlayTrack:
+            return {
+                ...state,
+                nowPlaying: action.payload
+            };
+        case SpotifyPlayerReducerActionType.QueueAdd: {
+            const queue: SpotifyPlayerContextState['queue'] = [
+                ...state.queue,
+                action.payload.track
+            ];
 
-    // use the reducer to process this action and return the new state
-    return reducers[action.type](state, action.payload);
+            setLocalStorage(LocalStorageItemNames.Queue, queue);
+            return {
+                ...state,
+                queue
+            };
+        }
+        case SpotifyPlayerReducerActionType.QueueDelete: {
+            let queue: SpotifyPlayerContextState['queue'] = state.queue ?? [];
+            queue = queue.filter(t => t.id !== action.payload.trackId);
+
+            setLocalStorage(LocalStorageItemNames.Queue, queue);
+
+            return {
+                ...state,
+                queue
+            };
+        }
+        case SpotifyPlayerReducerActionType.QueueSet: {
+            const queueState = action.payload.queue ?? [];
+
+            setLocalStorage(LocalStorageItemNames.Queue, queueState);
+
+            return {
+                ...state,
+                queue: queueState
+            };
+        }
+    }
 };
 
 const initialState: SpotifyPlayerContextState = {
     playbackState: null,
     player: null,
     playerInstance: null,
-    playNext: false
+    playNext: false,
+    nowPlaying: null,
+    queue: []
 };
 
 /**
  * React Hook providing access to reducer
  */
 export const __useSpotifyPlayerReducer = () =>
-    React.useReducer<React.Reducer<SpotifyPlayerContextState, unknown>>(
-        Reducer,
-        {
-            ...initialState
-        }
-    );
+    React.useReducer(Reducer, {
+        ...initialState
+    });

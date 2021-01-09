@@ -45,7 +45,14 @@ export const getLocalStorage = <K extends keyof LocalStorage>(
 ): LocalStorage[K] => {
     const localItem = localStorage.getItem(itemName);
 
-    return JSON.parse(localItem);
+    let parsedItem: LocalStorage[K];
+    try {
+        parsedItem = JSON.parse(localItem);
+    } catch (e) {
+        parsedItem = null;
+    }
+
+    return parsedItem;
 };
 
 export const removeLocalStorage = <K extends keyof LocalStorage>(

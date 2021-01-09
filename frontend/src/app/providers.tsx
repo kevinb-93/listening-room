@@ -7,7 +7,7 @@ import { theme } from '../modules/shared/styles/theme';
 import { UserIdentityContextProvider } from '../modules/user/contexts/identity';
 import { SpotifyIdentityContextProvider } from '../modules/spotify/context/identity';
 import { SpotifyContextProvider } from '../modules/spotify/context/spotify';
-import { SpotifyPlayerContextProvider } from '../modules/spotify/context/player';
+import SpotifyPlayerProvider from '../modules/spotify/context/player/provider';
 import { PartyContextProvider } from '../modules/party/context';
 import { UserProfileContextProvider } from '../modules/user/contexts/profile';
 import { WebSocketContextProvider } from '../modules/shared/contexts/websocket';
@@ -23,11 +23,11 @@ export const Providers: React.FC = ({ children }) => {
                                 <PartyContextProvider>
                                     <SpotifyIdentityContextProvider>
                                         <SpotifyContextProvider>
-                                            <SpotifyPlayerContextProvider>
+                                            <SpotifyPlayerProvider>
                                                 <WebSocketContextProvider>
                                                     {children}
                                                 </WebSocketContextProvider>
-                                            </SpotifyPlayerContextProvider>
+                                            </SpotifyPlayerProvider>
                                         </SpotifyContextProvider>
                                     </SpotifyIdentityContextProvider>
                                 </PartyContextProvider>

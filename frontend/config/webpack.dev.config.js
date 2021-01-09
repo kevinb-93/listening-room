@@ -5,6 +5,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 module.exports = {
     entry: './src/app/index.tsx',
+    context: path.join(__dirname, '/..'),
     /* how to emit the bundles */
     output: {
         path: path.resolve(__dirname, 'src'),
@@ -60,7 +61,6 @@ module.exports = {
             // refresh browser if html file changes
             server._watch('./src/**/*.html');
         },
-        open: { app: ['Chrome'] },
         contentBase: path.join(__dirname, 'src'),
         historyApiFallback: true,
         hot: true,

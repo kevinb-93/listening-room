@@ -5,7 +5,8 @@ export enum SpotifyReducerAction {
     playTrack,
     setDevices,
     setActiveDevice,
-    setPlayback
+    setPlayback,
+    SetApi
 }
 
 export interface SpotifyReducerActionPayload<T> {

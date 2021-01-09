@@ -7,7 +7,7 @@
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
     "editor.rulers": [80, 120],
-    "files.autoSave": "onFocusChange",
+    "files.autoSave": "onWindowChange",
     "scss.lint.unknownAtRules": "ignore",
     "scss.lint.unknownProperties": "ignore",
     // "typescript.suggest.paths": false

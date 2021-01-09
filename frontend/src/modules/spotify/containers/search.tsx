@@ -1,54 +1,103 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import SpotifyWebApi from 'spotify-web-api-js';
+import React, { useCallback } from 'react';
 
 import Search from '../../shared/components/FormElements/search';
-import TrackItem from '../components/track-item';
+import { convertDurationMs } from '../../shared/utils/datetime';
+import TrackItem, { TrackItemProps } from '../components/track-item';
+import { spotifyApi } from '../config/spotify-web-api';
+import { useSpotifyPlayerContext } from '../context/player';
+// import { playTrack } from '../context/player/actions';
+import { SpotifyPlayerReducerActionType } from '../context/player/reducer/types';
+import useSpotifySearch from '../hooks/useSpotifySearch';
+import { getArtists, getTrackImage } from '../utils/track';
 
 const SpotifySearch: React.FC = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchResponseData, setSearchResponseData] = useState<
-        SpotifyApi.SearchResponse
-    >();
+    const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
+    const { queue, dispatch, playTrack } = useSpotifyPlayerContext();
 
-    const searchHandler = useCallback((searchTerm: string) => {
-        const s = new SpotifyWebApi();
+    const isTrackQueued = useCallback(
+        (trackId: SpotifyApi.TrackObjectFull['id']) => {
+            return queue.some(q => q.id === trackId);
+        },
+        [queue]
+    );
 
-        s.search(searchTerm, ['track'], { market: 'from_token' }).then(
-            data => {
-                setSearchResponseData(data);
-            },
-            err => {
-                console.error(err);
-            }
-        );
-    }, []);
+    const playTrackHandler = (id: string) => {
+        const track = getTrackFromSearchResults(id);
+        playTrack(track);
+        // spotifyApi
+        //     .play({ uris: [track.uri] })
+        //     .then(() => {
+        //         dispatch({
+        //             type: SpotifyPlayerReducerActionType.PlayTrack,
+        //             payload: track
+        //         });
+        //         dispatch({
+        //             type: SpotifyPlayerReducerActionType.QueueDelete,
+        //             payload: { trackId: track.id }
+        //         });
+        //     })
+        //     .catch(e => console.error('Unable to play track', e));
+    };
 
-    useEffect(() => {
-        if (!searchTerm) {
-            setSearchResponseData(null);
+    const getTrackFromSearchResults = useCallback(
+        (trackId: string) => {
+            return searchResults.tracks.items.find(t => t.id === trackId);
+        },
+        [searchResults.tracks.items]
+    );
+
+    const queueTrackHandler = (id: string) => {
+        const isQueued = isTrackQueued(id);
+
+        if (isQueued) {
+            dispatch({
+                type: SpotifyPlayerReducerActionType.QueueDelete,
+                payload: { trackId: id }
+            });
+        } else {
+            const track = getTrackFromSearchResults(id);
+            dispatch({
+                type: SpotifyPlayerReducerActionType.QueueAdd,
+                payload: { track }
+            });
         }
-    }, [searchTerm]);
+    };
 
     const renderSearchResults = () => {
-        if (!searchResponseData) {
+        if (!searchResults) {
             return null;
         }
 
         return (
             <>
-                {searchResponseData.tracks.items.slice(0, 10).map(t => {
-                    return <TrackItem track={t} key={t.id} />;
+                {searchResults.tracks.items.slice(0, 10).map(t => {
+                    const track: TrackItemProps['track'] = {
+                        id: t.id,
+                        artist: getArtists(t),
+                        duration: convertDurationMs(t.duration_ms),
+                        songTitle: t.name
+                    };
+                    const image: TrackItemProps['image'] = {
+                        src: getTrackImage(t).url,
+                        size: 64
+                    };
+
+                    const isQueued = isTrackQueued(t.id);
+
+                    return (
+                        <TrackItem
+                            onPlayTrack={playTrackHandler}
+                            onQueueTrack={queueTrackHandler}
+                            isQueued={isQueued}
+                            track={track}
+                            image={image}
+                            key={t.id}
+                        />
+                    );
                 })}
             </>
         );
     };
-
-    useEffect(() => {
-        if (searchTerm) {
-            const timer = setTimeout(() => searchHandler(searchTerm), 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [searchTerm, searchHandler]);
 
     const changeHandler = (searchTerm: string) => {
         setSearchTerm(searchTerm);

@@ -1,73 +1,84 @@
 import React from 'react';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { convertDurationMs } from '../../shared/utils/datetime';
-import { useSpotifyContext } from '../context/spotify';
-import { SetSpotifyQueueParams } from '../context/spotify/types';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import SpotifyWebApi from 'spotify-web-api-js';
 
-interface Props {
-    track: SpotifyApi.TrackObjectFull;
+interface TrackItemImage {
+    size: number;
+    src: string;
 }
 
-const TrackItem: React.FC<Props> = ({ track }) => {
-    const { queue, playTrack, setQueue } = useSpotifyContext();
+export interface TrackProps {
+    id: string;
+    songTitle: string;
+    artist: string;
+    duration: string;
+}
 
-    const isQueued = queue.some(q => q.id === track.id);
-    const queueAction: SetSpotifyQueueParams['action'] = isQueued
-        ? 'delete'
-        : 'add';
+export interface TrackItemProps {
+    track: TrackProps;
+    image: TrackItemImage;
+    isQueued: boolean;
+    onPlayTrack: (id: TrackProps['id']) => void;
+    onQueueTrack: (id: TrackProps['id']) => void;
+}
+
+const TrackItem: React.FC<TrackItemProps> = ({
+    track,
+    image,
+    onPlayTrack,
+    onQueueTrack,
+    isQueued
+}) => {
     const queueIcon: IconProp = isQueued ? 'times' : 'plus';
 
-    const playTrackHandler = (track: SpotifyApi.TrackObjectFull) => {
-        const s = new SpotifyWebApi();
-        s.play({ uris: [track.uri] })
-            .then(() => {
-                playTrack(track);
-            })
-            .catch(e => console.error('Unable to play track', e));
+    const playTrackHandler = () => {
+        onPlayTrack(track.id);
     };
 
+    const queueTrackHandler = () => {
+        onQueueTrack(track.id);
+    };
+
+    /*
+     src={track.album.images.find(i => i.height === 64).url}
+     {track.artists.map(a => a.name).join(', ')
+     convertDurationMs(track.duration_ms)
+    */
+
     return (
-        <div key={track.id} style={{ display: 'flex' }}>
-            <img
-                height={64}
-                width={64}
-                src={track.album.images.find(i => i.height === 64).url}
-            ></img>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}
-            >
-                <span>{track.name}</span>
-                <span>{track.artists.map(a => a.name).join(', ')}</span>
-                <span>{convertDurationMs(track.duration_ms)}</span>
-            </div>
-            <div
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}
-            >
-                <span
-                    onClick={() =>
-                        setQueue({
-                            action: queueAction,
-                            tracks: [track]
-                        })
-                    }
-                >
+        <StyledTrackItemContainer key={track.id}>
+            <img height={image.size} width={image.size} src={image.src}></img>
+            <StyledTrackInfo>
+                <span>{track.songTitle}</span>
+                <span>{track.artist}</span>
+                <span>{track.duration}</span>
+            </StyledTrackInfo>
+            <StyledTrackPlayerActions>
+                <span onClick={queueTrackHandler}>
                     <FontAwesomeIcon fixedWidth icon={queueIcon} />
                 </span>
-                <span onClick={() => playTrackHandler(track)}>
+                <span onClick={playTrackHandler}>
                     <FontAwesomeIcon fixedWidth icon={'play'} />
                 </span>
-            </div>
-        </div>
+            </StyledTrackPlayerActions>
+        </StyledTrackItemContainer>
     );
 };
+
+const StyledTrackItemContainer = styled.div`
+    display: flex;
+`;
+
+const StyledTrackInfo = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+const StyledTrackPlayerActions = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
 
 export default TrackItem;

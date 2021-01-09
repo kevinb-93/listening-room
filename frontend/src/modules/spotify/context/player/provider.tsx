@@ -1,47 +1,231 @@
-import React, { useCallback, useEffect } from 'react';
-import { SpotifyPlayerContext } from './context';
-import { SpotifyPlayerContextInterface } from './types';
-import { __useSpotifyPlayerReducer, actions } from './reducer';
+import React, { useCallback, useEffect, useRef } from 'react';
+import SpotifyPlayerContext from './index';
+import {
+    SpotifyPlayerContextInterface,
+    SpotifyPlayerContextState
+} from './types';
+import { __useSpotifyPlayerReducer } from './reducer';
 import { loadScript } from '../../../shared/utils/load-script';
 import { UserType } from '../../../user/contexts/identity/types';
 import { useSpotifyIdentityContext } from '../identity';
 import useAppIdentity from '../../../shared/hooks/useAppIdentity';
 import { useUserProfileContext } from '../../../user/contexts/profile';
+import {
+    getLocalStorage,
+    LocalStorageItemNames
+} from '../../../shared/utils/local-storage';
+import { useSpotifyContext } from '../spotify';
+import { SpotifyPlayerReducerActionType } from './reducer/types';
+import { spotifyApi } from '../../config/spotify-web-api';
+// import { playTrack, dispatchMiddleware } from './actions';
 
-export const Provider: React.FC = ({ children }) => {
+const SpotifyPlayerProvider: React.FC = ({ children }) => {
     const [state, dispatch] = __useSpotifyPlayerReducer();
     const { isLoggedIn } = useAppIdentity();
     const { userProfile } = useUserProfileContext();
     const { spotifyToken } = useSpotifyIdentityContext();
+    const { activeDeviceId, setActiveDevice } = useSpotifyContext();
+    // const {
+    //     playTrack,
+    //     setPlayNext,
+    //     setPlayerInstance,
+    //     setPlayer,
+    //     setPlayback,
+    //     setQueue,
+    //     setPlaybackPosition
+    // } = useActions(state, dispatch);
+    // const actions = useActions(state, dispatch);
 
-    const setPlayback: SpotifyPlayerContextInterface['setPlayback'] = useCallback(
-        playback => actions.player.setPlayback(dispatch, playback),
+    const { player, playerInstance, playbackState, queue, playNext } = state;
+
+    const playbackTimer = useRef<number>();
+    const elaspedTime = useRef<number>();
+    const playbackListener = useRef<Spotify.PlaybackState>(null);
+
+    // const getCurrentPlayerState = useCallback(() => {
+    //     if (!player) {
+    //         return;
+    //     }
+
+    //     player.getCurrentState().then(playback => {
+    //         actions.setPlayback(playback);
+    //     });
+    // }, [actions, player]);
+
+    // useEffect(() => {
+    //     getCurrentPlayerState();
+    // }, [getCurrentPlayerState]);
+
+    useEffect(
+        function getCurrentPlayerState() {
+            if (!player) {
+                return;
+            }
+
+            player.getCurrentState().then(playback => {
+                dispatch({
+                    type: SpotifyPlayerReducerActionType.setPlayback,
+                    payload: playback
+                });
+            });
+        },
+        [dispatch, player]
+    );
+
+    useEffect(
+        function initPlaybackDevice() {
+            if (!playerInstance?.device_id) {
+                return;
+            }
+
+            if (activeDeviceId !== playerInstance?.device_id) {
+                spotifyApi
+                    .transferMyPlayback([playerInstance?.device_id])
+                    .then(() => {
+                        setActiveDevice(playerInstance?.device_id);
+                    })
+                    .catch(e =>
+                        console.error('Could not transfer playback', e)
+                    );
+            }
+        },
+        [activeDeviceId, playerInstance?.device_id, setActiveDevice]
+    );
+
+    useEffect(
+        function setDocumentHeader() {
+            const artist =
+                playbackState?.track_window.current_track.artists[0].name;
+            const song = playbackState?.track_window.current_track.name;
+            if (artist && song) {
+                document.title = `${artist} - ${song}`;
+            }
+        },
+        [
+            playbackState?.track_window.current_track.artists,
+            playbackState?.track_window.current_track.name
+        ]
+    );
+
+    const clearPlaybackTimer = () => {
+        clearInterval(playbackTimer.current);
+        playbackTimer.current = undefined;
+    };
+
+    useEffect(
+        function syncPlaybackPosition() {
+            elaspedTime.current = playbackState?.position ?? 0;
+
+            if (
+                playbackState?.paused ||
+                elaspedTime.current > playbackState?.duration
+            ) {
+                clearPlaybackTimer();
+            }
+        },
+        [
+            playbackState?.duration,
+            playbackState?.paused,
+            playbackState?.position
+        ]
+    );
+
+    const setPlaybackTimer = useCallback(
+        (timeoutDuration: number) =>
+            setInterval(() => {
+                elaspedTime.current += timeoutDuration;
+                dispatch({
+                    type: SpotifyPlayerReducerActionType.SetPlaybackPosition,
+                    payload: { position: elaspedTime.current }
+                });
+            }, timeoutDuration),
         [dispatch]
     );
 
-    const setPlayer: SpotifyPlayerContextInterface['setPlayer'] = useCallback(
-        player => actions.player.setPlayer(dispatch, player),
-        [dispatch]
-    );
-
-    const setPlayerInstance: SpotifyPlayerContextInterface['setPlayerInstance'] = useCallback(
-        instance => actions.player.setPlayerInstance(dispatch, instance),
-        [dispatch]
-    );
-
-    const setPlayNext: SpotifyPlayerContextInterface['setPlayNext'] = useCallback(
-        playNext => actions.player.setPlayNext(dispatch, playNext),
-        [dispatch]
-    );
+    const updatePlayerProgress = useCallback(() => {
+        if (playbackState?.paused === false && !playbackTimer.current) {
+            playbackTimer.current = setPlaybackTimer(500);
+        }
+    }, [playbackState?.paused, setPlaybackTimer]);
 
     useEffect(() => {
-        if (isLoggedIn && userProfile?.userType === UserType.Host) {
-            loadScript(
-                'https://sdk.scdn.co/spotify-player.js',
-                'spotify-player'
-            );
+        updatePlayerProgress();
+
+        return () => clearPlaybackTimer();
+    }, [updatePlayerProgress]);
+
+    useEffect(
+        function loadSpotifyPlayer() {
+            if (isLoggedIn && userProfile?.userType === UserType.Host) {
+                loadScript(
+                    'https://sdk.scdn.co/spotify-player.js',
+                    'spotify-player'
+                );
+            }
+        },
+        [isLoggedIn, userProfile?.userType]
+    );
+
+    const initPlayer = useCallback(() => {
+        const queue =
+            getLocalStorage(LocalStorageItemNames.Queue) ??
+            ([] as SpotifyPlayerContextState['queue']);
+
+        const nowPlaying =
+            getLocalStorage(LocalStorageItemNames.NowPlaying) ??
+            (null as SpotifyPlayerContextState['nowPlaying']);
+
+        dispatch({
+            type: SpotifyPlayerReducerActionType.QueueSet,
+            payload: { queue }
+        });
+
+        if (nowPlaying) {
+            spotifyApi
+                .play({ uris: [nowPlaying.uri] })
+                .then(() => {
+                    dispatch({
+                        type: SpotifyPlayerReducerActionType.PlayTrack,
+                        payload: nowPlaying
+                    });
+                    dispatch({
+                        type: SpotifyPlayerReducerActionType.QueueDelete,
+                        payload: { trackId: nowPlaying.id }
+                    });
+                })
+                .catch(e => console.error('Unable to play track', e));
         }
-    }, [isLoggedIn, userProfile?.userType]);
+    }, [dispatch]);
+
+    const hasPlaybackFinished = useCallback(
+        (currentPlayback: Spotify.PlaybackState) => {
+            try {
+                if (!playbackListener.current || !currentPlayback) {
+                    return false;
+                }
+
+                if (
+                    playbackListener.current?.paused &&
+                    playbackListener.current?.duration ===
+                        currentPlayback?.duration &&
+                    playbackListener.current?.position === 0 &&
+                    playbackListener.current?.position ===
+                        currentPlayback.position &&
+                    playbackListener.current?.track_window?.current_track
+                        ?.id ===
+                        currentPlayback?.track_window?.current_track?.id
+                ) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (e) {
+                console.error(e);
+                return false;
+            }
+        },
+        []
+    );
 
     useEffect(() => {
         window.onSpotifyWebPlaybackSDKReady = () => {
@@ -67,14 +251,26 @@ export const Provider: React.FC = ({ children }) => {
             });
 
             // Playback status updates
-            player.addListener('player_state_changed', playbackstate => {
-                setPlayback(playbackstate);
+            player.addListener('player_state_changed', playback => {
+                dispatch({
+                    type: SpotifyPlayerReducerActionType.setPlayNext,
+                    payload: hasPlaybackFinished(playback)
+                });
+                playbackListener.current = playback;
+                dispatch({
+                    type: SpotifyPlayerReducerActionType.setPlayback,
+                    payload: playback
+                });
             });
 
             // Ready
             player.addListener('ready', playerInstance => {
                 console.log('Ready with Device ID', playerInstance.device_id);
-                setPlayerInstance(playerInstance);
+                dispatch({
+                    type: SpotifyPlayerReducerActionType.setPlayerInstance,
+                    payload: playerInstance
+                });
+                initPlayer();
             });
 
             // Not Ready
@@ -86,18 +282,77 @@ export const Provider: React.FC = ({ children }) => {
             player.connect().then(success => {
                 console.log('player connected: ' + success);
                 if (success) {
-                    setPlayer(player);
+                    dispatch({
+                        type: SpotifyPlayerReducerActionType.setPlayer,
+                        payload: player
+                    });
                 }
             });
         };
-    }, [setPlayback, spotifyToken, setPlayer, setPlayerInstance]);
+    }, [spotifyToken, initPlayer, hasPlaybackFinished, dispatch]);
+
+    const playTrack = useCallback(
+        (track: SpotifyApi.TrackObjectFull) => {
+            spotifyApi
+                .play({ uris: [track.uri] })
+                .then(() => {
+                    dispatch({
+                        type: SpotifyPlayerReducerActionType.PlayTrack,
+                        payload: track
+                    });
+                    dispatch({
+                        type: SpotifyPlayerReducerActionType.QueueDelete,
+                        payload: { trackId: track.id }
+                    });
+                })
+                .catch(e => console.error('Unable to play track', e));
+        },
+        [dispatch]
+    );
+
+    // const triggerPlayNextTrack = useCallback(() => {
+    //     console.log('trigger play next callback check before');
+    //     if (playNext) {
+    //         console.log('trigger play next');
+    //         setPlayNext(false);
+    //         playTrack(queue[0]);
+    //     }
+    // }, [playNext, playTrack, queue, setPlayNext]);
+
+    useEffect(
+        function triggerPlayNextTrack() {
+            console.log('trigger play next callback check before');
+            if (playNext) {
+                console.log('trigger play next');
+                dispatch({
+                    type: SpotifyPlayerReducerActionType.setPlayNext,
+                    payload: false
+                });
+                const track = queue[0];
+                playTrack(track);
+                // dispatch(playTrack(track));
+                // spotifyApi
+                //     .play({ uris: [track.uri] })
+                //     .then(() => {
+                //         dispatch({
+                //             type: SpotifyPlayerReducerActionType.PlayTrack,
+                //             payload: track
+                //         });
+                //         dispatch({
+                //             type: SpotifyPlayerReducerActionType.QueueDelete,
+                //             payload: { trackId: track.id }
+                //         });
+                //     })
+                //     .catch(e => console.error('Unable to play track', e));
+            }
+        },
+        [dispatch, playNext, playTrack, queue]
+    );
 
     const value: SpotifyPlayerContextInterface = {
         ...state,
-        setPlayback,
-        setPlayer,
-        setPlayerInstance,
-        setPlayNext
+        dispatch,
+        playTrack
     };
 
     return (
@@ -106,3 +361,5 @@ export const Provider: React.FC = ({ children }) => {
         </SpotifyPlayerContext.Provider>
     );
 };
+
+export default SpotifyPlayerProvider;
