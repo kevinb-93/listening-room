@@ -3,34 +3,35 @@ import React, { useCallback, useEffect } from 'react';
 import { UserProfileContext } from './context';
 import { UserProfileContextInterface } from './types';
 import { __useUserProfileReducer } from './reducer';
-import useActions from './useActions';
 import { useUserIdentityContext } from '../identity';
 import { useApiRequest } from '../../../shared/hooks/api-hook';
+import { UserProfileReducerActionType } from './reducer/types';
 
 export const Provider: React.FC = ({ children }) => {
     const { userToken } = useUserIdentityContext();
     const { sendRequest } = useApiRequest();
 
     const [state, dispatch] = __useUserProfileReducer();
-    const { set } = useActions(state, dispatch);
 
     const value: UserProfileContextInterface = {
         ...state,
-        set
+        dispatch
     };
 
     const loadProfile = useCallback(async () => {
         try {
-            const { data } = await sendRequest('/user', {});
-            set({
-                partyId: data.user.party,
-                userId: data.user._id,
-                userType: data.user.userType
-            });
+            const { data, status } = await sendRequest('/user', {});
+
+            if (status === 200) {
+                dispatch({
+                    type: UserProfileReducerActionType.SetProfile,
+                    payload: data.user
+                });
+            }
         } catch (e) {
             console.error(e);
         }
-    }, [sendRequest, set]);
+    }, [dispatch, sendRequest]);
 
     useEffect(() => {
         if (userToken) {

@@ -1,21 +1,26 @@
-export type UserProfileContextInterface = UserProfileContextState &
-    UserProfileContextActions;
+import { UserProfileReducerAction } from './reducer/types';
 
-export interface UserProfileContextActions {
-    set: (profile: UserProfile) => void;
+export type UserProfileReducerDispatch = React.Dispatch<
+    UserProfileReducerAction
+>;
+
+export type UserProfileContextInterface = UserProfileContextState & {
+    dispatch: UserProfileReducerDispatch;
+};
+
+export enum UserRole {
+    User = 'user',
+    Admin = 'admin'
 }
 
-export enum UserType {
-    Guest,
-    Host
-}
-
-export interface UserProfile {
-    userId: string;
-    userType: UserType;
-    partyId: string;
+export interface User {
+    id: string;
+    lastLoginAt: string;
+    party: string;
+    name: string;
+    role: UserRole;
 }
 
 export interface UserProfileContextState {
-    userProfile: UserProfile;
+    user: User;
 }

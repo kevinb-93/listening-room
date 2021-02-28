@@ -1,4 +1,5 @@
 import { SpotifyPlayerContextState } from '../types';
+import { CurrentTrack } from '../../../../../../../backend/src/models/party';
 
 interface ReducerAction<
     T extends SpotifyPlayerReducerActionType,
@@ -17,7 +18,7 @@ export enum SpotifyPlayerReducerActionType {
     QueueSet,
     QueueAdd,
     QueueDelete,
-    PlayTrack
+    NowPlaying
 }
 
 export type SetPlayNextPayload = boolean;
@@ -27,7 +28,7 @@ export interface PlaybackPositionPayload {
 export type PlaybackPayload = Spotify.PlaybackState;
 export type PlayerInstancePayload = Spotify.WebPlaybackInstance;
 export type PlayerPayload = Spotify.SpotifyPlayer;
-export type PlayTrackPayload = SpotifyApi.TrackObjectFull;
+export type NowPlayingPayload = SpotifyApi.TrackObjectFull;
 export interface QueueAddPayload {
     track: SpotifyApi.TrackObjectFull;
 }
@@ -55,14 +56,17 @@ export type SpotifyPlayerReducerAction =
           SpotifyPlayerReducerActionType.QueueDelete,
           QueueDeletePayload
       >
-    | ReducerAction<SpotifyPlayerReducerActionType.PlayTrack, PlayTrackPayload>
+    | ReducerAction<
+          SpotifyPlayerReducerActionType.NowPlaying,
+          NowPlayingPayload
+      >
     | ReducerAction<
           SpotifyPlayerReducerActionType.setPlayNext,
           SetPlayNextPayload
       >;
 
 export type SpotifyPlayerReducerActionPayload =
-    | PlayTrackPayload
+    | NowPlayingPayload
     | QueueAddPayload
     | QueueDeletePayload
     | QueueSetPayload
@@ -77,8 +81,4 @@ export interface SpotifyPlayerReducer {
         state: SpotifyPlayerContextState,
         payload: SpotifyPlayerReducerActionPayload
     ): SpotifyPlayerContextState;
-}
-
-export interface SpotifyPlayerReducerMap {
-    [key: string]: SpotifyPlayerReducer;
 }

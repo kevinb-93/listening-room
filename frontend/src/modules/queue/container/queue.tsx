@@ -1,25 +1,45 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Search from '../../shared/components/FormElements/search';
-
 import TrackItem, { TrackItemProps } from '../../spotify/components/track-item';
-import Player from '../../spotify/containers/player';
+import Player from '../../shared/components/audio/Player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
 import Chat from '../../chat/containers/Chat';
 import { convertDurationMs } from '../../shared/utils/datetime';
 import useSpotifySearch from '../../spotify/hooks/useSpotifySearch';
 import { getArtists, getTrackImage } from '../../spotify/utils/track';
-import { SpotifyPlayerReducerActionType } from '../../spotify/context/player/reducer/types';
+import { useSpotifyIdentityContext } from '../../spotify/context/identity';
+import SpotifyAuthButton from '../../spotify/containers/auth';
 
 const Queue: React.FC = () => {
+    const { spotifyToken } = useSpotifyIdentityContext();
     const {
         player,
         queue,
-        dispatch,
+        addTrackToQueue,
+        deleteTrackFromQueue,
         playTrack,
         playbackState
     } = useSpotifyPlayerContext();
     const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
+
+    const resumePlayback = useCallback(() => {
+        if (!player || !playbackState.paused) {
+            return;
+        }
+
+        player.resume().then(() => console.log('resumed!'));
+    }, [playbackState?.paused, player]);
+
+    const pausePlayback = useCallback(() => {
+        if (!player) {
+            return;
+        }
+
+        if (!playbackState.paused) {
+            player.pause().then(() => console.log('paused!'));
+        }
+    }, [playbackState?.paused, player]);
 
     const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
 
@@ -68,8 +88,9 @@ const Queue: React.FC = () => {
 
             if (!isCurrentTrack(id)) {
                 playTrack(track);
+            } else {
+                player.togglePlay();
             }
-            player.togglePlay();
         },
         [getTrack, isCurrentTrack, playTrack, player]
     );
@@ -79,54 +100,107 @@ const Queue: React.FC = () => {
             const isQueued = isTrackQueued(id);
 
             if (isQueued) {
-                dispatch({
-                    type: SpotifyPlayerReducerActionType.QueueDelete,
-                    payload: { trackId: id }
-                });
+                deleteTrackFromQueue(id);
             } else {
                 const track = getTrack(id);
-                dispatch({
-                    type: SpotifyPlayerReducerActionType.QueueAdd,
-                    payload: { track }
-                });
+                addTrackToQueue(track);
             }
         },
-        [dispatch, getTrack, isTrackQueued]
+        [addTrackToQueue, deleteTrackFromQueue, getTrack, isTrackQueued]
     );
 
-    const renderTracks = useMemo(() => {
+    const renderPlayer = useMemo(() => {
+        const { current_track } = playbackState?.track_window || {};
+
         return (
-            <>
-                {tracks.slice(0, 10).map(t => {
-                    const track: TrackItemProps['track'] = {
-                        id: t.id,
-                        artist: getArtists(t),
-                        duration: convertDurationMs(t.duration_ms),
-                        songTitle: t.name
-                    };
-                    const image: TrackItemProps['image'] = {
-                        src: getTrackImage(t).url,
-                        size: 64
-                    };
-
-                    const isQueued = isTrackQueued(t.id);
-                    const isPlaying = isTrackPlaying(t.id);
-
-                    return (
-                        <TrackItem
-                            onPressPlayback={pressPlaybackHandler}
-                            onQueueTrack={queueTrackHandler}
-                            isQueued={isQueued}
-                            isPlaying={isPlaying}
-                            track={track}
-                            image={image}
-                            key={t.id}
-                        />
-                    );
-                })}
-            </>
+            <Player
+                artWork={{
+                    src: current_track?.album?.images[0]?.url,
+                    height: 200,
+                    width: 200
+                }}
+                controls={{
+                    playHandler: resumePlayback,
+                    pauseHandler: pausePlayback,
+                    isPlaying: !(playbackState?.paused ?? true)
+                }}
+                creatorName={current_track?.artists[0]?.name}
+                title={current_track?.name}
+                progress={{
+                    elaspedTime: playbackState?.position ?? 0,
+                    songDurationMs: playbackState?.duration ?? 0
+                }}
+            />
         );
     }, [
+        pausePlayback,
+        playbackState?.duration,
+        playbackState?.paused,
+        playbackState?.position,
+        playbackState?.track_window,
+        resumePlayback
+    ]);
+
+    const changeHandler = useCallback(
+        (searchTerm: string) => {
+            setSearchTerm(searchTerm);
+        },
+        [setSearchTerm]
+    );
+
+    const clearHandler = useCallback(() => {
+        setSearchTerm('');
+    }, [setSearchTerm]);
+
+    const renderSearch = useMemo(() => {
+        return (
+            <div>
+                <Search
+                    onChange={changeHandler}
+                    searchTerm={searchTerm}
+                    onClear={clearHandler}
+                />
+            </div>
+        );
+    }, [changeHandler, clearHandler, searchTerm]);
+
+    const renderQueue = useMemo(() => {
+        return (
+            <StyledQueue>
+                <StyledTrackList>
+                    {tracks.slice(0, 10).map(t => {
+                        const track: TrackItemProps['track'] = {
+                            id: t.id,
+                            artist: getArtists(t),
+                            duration: convertDurationMs(t.duration_ms),
+                            songTitle: t.name
+                        };
+                        const image: TrackItemProps['image'] = {
+                            src: getTrackImage(t).url,
+                            size: 64
+                        };
+
+                        const isQueued = isTrackQueued(t.id);
+                        const isPlaying = isTrackPlaying(t.id);
+
+                        return (
+                            <TrackItem
+                                onPressPlayback={pressPlaybackHandler}
+                                onQueueTrack={queueTrackHandler}
+                                isQueued={isQueued}
+                                isPlaying={isPlaying}
+                                isCurrentTrack={isCurrentTrack(t.id)}
+                                track={track}
+                                image={image}
+                                key={t.id}
+                            />
+                        );
+                    })}
+                </StyledTrackList>
+            </StyledQueue>
+        );
+    }, [
+        isCurrentTrack,
         isTrackPlaying,
         isTrackQueued,
         pressPlaybackHandler,
@@ -134,35 +208,25 @@ const Queue: React.FC = () => {
         tracks
     ]);
 
-    const changeHandler = (searchTerm: string) => {
-        setSearchTerm(searchTerm);
-    };
-
-    const clearHandler = () => {
-        setSearchTerm('');
-    };
-
     return (
-        <Container>
+        <StyledContainer>
             <div>
-                {player && <Player />}
-                <SearchContainer>
-                    <Search
-                        onChange={changeHandler}
-                        searchTerm={searchTerm}
-                        onClear={clearHandler}
-                    />
-                </SearchContainer>
-                <QueueContainer>
-                    <TrackList>{renderTracks}</TrackList>
-                </QueueContainer>
+                {spotifyToken ? (
+                    <>
+                        {renderPlayer}
+                        {renderSearch}
+                        {renderQueue}
+                    </>
+                ) : (
+                    <SpotifyAuthButton />
+                )}
             </div>
             <Chat />
-        </Container>
+        </StyledContainer>
     );
 };
 
-const Container = styled.div`
+const StyledContainer = styled.div`
     display: grid;
     margin: 0 auto;
     grid-gap: 1rem;
@@ -172,13 +236,11 @@ const Container = styled.div`
     align-items: start;
 `;
 
-const QueueContainer = styled.div`
+const StyledQueue = styled.div`
     justify-self: stretch;
 `;
 
-const SearchContainer = styled.div``;
-
-const TrackList = styled.div`
+const StyledTrackList = styled.div`
     display: flex;
     flex-direction: column;
 `;

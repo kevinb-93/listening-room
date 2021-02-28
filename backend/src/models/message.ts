@@ -14,10 +14,4 @@ const messageSchema = new Schema({
     message: { type: String, required: true }
 });
 
-// messageSchema.virtual('admin', {
-//     ref: 'Party',
-//     localField: 'name',
-//     foreignField: 'band',
-// });
-
 export default mongoose.model<Message>('Message', messageSchema);

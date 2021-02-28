@@ -18,21 +18,21 @@ export const Providers: React.FC = ({ children }) => {
             <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
                     <UserIdentityContextProvider>
-                        <UserProfileContextProvider>
-                            <AppContextProvider>
-                                <PartyContextProvider>
-                                    <SpotifyIdentityContextProvider>
-                                        <SpotifyContextProvider>
-                                            <SpotifyPlayerProvider>
-                                                <WebSocketContextProvider>
+                        <SpotifyIdentityContextProvider>
+                            <UserProfileContextProvider>
+                                <WebSocketContextProvider>
+                                    <AppContextProvider>
+                                        <PartyContextProvider>
+                                            <SpotifyContextProvider>
+                                                <SpotifyPlayerProvider>
                                                     {children}
-                                                </WebSocketContextProvider>
-                                            </SpotifyPlayerProvider>
-                                        </SpotifyContextProvider>
-                                    </SpotifyIdentityContextProvider>
-                                </PartyContextProvider>
-                            </AppContextProvider>
-                        </UserProfileContextProvider>
+                                                </SpotifyPlayerProvider>
+                                            </SpotifyContextProvider>
+                                        </PartyContextProvider>
+                                    </AppContextProvider>
+                                </WebSocketContextProvider>
+                            </UserProfileContextProvider>
+                        </SpotifyIdentityContextProvider>
                     </UserIdentityContextProvider>
                 </ThemeProvider>
             </MuiThemeProvider>

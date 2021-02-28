@@ -57,7 +57,7 @@ const chatReducer = (state: ChatReducerState, action: ChatReducerAction) => {
 const useLiveChat = () => {
     const [chatMessages, dispatch] = useReducer(chatReducer, []);
     const { socket } = useWebSocketContext();
-    const { userProfile } = useUserProfileContext();
+    const { user } = useUserProfileContext();
 
     const { sendRequest: sendAddMessageRequest } = useApiRequest();
     const { sendRequest: sendDeleteMessageRequest } = useApiRequest();
@@ -97,7 +97,7 @@ const useLiveChat = () => {
     const getChatMessages = useCallback(async () => {
         try {
             const { status, data } = await getMessagesRequest(
-                `party/${userProfile.partyId}/messages`,
+                `party/${user.party}/messages`,
                 {}
             );
 
@@ -115,7 +115,7 @@ const useLiveChat = () => {
         } catch (e) {
             console.error(e);
         }
-    }, [getMessagesRequest, userProfile?.partyId]);
+    }, [getMessagesRequest, user?.party]);
 
     useEffect(() => {
         getChatMessages();
@@ -125,7 +125,7 @@ const useLiveChat = () => {
         try {
             const requestData = {
                 message,
-                partyId: userProfile.partyId
+                partyId: user.party
             };
             const { status, data } = await sendAddMessageRequest(
                 '/message/create',

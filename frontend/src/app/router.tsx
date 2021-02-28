@@ -7,17 +7,17 @@ import Header from '../modules/shared/components/header';
 import NavLink from '../modules/navigation/components/nav-link';
 import GlobalStyle from '../modules/shared/styles/global';
 import Main from '../modules/shared/components/main';
-import Login from '../modules/party/containers/login';
 import { useUserIdentityContext } from '../modules/user/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
 import useAppIdentity from '../modules/shared/hooks/useAppIdentity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
+import PartyAuth from '../modules/party/containers/PartyAuth';
 
 const Router: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
     const { isLoggedIn, logout } = useAppIdentity();
-    const { userProfile } = useUserProfileContext();
+    const { user } = useUserProfileContext();
 
     if (isRestoring) {
         return <div>Restoring Token</div>;
@@ -27,40 +27,23 @@ const Router: React.FC = () => {
         <BrowserRouter>
             <GlobalStyle />
             {isLoggedIn && (
-                <>
-                    <Header>
-                        <NavMenu>
-                            <NavLink
-                                to="/queue"
-                                label={'Queue'}
-                                icon={'list-ol'}
-                                activePaths={['/', '/queue']}
-                            />
-                            <NavLink
-                                to="/settings"
-                                label={'Settings'}
-                                icon={'cog'}
-                            />
-                            <div id="partyId">{userProfile.partyId}</div>
-                        </NavMenu>
-                        <button onClick={() => logout()}>Log out</button>
-                    </Header>
-                    {/* <Drawer>
-                        <SideNav>
-                            <NavLink
-                                to="/queue"
-                                label={'Queue'}
-                                icon={'list-ol'}
-                                activePaths={['/', '/queue']}
-                            />
-                            <NavLink
-                                to="/settings"
-                                label={'Settings'}
-                                icon={'cog'}
-                            />
-                        </SideNav>
-                    </Drawer> */}
-                </>
+                <Header>
+                    <NavMenu>
+                        <NavLink
+                            to="/queue"
+                            label={'Queue'}
+                            icon={'list-ol'}
+                            activePaths={['/', '/queue']}
+                        />
+                        <NavLink
+                            to="/settings"
+                            label={'Settings'}
+                            icon={'cog'}
+                        />
+                        <div id="partyId">{user.party}</div>
+                    </NavMenu>
+                    <button onClick={() => logout()}>Log out</button>
+                </Header>
             )}
             <Main>
                 <Switch>
@@ -68,7 +51,11 @@ const Router: React.FC = () => {
                         <Settings />
                     </PrivateRoute>
                     <Route path="/auth">
-                        {isLoggedIn ? <Redirect to={'/queue'} /> : <Login />}
+                        {isLoggedIn ? (
+                            <Redirect to={'/queue'} />
+                        ) : (
+                            <PartyAuth />
+                        )}
                     </Route>
                     {/* Fallback */}
                     <PrivateRoute path="/">

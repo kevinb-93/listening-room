@@ -42,7 +42,7 @@ const Reducer = (
                 ...state,
                 player: action.payload
             };
-        case SpotifyPlayerReducerActionType.PlayTrack:
+        case SpotifyPlayerReducerActionType.NowPlaying:
             return {
                 ...state,
                 nowPlaying: action.payload
@@ -53,7 +53,7 @@ const Reducer = (
                 action.payload.track
             ];
 
-            setLocalStorage(LocalStorageItemNames.Queue, queue);
+            // setLocalStorage(LocalStorageItemNames.Queue, queue);
             return {
                 ...state,
                 queue
@@ -63,7 +63,7 @@ const Reducer = (
             let queue: SpotifyPlayerContextState['queue'] = state.queue ?? [];
             queue = queue.filter(t => t.id !== action.payload.trackId);
 
-            setLocalStorage(LocalStorageItemNames.Queue, queue);
+            // setLocalStorage(LocalStorageItemNames.Queue, queue);
 
             return {
                 ...state,
@@ -73,12 +73,15 @@ const Reducer = (
         case SpotifyPlayerReducerActionType.QueueSet: {
             const queueState = action.payload.queue ?? [];
 
-            setLocalStorage(LocalStorageItemNames.Queue, queueState);
+            // setLocalStorage(LocalStorageItemNames.Queue, queueState);
 
             return {
                 ...state,
                 queue: queueState
             };
+        }
+        default: {
+            return { ...state };
         }
     }
 };

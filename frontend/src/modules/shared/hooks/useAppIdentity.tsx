@@ -1,61 +1,52 @@
 import { useCallback, useMemo } from 'react';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
-import { SpotifyIdentityContextState } from '../../spotify/context/identity/types';
 import { useUserIdentityContext } from '../../user/contexts/identity';
-import {
-    UserIdentityContextState,
-    User,
-    UserType
-} from '../../user/contexts/identity/types';
+import { UserIdentityContextState } from '../../user/contexts/identity/types';
 import { useUserProfileContext } from '../../user/contexts/profile';
+import { User, UserRole } from '../../user/contexts/profile/types';
 
 const isValidToken = (token: UserIdentityContextState['userToken']) => {
     return Boolean(token?.trim());
 };
 
-const isValidUserType = (userType: User['userType']) => {
-    return userType in UserType;
+const isValidUserType = (role: User['role']) => {
+    return Object.values(UserRole).includes(role);
 };
 
-const isValidHost = (
-    userType: User['userType'],
-    spotifyToken: SpotifyIdentityContextState['spotifyToken']
-) => {
-    return userType === UserType.Host && isValidToken(spotifyToken);
+const isValidHost = (role: User['role']) => {
+    return role === UserRole.Admin;
 };
 
 interface ValidUser {
     userToken: UserIdentityContextState['userToken'];
-    spotifyToken: SpotifyIdentityContextState['spotifyToken'];
-    userType: User['userType'];
+    role: User['role'];
 }
 
-const isValidUser = ({ userToken, spotifyToken, userType }: ValidUser) => {
-    if (!isValidToken(userToken) || !isValidUserType(userType)) {
+const isValidUser = ({ userToken, role }: ValidUser) => {
+    if (!isValidToken(userToken) || !isValidUserType(role)) {
         return false;
     }
 
-    if (userType === UserType.Guest) {
+    if (role === UserRole.User) {
         return true;
     }
 
-    return isValidHost(userType, spotifyToken);
+    return isValidHost(role);
 };
 
 const useAppIdentity = () => {
     const { userToken, userLogout } = useUserIdentityContext();
-    const { userProfile } = useUserProfileContext();
-    const { spotifyToken, spotifyLogout } = useSpotifyIdentityContext();
+    const { user } = useUserProfileContext();
+    const { spotifyLogout } = useSpotifyIdentityContext();
 
     const isLoggedIn = useMemo(() => {
         const userIsValid = isValidUser({
             userToken,
-            userType: userProfile?.userType,
-            spotifyToken
+            role: user?.role
         });
 
         return userIsValid;
-    }, [spotifyToken, userProfile?.userType, userToken]);
+    }, [user?.role, userToken]);
 
     const logout = useCallback(() => {
         userLogout();

@@ -1,24 +1,44 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { checkAuth } from '../middleware/check-auth';
-
+import { verifyAccessToken } from '../middleware/auth';
 import {
     create,
-    join,
     party,
-    messages
+    messages,
+    nowPlaying,
+    updateQueue,
+    getQueue,
+    getPlayer,
+    addTrackQueue,
+    deleteTrackQueue,
+    getParties,
+    join
 } from '../controllers/parties-controllers';
 
 const router = express.Router();
 
-router.post('/create', [check(['name']).not().isEmpty()], create);
+router.get('', getParties);
 
-router.post('/join/:pid', [check(['name']).not().isEmpty()], join);
+router.use(verifyAccessToken);
 
-router.use(checkAuth);
+router.post('/join', join);
+
+router.post('/create', create);
 
 router.get('/:pid', party);
 
 router.get('/:pid/messages', messages);
+
+router.put('/now-playing/:pid', nowPlaying);
+
+router.put('/queue/:pid', updateQueue);
+
+router.post('/queue/:pid', addTrackQueue);
+
+router.delete('/queue/:pid', deleteTrackQueue);
+
+router.get('/queue/:pid', getQueue);
+
+router.get('/:pid/player', getPlayer);
 
 export default router;

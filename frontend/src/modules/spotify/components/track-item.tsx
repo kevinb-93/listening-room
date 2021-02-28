@@ -21,6 +21,7 @@ export interface TrackItemProps {
     image: TrackItemImage;
     isQueued: boolean;
     isPlaying: boolean;
+    isCurrentTrack: boolean;
     onQueueTrack: (id: TrackProps['id']) => void;
     onPressPlayback: (id: TrackProps['id']) => void;
 }
@@ -31,7 +32,8 @@ const TrackItem: React.FC<TrackItemProps> = ({
     onPressPlayback,
     onQueueTrack,
     isQueued,
-    isPlaying
+    isPlaying,
+    isCurrentTrack
 }) => {
     const queueIcon: IconProp = isQueued ? 'times' : 'plus';
     const playbackIcon: IconProp = isPlaying ? 'pause' : 'play';
@@ -59,9 +61,11 @@ const TrackItem: React.FC<TrackItemProps> = ({
                 <span>{track.duration}</span>
             </StyledTrackInfo>
             <StyledTrackPlayerActions>
-                <span onClick={queueTrackHandler}>
-                    <FontAwesomeIcon fixedWidth icon={queueIcon} />
-                </span>
+                {!isCurrentTrack && (
+                    <span onClick={queueTrackHandler}>
+                        <FontAwesomeIcon fixedWidth icon={queueIcon} />
+                    </span>
+                )}
                 <span onClick={pressPlaybackHandler}>
                     <FontAwesomeIcon fixedWidth icon={playbackIcon} />
                 </span>

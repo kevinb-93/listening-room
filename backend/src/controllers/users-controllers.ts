@@ -1,10 +1,98 @@
 import { validationResult } from 'express-validator';
+import bcrypt from 'bcryptjs';
 
 import HttpError from '../models/http-error';
-import User from '../models/user';
-import Token from '../models/token';
+import User, { UserRole } from '../models/user';
 import { NextFunction, Request, Response } from 'express';
-import { createToken, TokenTypes, verifyToken } from '../utils/token';
+import { createToken, TokenType, verifyToken } from '../utils/token';
+import { isPasswordValid } from '../utils/password';
+
+export const login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
+
+        const { name, password } = req.body;
+
+        const user = await User.findOne({ name });
+        if (!user) {
+            return next(new HttpError('No user found', 404));
+        }
+
+        const isValidPassword = await isPasswordValid(password, user.password);
+        if (!isValidPassword) {
+            return next(new HttpError('Invalid password', 401));
+        }
+
+        const accessToken = await user.createAccessToken();
+        const refreshToken = await user.createRefreshToken();
+        await user.save();
+
+        res.status(201).json({ accessToken, refreshToken });
+    } catch (e) {
+        console.error(e);
+        return next(new HttpError('Internal Server Error!', 500));
+    }
+};
+
+export const register = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return next(
+                new HttpError(
+                    'Invalid inputs passed, please check your data.',
+                    422
+                )
+            );
+        }
+
+        const { name, password, isAnonymous } = req.body;
+
+        let hashedPassword = '';
+        if (!isAnonymous) {
+            const user = await User.findOne({ name });
+            if (user) {
+                return next(new HttpError('User already exists', 400));
+            }
+
+            hashedPassword = await bcrypt.hash(password, 12);
+        }
+
+        const newUser = new User({
+            name,
+            password: isAnonymous ? password : hashedPassword,
+            lastLoginAt: new Date(),
+            isAnonymous,
+            role: isAnonymous ? null : UserRole.User
+        });
+        const accessToken = await newUser.createAccessToken();
+        await newUser.createRefreshToken();
+        await newUser.save();
+
+        res.status(201).json({ accessToken, user: newUser });
+    } catch (e) {
+        console.error(e);
+        return next(new HttpError('Internal Server Error!', 500));
+    }
+};
 
 export const refreshToken = async (
     req: Request,
@@ -24,21 +112,23 @@ export const refreshToken = async (
         }
 
         const { refreshToken } = req.body;
-        const tokenDoc = await Token.findOne({ token: refreshToken });
 
-        if (!tokenDoc) {
-            return next(new HttpError('Token expired', 401));
+        const userDoc = await User.findOne({
+            refreshToken
+        });
+
+        if (!userDoc?.refreshToken) {
+            return next(new HttpError('Token not found', 404));
         }
 
-        const { userId, name } = verifyToken(
-            tokenDoc.token,
-            TokenTypes.Refresh
+        const tokenPayload = verifyToken(
+            userDoc.refreshToken,
+            TokenType.Refresh
         );
 
         const accessToken = createToken({
-            userId,
-            name,
-            type: TokenTypes.Access
+            ...tokenPayload,
+            type: TokenType.Access
         });
 
         res.status(200).json({ accessToken });
@@ -65,9 +155,14 @@ export const logout = async (
             );
         }
 
-        const { refreshToken } = req.body;
+        const user = await User.findById(req.user?.userId);
 
-        await Token.findOneAndDelete({ token: refreshToken });
+        if (!user) {
+            return next(new HttpError('User not found', 404));
+        }
+
+        user.refreshToken = undefined;
+        await user.save();
 
         res.status(200).json({ success: 'User logged out!' });
     } catch (e) {

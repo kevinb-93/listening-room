@@ -42,7 +42,7 @@
     ],
     "compounds": [
         {
-            "name": "Server/Client",
+            "name": "Launch app in development",
             "configurations": ["Server", "Client", "Launch Chrome against localhost"]
         }
     ]

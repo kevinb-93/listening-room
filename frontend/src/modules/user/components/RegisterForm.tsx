@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 import { Formik, Field, Form } from 'formik';
@@ -6,30 +6,44 @@ import { TextField } from 'formik-material-ui';
 
 import Button from '../../shared/components/FormElements/Button';
 
-interface CreatePartyFormValues {
+interface RegisterFormValues {
     name: string;
     password: string;
 }
 
-export type CreatePartySubmit = (
-    values: CreatePartyFormValues
+export type RegisterSubmit = (
+    values: RegisterFormValues
 ) => void | Promise<void>;
 
-interface CreatePartyFormProps {
-    onSubmit: CreatePartySubmit;
+interface RegisterFormProps {
+    onSubmit: RegisterSubmit;
     submitDisabled?: boolean;
 }
 
-const CreatePartyForm: React.FC<CreatePartyFormProps> = ({
+const RegisterForm: React.FC<RegisterFormProps> = ({
     onSubmit,
     submitDisabled
 }) => {
-    const validationSchema = Yup.object<CreatePartyFormValues>({
+    const validationSchema = Yup.object<RegisterFormValues>({
         name: Yup.string().required('Required'),
         password: Yup.string().required('Required')
     });
 
-    const initialValues: CreatePartyFormValues = { name: '', password: '' };
+    const canSubmit = useCallback(() => {
+        if (!submitDisabled) {
+            return false;
+        } else {
+            return !submitDisabled;
+        }
+    }, [submitDisabled]);
+
+    const [submitEnabled, setSubmitEnabled] = useState<boolean>(canSubmit());
+
+    useEffect(() => {
+        setSubmitEnabled(canSubmit());
+    }, [canSubmit]);
+
+    const initialValues: RegisterFormValues = { name: '', password: '' };
 
     return (
         <Formik
@@ -52,7 +66,7 @@ const CreatePartyForm: React.FC<CreatePartyFormProps> = ({
                             name="password"
                             type="password"
                             margin="normal"
-                            label="Your Password"
+                            label="Password"
                             component={TextField}
                         />
                     </StyledFormInputSection>
@@ -60,9 +74,9 @@ const CreatePartyForm: React.FC<CreatePartyFormProps> = ({
                         type="submit"
                         color="primary"
                         variant="contained"
-                        disabled={submitDisabled}
+                        disabled={!submitEnabled}
                     >
-                        Create
+                        Register
                     </Button>
                 </StyledForm>
             )}
@@ -86,8 +100,8 @@ const StyledFormInputSection = styled.div`
     padding: 8px;
 `;
 
-CreatePartyForm.defaultProps = {
+RegisterForm.defaultProps = {
     submitDisabled: false
 };
 
-export default CreatePartyForm;
+export default RegisterForm;

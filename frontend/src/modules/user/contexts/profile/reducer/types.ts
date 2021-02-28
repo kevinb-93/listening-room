@@ -1,24 +1,29 @@
 import { UserProfileContextState } from '../types';
-import { SetProfilePayload } from './profile/set';
 
-export enum UserProfileReducerAction {
-    Set
+export interface UserProfileReducerMap {
+    [key: string]: UserProfileReducer;
 }
 
-export interface UserProfileReducerActionPayload<T extends ActionPayload> {
-    type: UserProfileReducerAction;
-    payload: T;
+interface ReducerAction<
+    T extends UserProfileReducerActionType,
+    P extends UserProfileContextState[keyof UserProfileContextState]
+> {
+    type: T;
+    payload: P;
 }
 
-export type ActionPayload = SetProfilePayload;
+export enum UserProfileReducerActionType {
+    SetProfile
+}
+
+export type UserProfileReducerAction = ReducerAction<
+    UserProfileReducerActionType.SetProfile,
+    UserProfileContextState['user']
+>;
 
 export interface UserProfileReducer {
     (
         state: UserProfileContextState,
-        payload: ActionPayload
+        payload: UserProfileReducerAction
     ): UserProfileContextState;
-}
-
-export interface UserProfileReducerMap {
-    [key: string]: UserProfileReducer;
 }

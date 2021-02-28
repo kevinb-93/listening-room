@@ -14,6 +14,8 @@ const SpotifySearch: React.FC = () => {
         queue,
         dispatch,
         playTrack,
+        addTrackToQueue,
+        deleteTrackFromQueue,
         playbackState,
         player
     } = useSpotifyPlayerContext();
@@ -44,8 +46,9 @@ const SpotifySearch: React.FC = () => {
 
         if (!isCurrentTrack(id)) {
             playTrack(track);
+        } else {
+            player.togglePlay();
         }
-        player.togglePlay();
     };
 
     const getTrackFromSearchResults = useCallback(
@@ -59,16 +62,18 @@ const SpotifySearch: React.FC = () => {
         const isQueued = isTrackQueued(id);
 
         if (isQueued) {
-            dispatch({
-                type: SpotifyPlayerReducerActionType.QueueDelete,
-                payload: { trackId: id }
-            });
+            deleteTrackFromQueue(id);
+            // dispatch({
+            //     type: SpotifyPlayerReducerActionType.QueueDelete,
+            //     payload: { trackId: id }
+            // });
         } else {
             const track = getTrackFromSearchResults(id);
-            dispatch({
-                type: SpotifyPlayerReducerActionType.QueueAdd,
-                payload: { track }
-            });
+            addTrackToQueue(track);
+            // dispatch({
+            //     type: SpotifyPlayerReducerActionType.QueueAdd,
+            //     payload: { track }
+            // });
         }
     };
 
@@ -98,6 +103,7 @@ const SpotifySearch: React.FC = () => {
                         <TrackItem
                             onPressPlayback={pressPlaybackHandler}
                             onQueueTrack={queueTrackHandler}
+                            isCurrentTrack={isCurrentTrack(t.id)}
                             isQueued={isQueued}
                             isPlaying={isPlaying}
                             track={track}

@@ -3,48 +3,48 @@ import jwt from 'jsonwebtoken';
 import secret from '../config/secret';
 import { TokenPayload } from '../typings/token';
 
-export enum TokenTypes {
+export enum TokenType {
     Access,
     Refresh
 }
 
 interface TokenCreateProps extends TokenPayload {
-    type: TokenTypes;
+    type: TokenType;
 }
 
-const getSecretKey = (type: TokenTypes) => {
+const getSecretKey = (type: TokenType) => {
     switch (type) {
-        case TokenTypes.Access:
+        case TokenType.Access:
             return secret.ACCESS_TOKEN_KEY;
-        case TokenTypes.Refresh:
+        case TokenType.Refresh:
             return secret.REFRESH_TOKEN_KEY;
         default:
             return '';
     }
 };
 
-const getTokenExpiresIn = (type: TokenTypes) => {
+const getTokenExpiresIn = (type: TokenType) => {
     switch (type) {
-        case TokenTypes.Access:
+        case TokenType.Access:
             return '1h';
-        case TokenTypes.Refresh:
-            return '12h';
+        case TokenType.Refresh:
+            return '30d';
         default:
             return '1h';
     }
 };
 
-export const createToken = ({ userId, name, type }: TokenCreateProps) => {
+export const createToken = ({ userId, name, role, type }: TokenCreateProps) => {
     const secretKey = getSecretKey(type);
 
     const expiresIn = getTokenExpiresIn(type);
 
-    return jwt.sign({ userId, name }, secretKey, {
+    return jwt.sign({ userId, name, role }, secretKey, {
         expiresIn
     });
 };
 
-export const verifyToken = (token: string, type: TokenTypes) => {
+export const verifyToken = (token: string, type: TokenType) => {
     const secretKey = getSecretKey(type);
 
     return jwt.verify(token, secretKey) as TokenPayload;

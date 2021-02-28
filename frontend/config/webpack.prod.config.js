@@ -11,7 +11,6 @@ module.exports = {
         path: path.resolve(__dirname, 'src'),
         filename: 'bundled.js'
     },
-    devtool: 'inline-source-map',
     module: {
         rules: [
             {
@@ -25,10 +24,6 @@ module.exports = {
                 test: /\.tsx?$/,
                 exclude: /(node_modules|bower_components)/,
                 use: [
-                    {
-                        loader: 'babel-loader',
-                        options: { plugins: ['react-refresh/babel'] }
-                    },
                     {
                         loader: 'ts-loader',
                         options: { transpileOnly: true }
@@ -70,19 +65,12 @@ module.exports = {
     plugins: [
         /* React hot module replacement */
         new ReactRefreshWebpackPlugin(),
-        new ForkTsCheckerWebpackPlugin(),
-        //     {
-        //     eslint: {
-        //         enabled: true,
-        //         files: './src/**/*'
-        //     },
-        //     typescript: {
-        //         diagnosticOptions: {
-        //             semantic: true,
-        //             syntactic: true
-        //         }
-        //     }
-        // }
+        new ForkTsCheckerWebpackPlugin({
+            eslint: {
+                enabled: true,
+                files: './src/**/*'
+            }
+        }),
         /* simplifies creation of HTML */
         new HtmlWebpackPlugin({
             template: 'src/app/index.html'

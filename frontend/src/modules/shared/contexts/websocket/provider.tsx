@@ -5,13 +5,25 @@ import { __useWebSocketReducer } from './reducer';
 import useActions from './useActions';
 import useAppIdentity from '../../hooks/useAppIdentity';
 import { useUserProfileContext } from '../../../user/contexts/profile';
+import { UserRole } from '../../../user/contexts/profile/types';
 
 type JoinCallback = (err: null | Error, response?: { room: string }) => void;
+
+export enum RoomType {
+    Host = 'host',
+    Guest = 'guest',
+    Party = 'party'
+}
+
+interface Room {
+    id: string;
+    type: RoomType;
+}
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useWebSocketReducer();
     const { isLoggedIn } = useAppIdentity();
-    const { userProfile } = useUserProfileContext();
+    const { user } = useUserProfileContext();
 
     const { setSocket } = useActions(state, dispatch);
 
@@ -20,70 +32,87 @@ export const Provider: React.FC = ({ children }) => {
         setSocket
     };
 
-    const connectToWebSocket = useCallback(() => {
-        if (!isLoggedIn || state.socket) {
-            return;
-        }
+    const connectPartyResponse: JoinCallback = useCallback(
+        (err, res) => {
+            if (err) return console.error(err);
 
-        setSocket();
-    }, [isLoggedIn, setSocket, state.socket]);
+            let roomType: RoomType;
+            if (user?.role === UserRole.User) {
+                roomType = RoomType.Guest;
+            } else if (user?.role === UserRole.Admin) {
+                roomType = RoomType.Host;
+            }
 
-    const joinRoomResponse: JoinCallback = (err, res) => {
-        if (err) return console.error(err);
+            const room: Room = {
+                id: user?.id,
+                type: roomType
+            };
 
-        console.log(res);
-    };
-
-    const connectToRoom = useCallback(
-        (room: string) => {
             if (!state.socket || !room) {
                 return;
             }
 
-            state.socket.emit('join', room, joinRoomResponse);
+            state.socket.emit('join', room);
+
+            console.log(res);
         },
-        [state.socket]
+        [state.socket, user?.id, user?.role]
     );
 
-    useEffect(() => {
-        const roomToConnect = userProfile?.partyId;
-        connectToRoom(roomToConnect);
-    }, [connectToRoom, userProfile?.partyId]);
+    useEffect(
+        function connectToParty() {
+            const party = user?.party;
+            const room = { id: party, type: RoomType.Party };
 
-    useEffect(() => {
-        connectToWebSocket();
-    }, [connectToWebSocket]);
-
-    const initSocketEvents = useCallback(() => {
-        if (!state.socket) {
-            return;
-        }
-
-        state.socket.on('connect', () => {
-            console.log('socket connected');
-        });
-
-        state.socket.on('disconnect', (reason: string) => {
-            console.log(`socket disconnected: ${reason}`);
-            if (reason === 'io server disconnect') {
-                state.socket.connect();
+            if (!state.socket || !room) {
+                return;
             }
-        });
 
-        state.socket.on('connect_error', (e: unknown) => {
-            console.error(e);
-        });
-    }, [state.socket]);
+            state.socket.emit('join', room, connectPartyResponse);
+        },
+        [connectPartyResponse, state.socket, user?.party]
+    );
+
+    useEffect(
+        function connectToWebSocket() {
+            if (!isLoggedIn || state.socket) {
+                return;
+            }
+
+            setSocket();
+        },
+        [isLoggedIn, setSocket, state.socket]
+    );
 
     const disconnectSocket = useCallback(() => {
         state.socket?.disconnect();
     }, [state.socket]);
 
-    useEffect(() => {
-        initSocketEvents();
+    useEffect(
+        function initSocketEvents() {
+            if (!state.socket) {
+                return;
+            }
 
-        return disconnectSocket;
-    }, [disconnectSocket, initSocketEvents, state.socket]);
+            state.socket.on('connect', () => {
+                console.log('socket connected');
+            });
+
+            state.socket.on('disconnect', (reason: string) => {
+                console.log(`socket disconnected: ${reason}`);
+                if (reason === 'io server disconnect') {
+                    state.socket.connect();
+                }
+            });
+
+            state.socket.on('connect_error', (e: unknown) => {
+                console.error(e);
+            });
+
+            return disconnectSocket;
+        },
+        [disconnectSocket, state.socket]
+    );
 
     return (
         <WebSocketContext.Provider value={value}>

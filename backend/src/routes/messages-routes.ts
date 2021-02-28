@@ -5,11 +5,11 @@ import {
     createMessage,
     deleteMessage
 } from '../controllers/messages-controllers';
-import { checkAuth } from '../middleware/check-auth';
+import { verifyAccessToken } from '../middleware/auth';
 
 const router = express.Router();
 
-router.use(checkAuth);
+router.use(verifyAccessToken);
 
 router.post(
     '/create',

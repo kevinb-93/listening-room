@@ -2,6 +2,8 @@ import { SpotifyPlayerReducerAction } from './reducer/types';
 
 export interface SpotifyPlayerContextActions {
     playTrack: (track: SpotifyApi.TrackObjectFull) => void;
+    deleteTrackFromQueue: (track: SpotifyApi.TrackObjectFull['id']) => void;
+    addTrackToQueue: (track: SpotifyApi.TrackObjectFull) => void;
 }
 
 export type SpotifyPlayerReducerDispatch = React.Dispatch<

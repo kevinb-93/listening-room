@@ -7,16 +7,6 @@ export interface UserIdentityContextInterface extends UserIdentityContextState {
     setRestoreState: (state: UserIdentityContextState['isRestoring']) => void;
 }
 
-export enum UserType {
-    Guest,
-    Host
-}
-
-export interface User {
-    userId: string;
-    userType: UserType;
-}
-
 export interface UserIdentityContextState {
     userToken: string;
     userRefreshToken: string;

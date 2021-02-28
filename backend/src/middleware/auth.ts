@@ -1,9 +1,13 @@
 import { Request, NextFunction, Response } from 'express';
 
 import HttpError from '../models/http-error';
-import { TokenTypes, verifyToken } from '../utils/token';
+import { TokenType, verifyToken } from '../utils/token';
 
-export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
+export const verifyAccessToken = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => {
     // Header = Authorization: Bearer 'Token'
     const token = req.get('Authorization')?.split(' ')[1];
 
@@ -11,8 +15,8 @@ export const checkAuth = (req: Request, res: Response, next: NextFunction) => {
         return next(new HttpError('Access denied, token missing!', 401));
     } else {
         try {
-            const { userId } = verifyToken(token, TokenTypes.Access);
-            req.user = { userId };
+            const { userId, role } = verifyToken(token, TokenType.Access);
+            req.user = { userId, role };
             next();
         } catch (e) {
             if (e.name === 'TokenExpiredError') {

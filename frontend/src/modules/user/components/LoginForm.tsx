@@ -1,42 +1,30 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import React from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import * as Yup from 'yup';
+import styled from 'styled-components';
 import { Formik, Field, Form } from 'formik';
-
-import Button from '../../shared/components/FormElements/Button';
 import { TextField } from 'formik-material-ui';
 
-interface JoinPartyFormValues {
-    partyCode: string;
-}
+import Button from '../../shared/components/FormElements/Button';
 
-export type JoinPartySubmit = (
-    values: JoinPartyFormValues
-) => void | Promise<void>;
-
-export interface Party {
-    id: string;
+interface LoginFormValues {
     name: string;
+    password: string;
 }
 
-interface JoinPartyFormProps {
-    onSubmit: JoinPartySubmit;
+export type LoginSubmit = (values: LoginFormValues) => void | Promise<void>;
+
+interface LoginFormProps {
+    onSubmit: LoginSubmit;
     submitDisabled?: boolean;
-    partyList?: Party[];
 }
 
-const validationSchema = Yup.object<JoinPartyFormValues>({
-    partyCode: Yup.string().required('required')
-});
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, submitDisabled }) => {
+    const validationSchema = Yup.object<LoginFormValues>({
+        name: Yup.string().required('Required'),
+        password: Yup.string().required('Required')
+    });
 
-const JoinPartyForm: React.FC<JoinPartyFormProps> = ({
-    onSubmit,
-    submitDisabled
-}) => {
-    const initialValues: JoinPartyFormValues = {
-        partyCode: ''
-    };
+    const initialValues: LoginFormValues = { name: '', password: '' };
 
     return (
         <Formik
@@ -48,11 +36,18 @@ const JoinPartyForm: React.FC<JoinPartyFormProps> = ({
                 <StyledForm>
                     <StyledFormInputSection>
                         <Field
-                            name="partyCode"
+                            name="name"
                             type="text"
                             margin="normal"
-                            label="Party Code"
+                            label="Your Name"
                             autoFocus
+                            component={TextField}
+                        />
+                        <Field
+                            name="password"
+                            type="password"
+                            margin="normal"
+                            label="Password"
                             component={TextField}
                         />
                     </StyledFormInputSection>
@@ -62,7 +57,7 @@ const JoinPartyForm: React.FC<JoinPartyFormProps> = ({
                         variant="contained"
                         disabled={submitDisabled}
                     >
-                        Join
+                        Login
                     </Button>
                 </StyledForm>
             )}
@@ -86,8 +81,8 @@ const StyledFormInputSection = styled.div`
     padding: 8px;
 `;
 
-JoinPartyForm.defaultProps = {
+LoginForm.defaultProps = {
     submitDisabled: false
 };
 
-export default JoinPartyForm;
+export default LoginForm;

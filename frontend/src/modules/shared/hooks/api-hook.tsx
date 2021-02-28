@@ -10,7 +10,7 @@ export const useApiRequest = () => {
     // const activeHttpRequests = useRef([]);
 
     const sendRequest = useCallback(
-        async (url: string, requestConfig: AxiosRequestConfig) => {
+        async (url: string, requestConfig: AxiosRequestConfig = {}) => {
             setIsLoading(true);
             // const httpAbortCtrl = new AbortController();
             // activeHttpRequests.current.push(httpAbortCtrl);

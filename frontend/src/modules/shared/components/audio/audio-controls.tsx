@@ -2,14 +2,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import styled from 'styled-components';
 
-export interface Props {
+export interface AudioControlsProps {
     color?: string;
     isPlaying?: boolean;
     playHandler: () => void;
     pauseHandler: () => void;
 }
 
-const PlayerControls: React.FC<Props> = ({
+const PlayerControls: React.FC<AudioControlsProps> = ({
     color,
     isPlaying,
     playHandler,

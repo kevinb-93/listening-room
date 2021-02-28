@@ -2,12 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { convertDurationMs } from '../../utils/datetime';
 
-interface Props {
+export interface ProgressBarProps {
     elaspedTime: number;
     songDurationMs: number;
 }
 
-const ProgressBar: React.FC<Props> = ({ elaspedTime, songDurationMs }) => {
+const ProgressBar: React.FC<ProgressBarProps> = ({
+    elaspedTime,
+    songDurationMs
+}) => {
     return (
         <Container>
             <ElaspedTime>{convertDurationMs(elaspedTime)}</ElaspedTime>
