@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-        "name": "Server",
+        "name": "API",
         "request": "launch",
         "runtimeArgs": [
             "run-script",
@@ -16,7 +16,7 @@
             "<node_internals>/**"
         ],
         "type": "pwa-node", 
-        "cwd": "${workspaceFolder}/backend"
+        "cwd": "${workspaceFolder}/api"
     },
     {
         "name": "Client",
@@ -35,15 +35,15 @@
     {
         "type": "chrome",
         "request": "launch",
-        "name": "Launch Chrome against localhost",
+        "name": "Chrome",
         "url": "http://localhost:3000",
         "webRoot": "${workspaceFolder}/frontend"
     }
     ],
     "compounds": [
         {
-            "name": "Launch app in development",
-            "configurations": ["Server", "Client", "Launch Chrome against localhost"]
+            "name": "Launch app (development)",
+            "configurations": ["API", "Client", "Chrome"]
         }
     ]
 }
