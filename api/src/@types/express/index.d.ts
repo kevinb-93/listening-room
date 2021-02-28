@@ -1,6 +1,6 @@
 interface User {
     userId: string;
-    role: import('../../models/user').UserRole;
+    role: import('../../modules/user/user.model').UserRole;
 }
 
 declare namespace Express {

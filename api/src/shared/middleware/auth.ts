@@ -1,6 +1,6 @@
 import { Request, NextFunction, Response } from 'express';
 
-import HttpError from '../models/http-error';
+import HttpError from '../models/http-error.model';
 import { TokenType, verifyToken } from '../utils/token';
 
 export const verifyAccessToken = (

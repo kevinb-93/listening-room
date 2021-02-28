@@ -2,10 +2,10 @@ import queryString from 'querystring';
 import axios, { AxiosRequestConfig } from 'axios';
 import { Response, Request, NextFunction } from 'express';
 
-import spotify from '../utils/spotify';
-import secret from '../config/secret';
-import { generateRandomString } from '../utils/string';
-import HttpError from '../models/http-error';
+import spotify from '../../shared/utils/spotify';
+import secret from '../../shared/config/secret';
+import { generateRandomString } from '../../shared/utils/string';
+import HttpError from '../../shared/models/http-error.model';
 
 export const login = (req: Request, res: Response) => {
     const state = generateRandomString(16);

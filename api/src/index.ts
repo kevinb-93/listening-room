@@ -6,17 +6,17 @@ import cors from 'cors';
 import path from 'path';
 import http from 'http';
 
-import spotifyRoutes from './routes/spotify-routes';
-import partiesRoutes from './routes/parties-routes';
-import messagesRoutes from './routes/messages-routes';
-import usersRoutes from './routes/users-routes';
-import { port } from './utils/server';
-import secret from './config/secret';
-import { errorHandler } from './middleware/error';
-import { notFound } from './middleware/not-found';
-import { corsOptions } from './config/cors';
-import { initIO } from './utils/socket';
-import Party from './models/party';
+import spotifyRoutes from './modules/spotify/spotify.routes';
+import partiesRoutes from './modules/party/party.routes';
+import chatRoutes from './modules/chat/chat.routes';
+import usersRoutes from './modules/user/user.routes';
+import { port } from './shared/utils/server';
+import secret from './shared/config/secret';
+import { errorHandler } from './shared/middleware/error';
+import { notFound } from './shared/middleware/not-found';
+import { corsOptions } from './shared/config/cors';
+import { initIO } from './shared/utils/socket';
+import Party from './modules/party/party.model';
 
 // initialize express app
 const app = express();
@@ -29,7 +29,7 @@ app.use(bodyParser.json())
 app.use('/api/user', usersRoutes);
 app.use('/api/spotify', spotifyRoutes);
 app.use('/api/party', partiesRoutes);
-app.use('/api/message', messagesRoutes);
+app.use('/api/chat', chatRoutes);
 
 // setup error middlewares
 app.use(notFound);

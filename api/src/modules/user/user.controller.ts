@@ -1,11 +1,11 @@
 import { validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 
-import HttpError from '../models/http-error';
-import User, { UserRole } from '../models/user';
+import HttpError from '../../shared/models/http-error.model';
+import User, { UserRole } from './user.model';
 import { NextFunction, Request, Response } from 'express';
-import { createToken, TokenType, verifyToken } from '../utils/token';
-import { isPasswordValid } from '../utils/password';
+import { createToken, TokenType, verifyToken } from '../../shared/utils/token';
+import { isPasswordValid } from '../../shared/utils/password';
 
 export const login = async (
     req: Request,

@@ -1,6 +1,6 @@
 import express from 'express';
 import { check } from 'express-validator';
-import { verifyAccessToken } from '../middleware/auth';
+import { verifyAccessToken } from '../../shared/middleware/auth';
 import {
     create,
     party,
@@ -13,7 +13,7 @@ import {
     deleteTrackQueue,
     getParties,
     join
-} from '../controllers/parties-controllers';
+} from './party.controller';
 
 const router = express.Router();
 

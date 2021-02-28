@@ -2,11 +2,11 @@ import { validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import Party, { Track } from '../models/party';
-import Message from '../models/message';
-import User, { UserRole } from '../models/user';
-import HttpError from '../models/http-error';
-import { hasUserAccess, Permission } from '../utils/user-access';
+import Party, { Track } from './party.model';
+import Message from '../chat/chat.model';
+import User, { UserRole } from '../user/user.model';
+import HttpError from '../../shared/models/http-error.model';
+import { hasUserAccess, Permission } from '../../shared/utils/user-access';
 
 export const create = async (
     req: Request,

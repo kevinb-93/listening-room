@@ -7,8 +7,8 @@ import {
     refreshToken,
     logout,
     currentUser
-} from '../controllers/users-controllers';
-import { verifyAccessToken } from '../middleware/auth';
+} from './user.controller';
+import { verifyAccessToken } from '../../shared/middleware/auth';
 
 const router = express.Router();
 

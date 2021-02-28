@@ -1,11 +1,8 @@
 import express from 'express';
 import { check } from 'express-validator';
 
-import {
-    createMessage,
-    deleteMessage
-} from '../controllers/messages-controllers';
-import { verifyAccessToken } from '../middleware/auth';
+import { createMessage, deleteMessage } from './chat.controller';
+import { verifyAccessToken } from '../../shared/middleware/auth';
 
 const router = express.Router();
 

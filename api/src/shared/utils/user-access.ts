@@ -1,4 +1,4 @@
-import { UserRole } from '../models/user';
+import { UserRole } from '../../modules/user/user.model';
 
 export enum Permission {
     CreateParty = 'create-party'

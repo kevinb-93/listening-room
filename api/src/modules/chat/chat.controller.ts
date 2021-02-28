@@ -1,9 +1,9 @@
 import { validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
 
-import Message from '../models/message';
-import Party from '../models/party';
-import HttpError from '../models/http-error';
+import Message from './chat.model';
+import Party from '../party/party.model';
+import HttpError from '../../shared/models/http-error.model';
 
 export const createMessage = async (
     req: Request,

@@ -1,8 +1,8 @@
 import mongoose, { Document } from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
 
-import { Party } from './party';
-import { createToken, TokenType } from '../utils/token';
+import { Party } from '../party/party.model';
+import { createToken, TokenType } from '../../shared/utils/token';
 
 export enum UserRole {
     User = 'user',
