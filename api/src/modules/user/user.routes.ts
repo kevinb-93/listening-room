@@ -24,7 +24,7 @@ router.post(
 
 router.use(verifyAccessToken);
 
-router.delete('/logout', logout);
+router.delete('/logout', [check(['refreshToken']).not().isEmpty()], logout);
 
 router.get('/', currentUser);
 

@@ -11,6 +11,6 @@ export const errorHandler = (
     if (res.headersSent) {
         return next(err);
     }
-    res.status(err.code || 500);
+    res.status(err.status || 500);
     res.json({ message: err.message || 'An unknown error occurred!' });
 };

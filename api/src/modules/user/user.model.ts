@@ -2,7 +2,8 @@ import mongoose, { Document } from 'mongoose';
 import uniqueValidator from 'mongoose-unique-validator';
 
 import { Party } from '../party/party.model';
-import { createToken, TokenType } from '../../shared/utils/token';
+import { AccessToken } from './token/token.access';
+import { RefreshToken, SignedPayload } from './token/token.refresh';
 
 export enum UserRole {
     User = 'user',
@@ -17,9 +18,8 @@ export interface UserDocument extends Document {
     lastLoginAt: Date;
     isAnonymous: boolean;
     accessToken: string | undefined;
-    refreshToken: string | undefined;
     createAccessToken(): Promise<string | undefined>;
-    createRefreshToken(): Promise<string | undefined>;
+    createRefreshToken(): Promise<SignedPayload | undefined>;
 }
 
 const userSchema = new mongoose.Schema({
@@ -29,21 +29,14 @@ const userSchema = new mongoose.Schema({
     lastLoginAt: { type: Date },
     isAnonymous: { type: Boolean },
     accessToken: { type: String },
-    refreshToken: { type: String },
     party: { type: mongoose.Types.ObjectId, ref: 'Party' }
 });
 
 userSchema.methods.createAccessToken = async function () {
     try {
         const { _id, name, role } = this;
-
-        const token = createToken({
-            userId: _id,
-            name,
-            role,
-            type: TokenType.Access
-        });
-        return token;
+        const token = new AccessToken({ userId: _id, name, role });
+        return token.signedPayload;
     } catch (e) {
         console.error(e);
     }
@@ -51,21 +44,23 @@ userSchema.methods.createAccessToken = async function () {
 
 userSchema.methods.createRefreshToken = async function () {
     try {
-        const { _id, name, role } = this;
+        const { _id } = this;
 
-        const token = createToken({
-            userId: _id,
-            name,
-            role,
-            type: TokenType.Refresh
-        });
-
-        this.refreshToken = token;
+        const token = new RefreshToken(_id, 'ip');
         return token;
     } catch (e) {
         console.error(e);
     }
 };
+
+userSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id;
+        delete ret.passwordHash;
+    }
+});
 
 userSchema.plugin(uniqueValidator);
 

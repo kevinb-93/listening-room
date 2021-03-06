@@ -1,11 +1,9 @@
 import { validationResult } from 'express-validator';
-import bcrypt from 'bcryptjs';
 
 import HttpError from '../../shared/models/http-error.model';
-import User, { UserRole } from './user.model';
 import { NextFunction, Request, Response } from 'express';
-import { createToken, TokenType, verifyToken } from '../../shared/utils/token';
-import { isPasswordValid } from '../../shared/utils/password';
+import { UserService } from './user.service';
+import { REFRESH_TOKEN_COOKIE_OPTIONS } from './token/token.refresh';
 
 export const login = async (
     req: Request,
@@ -14,7 +12,6 @@ export const login = async (
 ) => {
     try {
         const errors = validationResult(req);
-
         if (!errors.isEmpty()) {
             return next(
                 new HttpError(
@@ -25,22 +22,20 @@ export const login = async (
         }
 
         const { name, password } = req.body;
-
-        const user = await User.findOne({ name });
-        if (!user) {
-            return next(new HttpError('No user found', 404));
+        try {
+            const {
+                accessToken,
+                refreshToken
+            } = await UserService.authenticate(name, password);
+            res.cookie(
+                'refreshToken',
+                refreshToken,
+                REFRESH_TOKEN_COOKIE_OPTIONS
+            );
+            res.status(201).json({ accessToken, refreshToken });
+        } catch (e) {
+            return next(e);
         }
-
-        const isValidPassword = await isPasswordValid(password, user.password);
-        if (!isValidPassword) {
-            return next(new HttpError('Invalid password', 401));
-        }
-
-        const accessToken = await user.createAccessToken();
-        const refreshToken = await user.createRefreshToken();
-        await user.save();
-
-        res.status(201).json({ accessToken, refreshToken });
     } catch (e) {
         console.error(e);
         return next(new HttpError('Internal Server Error!', 500));
@@ -66,28 +61,21 @@ export const register = async (
 
         const { name, password, isAnonymous } = req.body;
 
-        let hashedPassword = '';
-        if (!isAnonymous) {
-            const user = await User.findOne({ name });
-            if (user) {
-                return next(new HttpError('User already exists', 400));
-            }
-
-            hashedPassword = await bcrypt.hash(password, 12);
+        try {
+            const response = await UserService.register({
+                username: name,
+                password,
+                isAnonymous
+            });
+            res.cookie(
+                'refreshToken',
+                response.refreshToken,
+                REFRESH_TOKEN_COOKIE_OPTIONS
+            );
+            res.status(201).json(response);
+        } catch (error) {
+            return next(error);
         }
-
-        const newUser = new User({
-            name,
-            password: isAnonymous ? password : hashedPassword,
-            lastLoginAt: new Date(),
-            isAnonymous,
-            role: isAnonymous ? null : UserRole.User
-        });
-        const accessToken = await newUser.createAccessToken();
-        await newUser.createRefreshToken();
-        await newUser.save();
-
-        res.status(201).json({ accessToken, user: newUser });
     } catch (e) {
         console.error(e);
         return next(new HttpError('Internal Server Error!', 500));
@@ -101,7 +89,6 @@ export const refreshToken = async (
 ) => {
     try {
         const errors = validationResult(req);
-
         if (!errors.isEmpty()) {
             return next(
                 new HttpError(
@@ -110,30 +97,31 @@ export const refreshToken = async (
                 )
             );
         }
-
-        const { refreshToken } = req.body;
-
-        const userDoc = await User.findOne({
-            refreshToken
-        });
-
-        if (!userDoc?.refreshToken) {
-            return next(new HttpError('Token not found', 404));
+        const { refreshToken } = req.cookies;
+        try {
+            const response = await UserService.refreshTokens(
+                refreshToken,
+                'newt'
+            );
+            res.cookie(
+                'refreshToken',
+                response.refreshToken,
+                REFRESH_TOKEN_COOKIE_OPTIONS
+            );
+            res.status(200).json(response);
+        } catch (error) {
+            res.cookie('refreshToken', null, {
+                ...REFRESH_TOKEN_COOKIE_OPTIONS,
+                expires: new Date()
+            });
+            return next(error);
         }
-
-        const tokenPayload = verifyToken(
-            userDoc.refreshToken,
-            TokenType.Refresh
-        );
-
-        const accessToken = createToken({
-            ...tokenPayload,
-            type: TokenType.Access
-        });
-
-        res.status(200).json({ accessToken });
     } catch (e) {
         console.error(e);
+        res.cookie('refreshToken', null, {
+            ...REFRESH_TOKEN_COOKIE_OPTIONS,
+            expires: new Date()
+        });
         return next(new HttpError('Internal Server Error!', 500));
     }
 };
@@ -145,7 +133,6 @@ export const logout = async (
 ) => {
     try {
         const errors = validationResult(req);
-
         if (!errors.isEmpty()) {
             return next(
                 new HttpError(
@@ -154,17 +141,14 @@ export const logout = async (
                 )
             );
         }
-
-        const user = await User.findById(req.user?.userId);
-
-        if (!user) {
+        const userId = req.user?.userId;
+        const { refreshToken } = req.body;
+        if (!userId) {
             return next(new HttpError('User not found', 404));
         }
 
-        user.refreshToken = undefined;
-        await user.save();
-
-        res.status(200).json({ success: 'User logged out!' });
+        await UserService.logout(userId, refreshToken);
+        res.status(200).json({ success: 'User logged out.' });
     } catch (e) {
         console.error(e);
         return next(new HttpError('Internal Server Error!', 500));
@@ -178,11 +162,11 @@ export const currentUser = async (
 ) => {
     try {
         const user = req.user;
-        const userDoc = await User.findById(user?.userId);
-
-        if (!userDoc) {
-            return next(new HttpError('User not found', 401));
+        if (!user?.userId) {
+            return next(new HttpError('User not found', 422));
         }
+
+        const { userDoc } = await UserService.getUser(user?.userId);
 
         res.status(200).json({ user: userDoc.toObject() });
     } catch (e) {

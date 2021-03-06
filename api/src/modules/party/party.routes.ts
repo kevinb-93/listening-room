@@ -1,5 +1,4 @@
 import express from 'express';
-import { check } from 'express-validator';
 import { verifyAccessToken } from '../../shared/middleware/auth';
 import {
     create,
