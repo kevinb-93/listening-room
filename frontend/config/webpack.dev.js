@@ -3,12 +3,19 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
+console.log('test');
+
+console.log('context: ' + path.join(__dirname, '/..'));
+console.log('output: ' + path.resolve(__dirname, '../src'));
+console.log('contentBase: ' + path.join(__dirname, '/../src'));
+path.join(__dirname, 'src');
+
 module.exports = {
     entry: './src/app/index.tsx',
     context: path.join(__dirname, '/..'),
     /* how to emit the bundles */
     output: {
-        path: path.resolve(__dirname, 'src'),
+        path: path.resolve(__dirname, '../src'),
         filename: 'bundled.js'
     },
     devtool: 'inline-source-map',
@@ -61,7 +68,7 @@ module.exports = {
             // refresh browser if html file changes
             server._watch('./src/**/*.html');
         },
-        contentBase: path.join(__dirname, 'src'),
+        contentBase: path.join(__dirname, '/../src'),
         historyApiFallback: true,
         hot: true,
         compress: true,

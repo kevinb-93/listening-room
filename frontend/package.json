@@ -6,7 +6,7 @@
     "author": "Kevin <kevinb93@hotmail.co.uk>",
     "license": "MIT",
     "scripts": {
-        "dev": "webpack-dev-server --config config/webpack.dev.config.js",
+        "dev": "webpack-dev-server --config config/webpack.dev.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "lint": "npx eslint --ext .ts,.tsx src/"
     },

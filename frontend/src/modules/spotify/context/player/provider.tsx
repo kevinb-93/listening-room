@@ -17,7 +17,10 @@ import { useSpotifyContext } from '../spotify';
 import { SpotifyPlayerReducerActionType } from './reducer/types';
 import { spotifyApi } from '../../config/spotify-web-api';
 import { useApiRequest } from '../../../shared/hooks/api-hook';
-import { CurrentTrack, Track } from '../../../../../../api/src/models/party';
+import {
+    CurrentTrack,
+    Track
+} from '../../../../../../api/src/modules/party/party.model';
 import { useAppContext } from '../../../../contexts/app';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { UserRole } from '../../../user/contexts/profile/types';

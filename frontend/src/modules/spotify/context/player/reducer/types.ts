@@ -1,5 +1,5 @@
 import { SpotifyPlayerContextState } from '../types';
-import { CurrentTrack } from '../../../../../../../api/src/models/party';
+import { CurrentTrack } from '../../../../../../../api/src/modules/party/party.model';
 
 interface ReducerAction<
     T extends SpotifyPlayerReducerActionType,
