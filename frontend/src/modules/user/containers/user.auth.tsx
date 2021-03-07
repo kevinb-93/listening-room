@@ -4,13 +4,13 @@ import { TransitionProps } from '@material-ui/core/transitions';
 import { Alert } from '@material-ui/lab';
 import styled from 'styled-components';
 
-import { useApiRequest } from '../../shared/hooks/api-hook';
+import { useApiRequest } from '../../shared/hooks/use-api-request';
 import CreatePartyForm, {
     CreatePartySubmit
-} from '../../party/components/CreatePartyForm';
+} from '../../party/components/party.form-create';
 import JoinPartyForm, {
     JoinPartySubmit
-} from '../../party/components/JoinPartyForm';
+} from '../../party/components/party.form-join';
 import TabbedForm, {
     TabbedForms
 } from '../../shared/components/FormElements/TabbedForm';

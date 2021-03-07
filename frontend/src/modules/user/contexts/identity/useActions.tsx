@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { actions } from './reducer';
 import { baseUrl } from '../../../shared/config/api';
-import { useApiRequest } from '../../../shared/hooks/api-hook';
+import { useApiRequest } from '../../../shared/hooks/use-api-request';
 import {
     UserIdentityContextInterface,
     UserIdentityContextState
@@ -22,12 +22,17 @@ const useActions = (
         [dispatch]
     );
 
-    const userLogout = useCallback(() => {
-        actions.auth.logout(dispatch);
-        sendLogoutRequest(`${baseUrl}/api/user/logout`, {
-            method: 'DELETE',
-            data: { refreshToken: state.userRefreshToken }
-        });
+    const userLogout = useCallback(async () => {
+        try {
+            await sendLogoutRequest(`${baseUrl}/api/user/logout`, {
+                method: 'DELETE',
+                data: { refreshToken: state.userRefreshToken }
+            });
+        } catch (e) {
+            console.log(e);
+        } finally {
+            actions.auth.logout(dispatch);
+        }
     }, [dispatch, sendLogoutRequest, state.userRefreshToken]);
 
     const setRestoreState = useCallback(

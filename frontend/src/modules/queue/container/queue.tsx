@@ -4,7 +4,7 @@ import Search from '../../shared/components/FormElements/search';
 import TrackItem, { TrackItemProps } from '../../spotify/components/track-item';
 import Player from '../../shared/components/audio/Player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
-import Chat from '../../chat/containers/Chat';
+import Chat from '../../chat/containers/chat';
 import { convertDurationMs } from '../../shared/utils/datetime';
 import useSpotifySearch from '../../spotify/hooks/useSpotifySearch';
 import { getArtists, getTrackImage } from '../../spotify/utils/track';

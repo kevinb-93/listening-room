@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { SpotifyIdentityContext } from './context';
 import { SpotifyIdentityContextInterface } from './types';
 import { __useSpotifyIdentityReducer, actions } from './reducer';
-import { useApiRequest } from '../../../shared/hooks/api-hook';
+import { useApiRequest } from '../../../shared/hooks/use-api-request';
 import { baseUrl } from '../../../shared/config/api';
 import {
     getLocalStorage,

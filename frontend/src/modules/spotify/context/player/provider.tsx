@@ -7,7 +7,7 @@ import {
 import { __useSpotifyPlayerReducer } from './reducer';
 import { loadScript } from '../../../shared/utils/load-script';
 import { useSpotifyIdentityContext } from '../identity';
-import useAppIdentity from '../../../shared/hooks/useAppIdentity';
+import useAppIdentity from '../../../shared/hooks/use-identity';
 import { useUserProfileContext } from '../../../user/contexts/profile';
 import {
     getLocalStorage,
@@ -16,7 +16,7 @@ import {
 import { useSpotifyContext } from '../spotify';
 import { SpotifyPlayerReducerActionType } from './reducer/types';
 import { spotifyApi } from '../../config/spotify-web-api';
-import { useApiRequest } from '../../../shared/hooks/api-hook';
+import { useApiRequest } from '../../../shared/hooks/use-api-request';
 import {
     CurrentTrack,
     Track

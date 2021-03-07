@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
-import ChatForm from '../components/ChatForm';
-import ChatPost from '../components/ChatMessage';
-import useLiveChat from '../hooks/useLiveChat';
+import ChatForm from '../components/chat.form-send';
+import ChatPost from '../components/chat.message';
+import useLiveChat from '../hooks/use-live-chat';
 
 const Chat: React.FC = () => {
     const { chatMessages, addChatMessage, deleteChatMessage } = useLiveChat();

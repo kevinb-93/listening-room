@@ -10,9 +10,9 @@ import Main from '../modules/shared/components/main';
 import { useUserIdentityContext } from '../modules/user/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/private-route';
 import NavMenu from '../modules/navigation/components/nav-menu';
-import useAppIdentity from '../modules/shared/hooks/useAppIdentity';
+import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
-import PartyAuth from '../modules/party/containers/PartyAuth';
+import PartyAuth from '../modules/party/containers/party.auth';
 
 const Router: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
@@ -40,7 +40,7 @@ const Router: React.FC = () => {
                             label={'Settings'}
                             icon={'cog'}
                         />
-                        <div id="partyId">{user.party}</div>
+                        <div id="partyId">{user?.party}</div>
                     </NavMenu>
                     <button onClick={() => logout()}>Log out</button>
                 </Header>

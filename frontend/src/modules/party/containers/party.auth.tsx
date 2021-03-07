@@ -1,23 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Typography, Snackbar, Slide } from '@material-ui/core';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Snackbar, Slide } from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { Alert } from '@material-ui/lab';
 import styled from 'styled-components';
 
-import { useApiRequest } from '../../shared/hooks/api-hook';
+import { useApiRequest } from '../../shared/hooks/use-api-request';
 import { useUserIdentityContext } from '../../user/contexts/identity';
-import CreatePartyForm, {
-    CreatePartySubmit
-} from '../components/CreatePartyForm';
-import JoinPartyForm, {
-    JoinPartySubmit,
-    Party
-} from '../components/JoinPartyForm';
-import TabbedForm, {
-    TabbedForms
-} from '../../shared/components/FormElements/TabbedForm';
+import { CreatePartySubmit } from '../components/party.form-create';
+import { JoinPartySubmit } from '../components/party.form-join';
 import { usePartyContext } from '../context';
-import LoginForm, { LoginSubmit } from '../../user/components/LoginForm';
+import LoginForm, {
+    LoginFormValues,
+    LoginSubmit
+} from '../../user/components/user.form-login';
+import { AxiosResponse } from 'axios';
 
 const TransitionUp = (props: TransitionProps) => (
     <Slide {...props} direction="up" />
@@ -33,30 +29,6 @@ const PartyAuth: React.FC = () => {
         error: loginError,
         clearError: clearLoginError
     } = useApiRequest();
-    // const { sendRequest: getPartiesRequest } = useApiRequest();
-
-    // const [partyList, setPartyList] = useState<Party[]>([]);
-
-    // const handleFetchPartiesRequest = useCallback(async () => {
-    //     try {
-    //         const response = await getPartiesRequest(`party`, {});
-    //         if (response.status === 200) {
-    //             const parties = response.data.map((d: { _id: unknown }) => {
-    //                 return { id: d._id, name: d._id };
-    //             });
-    //             setPartyList(parties);
-    //         }
-    //     } catch (e) {
-    //         console.error(e);
-    //     }
-    // }, [getPartiesRequest]);
-
-    // useEffect(
-    //     function fetchParties() {
-    //         handleFetchPartiesRequest();
-    //     },
-    //     [handleFetchPartiesRequest]
-    // );
 
     useEffect(() => {
         document.title = 'Get the party started!';
@@ -110,12 +82,30 @@ const PartyAuth: React.FC = () => {
         [createPartyUser, sendRequest, userLogin]
     );
 
+    const loginAnon = async () => {
+        return await sendLoginRequest(`user/register`, {
+            method: 'POST',
+            data: { name: null, password: null, isAnonymous: true }
+        });
+    };
+
+    const loginUser = async ({ name, password }: LoginFormValues) => {
+        return await sendLoginRequest(`user/login`, {
+            method: 'POST',
+            data: { name, password }
+        });
+    };
+
     const loginHandler: LoginSubmit = async data => {
         try {
-            const response = await sendLoginRequest(`user/login`, {
-                method: 'POST',
-                data
-            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let response: AxiosResponse<any>;
+
+            if (data.anonymous) {
+                response = await loginAnon();
+            } else {
+                response = await loginUser(data);
+            }
             if (response.status === 201) {
                 userLogin(
                     response.data.accessToken,
@@ -158,7 +148,6 @@ const PartyAuth: React.FC = () => {
             </Snackbar>
             <StyledFormContainer>
                 <LoginForm onSubmit={loginHandler} />
-                {/* <JoinPartyForm onSubmit={joinPartySubmitHandler} /> */}
             </StyledFormContainer>
         </StyledContainer>
     );

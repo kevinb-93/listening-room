@@ -3,7 +3,7 @@ import { WebSocketContext } from './context';
 import { WebSocketContextInterface } from './types';
 import { __useWebSocketReducer } from './reducer';
 import useActions from './useActions';
-import useAppIdentity from '../../hooks/useAppIdentity';
+import useAppIdentity from '../../hooks/use-identity';
 import { useUserProfileContext } from '../../../user/contexts/profile';
 import { UserRole } from '../../../user/contexts/profile/types';
 

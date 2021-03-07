@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import useAppIdentity from '../hooks/useAppIdentity';
+import useAppIdentity from '../hooks/use-identity';
 
 const Main: React.FC = ({ children }) => {
     const { isLoggedIn } = useAppIdentity();

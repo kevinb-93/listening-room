@@ -1,6 +1,6 @@
 import React from 'react';
 import { RouteProps, Route, Redirect } from 'react-router-dom';
-import useAppIdentity from '../../shared/hooks/useAppIdentity';
+import useAppIdentity from '../../shared/hooks/use-identity';
 
 const PrivateRoute: React.FC<RouteProps> = ({ children, ...rest }) => {
     const { isLoggedIn } = useAppIdentity();

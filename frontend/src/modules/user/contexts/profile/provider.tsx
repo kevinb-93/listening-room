@@ -4,7 +4,7 @@ import { UserProfileContext } from './context';
 import { UserProfileContextInterface } from './types';
 import { __useUserProfileReducer } from './reducer';
 import { useUserIdentityContext } from '../identity';
-import { useApiRequest } from '../../../shared/hooks/api-hook';
+import { useApiRequest } from '../../../shared/hooks/use-api-request';
 import { UserProfileReducerActionType } from './reducer/types';
 
 export const Provider: React.FC = ({ children }) => {

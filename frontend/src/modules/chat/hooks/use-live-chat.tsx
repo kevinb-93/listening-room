@@ -1,9 +1,9 @@
 import { useEffect, useCallback, useReducer } from 'react';
 import { useWebSocketContext } from '../../shared/contexts/websocket';
-import { useApiRequest } from '../../shared/hooks/api-hook';
+import { useApiRequest } from '../../shared/hooks/use-api-request';
 import { useUserProfileContext } from '../../user/contexts/profile';
-import { ChatFormSubmit } from '../components/ChatForm';
-import { Message, OnDeleteMessage } from '../components/ChatMessage';
+import { ChatFormSubmit } from '../components/chat.form-send';
+import { Message, OnDeleteMessage } from '../components/chat.message';
 
 enum ChatReducerActionType {
     AddMessage,
