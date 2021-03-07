@@ -3,13 +3,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
-console.log('test');
-
-console.log('context: ' + path.join(__dirname, '/..'));
-console.log('output: ' + path.resolve(__dirname, '../src'));
-console.log('contentBase: ' + path.join(__dirname, '/../src'));
-path.join(__dirname, 'src');
-
 module.exports = {
     entry: './src/app/index.tsx',
     context: path.join(__dirname, '/..'),
