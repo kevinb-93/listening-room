@@ -142,12 +142,11 @@ export const logout = async (
             );
         }
         const userId = req.user?.userId;
-        const { refreshToken } = req.body;
         if (!userId) {
             return next(new HttpError('User not found', 404));
         }
 
-        await UserService.logout(userId, refreshToken);
+        await UserService.logout(userId);
         res.status(200).json({ success: 'User logged out.' });
     } catch (e) {
         console.error(e);

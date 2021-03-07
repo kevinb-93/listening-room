@@ -4,10 +4,6 @@ import {
     SpotifyPlayerReducerActionType
 } from './types';
 import { SpotifyPlayerContextState } from '../types';
-import {
-    setLocalStorage,
-    LocalStorageItemNames
-} from '../../../../shared/utils/local-storage';
 
 const Reducer = (
     state: SpotifyPlayerContextState,
@@ -52,8 +48,6 @@ const Reducer = (
                 ...state.queue,
                 action.payload.track
             ];
-
-            // setLocalStorage(LocalStorageItemNames.Queue, queue);
             return {
                 ...state,
                 queue
@@ -62,9 +56,6 @@ const Reducer = (
         case SpotifyPlayerReducerActionType.QueueDelete: {
             let queue: SpotifyPlayerContextState['queue'] = state.queue ?? [];
             queue = queue.filter(t => t.id !== action.payload.trackId);
-
-            // setLocalStorage(LocalStorageItemNames.Queue, queue);
-
             return {
                 ...state,
                 queue
@@ -72,9 +63,6 @@ const Reducer = (
         }
         case SpotifyPlayerReducerActionType.QueueSet: {
             const queueState = action.payload.queue ?? [];
-
-            // setLocalStorage(LocalStorageItemNames.Queue, queueState);
-
             return {
                 ...state,
                 queue: queueState

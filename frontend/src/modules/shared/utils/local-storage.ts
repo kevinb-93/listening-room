@@ -17,7 +17,6 @@ type QueueItem = SpotifyApi.TrackObjectFull[];
 
 export type UserItem = {
     userToken: string;
-    userRefreshToken: string;
 };
 
 interface LocalStorage {

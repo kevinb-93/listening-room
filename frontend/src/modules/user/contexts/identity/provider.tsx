@@ -7,39 +7,37 @@ import {
     LocalStorageItemNames
 } from '../../../shared/utils/local-storage';
 import useActions from './useActions';
+import { IdentityReducerActionType } from './reducer/types';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useUserIdentityReducer();
 
-    const { userLogin, userLogout, setRestoreState } = useActions(
-        state,
-        dispatch
-    );
+    const { userLogout, setRestoreState } = useActions(state, dispatch);
 
     const value: UserIdentityContextInterface = {
         ...state,
-        userLogin,
+        dispatch,
         userLogout,
         setRestoreState
     };
 
     const restoreUserToken = useCallback(async () => {
         try {
-            const { userToken, userRefreshToken } =
+            const { userToken } =
                 getLocalStorage(LocalStorageItemNames.User) || {};
 
-            if (!userToken || !userRefreshToken) {
-                setRestoreState(false);
-                return;
+            if (!userToken) {
+                return setRestoreState(false);
             }
 
-            console.log('restoring token...');
-
-            userLogin(userToken, userRefreshToken);
+            dispatch({
+                type: IdentityReducerActionType.userLogin,
+                payload: { userToken }
+            });
         } catch (e) {
             setRestoreState(false);
         }
-    }, [setRestoreState, userLogin]);
+    }, [dispatch, setRestoreState]);
 
     useEffect(() => {
         restoreUserToken();

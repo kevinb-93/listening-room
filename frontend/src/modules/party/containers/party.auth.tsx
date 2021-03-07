@@ -14,13 +14,14 @@ import LoginForm, {
     LoginSubmit
 } from '../../user/components/user.form-login';
 import { AxiosResponse } from 'axios';
+import { IdentityReducerActionType } from '../../user/contexts/identity/reducer/types';
 
 const TransitionUp = (props: TransitionProps) => (
     <Slide {...props} direction="up" />
 );
 
 const PartyAuth: React.FC = () => {
-    const { userLogin } = useUserIdentityContext();
+    const { dispatch } = useUserIdentityContext();
     const { createParty, createPartyUser } = usePartyContext();
 
     const { sendRequest, error, clearError } = useApiRequest();
@@ -41,10 +42,10 @@ const PartyAuth: React.FC = () => {
                     data,
                     method: 'POST'
                 });
-                userLogin(
-                    response.data.accessToken,
-                    response.data.refreshToken
-                );
+                dispatch({
+                    type: IdentityReducerActionType.userLogin,
+                    payload: { userToken: response.data.accessToken }
+                });
                 createParty({
                     partyId: response.data.partyId,
                     userIds: [response.data.userId],
@@ -54,7 +55,7 @@ const PartyAuth: React.FC = () => {
                 throw new Error(e);
             }
         },
-        [createParty, sendRequest, userLogin]
+        [createParty, dispatch, sendRequest]
     );
 
     const joinPartySubmitHandler: JoinPartySubmit = useCallback(
@@ -70,16 +71,16 @@ const PartyAuth: React.FC = () => {
                         }
                     }
                 );
-                userLogin(
-                    response.data.accessToken,
-                    response.data.refreshToken
-                );
+                dispatch({
+                    type: IdentityReducerActionType.userLogin,
+                    payload: { userToken: response.data.accessToken }
+                });
                 createPartyUser(response.data.userId, response.data.partyId);
             } catch (e) {
                 throw new Error(e);
             }
         },
-        [createPartyUser, sendRequest, userLogin]
+        [createPartyUser, dispatch, sendRequest]
     );
 
     const loginAnon = async () => {
@@ -107,10 +108,10 @@ const PartyAuth: React.FC = () => {
                 response = await loginUser(data);
             }
             if (response.status === 201) {
-                userLogin(
-                    response.data.accessToken,
-                    response.data.refreshToken
-                );
+                dispatch({
+                    type: IdentityReducerActionType.userLogin,
+                    payload: { userToken: response.data.accessToken }
+                });
             }
         } catch (e) {
             console.error(e);

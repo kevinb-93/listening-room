@@ -1,39 +1,50 @@
 import React from 'react';
-import { _ as Auth } from './auth';
-import { UserIdentityReducerActionPayload } from './types';
+import { IdentityReducer, IdentityReducerActionType } from './types';
 import { UserIdentityContextState } from '../types';
+import {
+    setLocalStorage,
+    LocalStorageItemNames,
+    removeLocalStorage
+} from '../../../../shared/utils/local-storage';
 
-// Combine the actions from the sub-modules
-export const actions = {
-    auth: Auth.actions
-};
-
-// Combine the reducers from sub-modules
-export const reducers = {
-    ...Auth.reducers
-};
-
-const Reducer = (
-    state: UserIdentityContextState,
-    action: UserIdentityReducerActionPayload<unknown>
-): UserIdentityContextState => {
-    if (reducers[action.type] === undefined) {
-        return state;
+const Reducer: IdentityReducer = (state, action) => {
+    switch (action.type) {
+        case IdentityReducerActionType.userLogin: {
+            const { userToken } = action.payload;
+            setLocalStorage(LocalStorageItemNames.User, {
+                userToken
+            });
+            return {
+                ...state,
+                userToken,
+                isRestoring: false
+            };
+        }
+        case IdentityReducerActionType.userLogout: {
+            removeLocalStorage(LocalStorageItemNames.User);
+            return {
+                ...state,
+                userToken: null,
+                isRestoring: false
+            };
+        }
+        case IdentityReducerActionType.restoreState: {
+            return {
+                ...state,
+                isRestoring: action.payload.restoreState
+            };
+        }
+        default:
+            return { ...state };
     }
-
-    return reducers[action.type](state, action.payload);
 };
 
 const initialState: UserIdentityContextState = {
     userToken: null,
-    isRestoring: true,
-    userRefreshToken: null
+    isRestoring: true
 };
 
 export const __useUserIdentityReducer = () =>
-    React.useReducer<React.Reducer<UserIdentityContextState, unknown>>(
-        Reducer,
-        {
-            ...initialState
-        }
-    );
+    React.useReducer(Reducer, {
+        ...initialState
+    });

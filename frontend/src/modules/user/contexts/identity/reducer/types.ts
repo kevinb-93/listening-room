@@ -1,23 +1,27 @@
+import { Reducer } from 'react';
 import { UserIdentityContextState } from '../types';
+import { ReducerAction } from '../../../../../types/react';
+interface LoginPayload {
+    userToken: UserIdentityContextState['userToken'];
+}
+interface RestoreStatePayload {
+    restoreState: UserIdentityContextState['isRestoring'];
+}
 
-export enum UserIdentityReducerAction {
+export enum IdentityReducerActionType {
     userLogin,
     userLogout,
     restoreState
 }
 
-export interface UserIdentityReducerActionPayload<T> {
-    type: UserIdentityReducerAction;
-    payload: T;
-}
-
-export interface UserIdentityReducer {
-    (
-        state: UserIdentityContextState,
-        payload: unknown
-    ): UserIdentityContextState;
-}
-
-export interface UserIdentityReducerMap {
-    [key: string]: UserIdentityReducer;
-}
+export type IdentityReducer = Reducer<
+    UserIdentityContextState,
+    IdentityReducerAction
+>;
+export type IdentityReducerAction =
+    | ReducerAction<IdentityReducerActionType.userLogin, LoginPayload>
+    | ReducerAction<IdentityReducerActionType.userLogout, null>
+    | ReducerAction<
+          IdentityReducerActionType.restoreState,
+          RestoreStatePayload
+      >;

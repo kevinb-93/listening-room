@@ -122,9 +122,8 @@ export class UserService {
         };
     }
 
-    static async logout(userId: string, token: string) {
+    static async logout(userId: string) {
         await RefreshTokenModel.deleteMany({
-            token,
             user: userId
         });
     }

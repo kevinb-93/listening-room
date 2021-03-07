@@ -1,48 +1,43 @@
 import { useCallback } from 'react';
-import { actions } from './reducer';
 import { baseUrl } from '../../../shared/config/api';
 import { useApiRequest } from '../../../shared/hooks/use-api-request';
+import { UserIdentityContextState } from './types';
 import {
-    UserIdentityContextInterface,
-    UserIdentityContextState
-} from './types';
+    IdentityReducerAction,
+    IdentityReducerActionType
+} from './reducer/types';
 
 const useActions = (
     state: UserIdentityContextState,
-    dispatch: React.Dispatch<unknown>
+    dispatch: React.Dispatch<IdentityReducerAction>
 ) => {
     const { sendRequest: sendLogoutRequest } = useApiRequest();
-
-    const userLogin = useCallback<UserIdentityContextInterface['userLogin']>(
-        (userToken, userRefreshToken) =>
-            actions.auth.login(dispatch, {
-                userToken,
-                userRefreshToken
-            }),
-        [dispatch]
-    );
-
     const userLogout = useCallback(async () => {
         try {
             await sendLogoutRequest(`${baseUrl}/api/user/logout`, {
-                method: 'DELETE',
-                data: { refreshToken: state.userRefreshToken }
+                method: 'DELETE'
             });
         } catch (e) {
             console.log(e);
         } finally {
-            actions.auth.logout(dispatch);
+            dispatch({
+                type: IdentityReducerActionType.userLogout,
+                payload: null
+            });
         }
-    }, [dispatch, sendLogoutRequest, state.userRefreshToken]);
+    }, [dispatch, sendLogoutRequest]);
 
     const setRestoreState = useCallback(
         state => {
-            actions.auth.restoreState(dispatch, { restoreState: state });
+            dispatch({
+                type: IdentityReducerActionType.restoreState,
+                payload: { restoreState: state }
+            });
         },
         [dispatch]
     );
 
-    return { userLogin, userLogout, setRestoreState };
+    return { userLogout, setRestoreState };
 };
 
 export default useActions;

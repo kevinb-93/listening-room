@@ -3,8 +3,7 @@ import {
     setLocalStorage,
     LocalStorageItemNames,
     getLocalStorage,
-    removeLocalStorage,
-    UserItem
+    removeLocalStorage
 } from '../utils/local-storage';
 
 type RequestConfig = Record<string, unknown>;
@@ -40,35 +39,27 @@ const isRefreshTokenRequest = (requestConfig: RequestConfig) => {
     return requestConfig.url === refreshTokenUrl;
 };
 
-const refreshToken = (requestConfig: RequestConfig, refreshToken: string) => {
+const refreshToken = (requestConfig: RequestConfig) => {
     requestConfig._retry = true;
-    return api
-        .post(refreshTokenUrl, {
-            refreshToken
-        })
-        .then(res => {
-            if (res.status === 200) {
-                setLocalStorage(LocalStorageItemNames.User, {
-                    userToken: res.data.accessToken,
-                    userRefreshToken: refreshToken
-                });
-            }
-            return api(requestConfig);
-        });
+    return api.post(refreshTokenUrl).then(res => {
+        if (res.status === 200) {
+            setLocalStorage(LocalStorageItemNames.User, {
+                userToken: res.data.accessToken
+            });
+        }
+        return api(requestConfig);
+    });
 };
 
 interface CheckRefreshTokenParams {
-    userRefreshToken: string;
     status: number;
     requestConfig: RequestConfig;
 }
 
 const shouldRefreshToken = ({
-    userRefreshToken,
     status,
     requestConfig
 }: CheckRefreshTokenParams) =>
-    userRefreshToken &&
     status === 401 &&
     !isRefreshTokenRequest(requestConfig) &&
     !requestConfig._retry;
@@ -78,17 +69,14 @@ const errorInterceptor = (error: {
     response: { status: number };
 }) => {
     const originalRequest = error.config;
-    const { userRefreshToken } =
-        getLocalStorage(LocalStorageItemNames.User) || {};
 
     if (
         shouldRefreshToken({
-            userRefreshToken,
             status: error.response.status,
             requestConfig: originalRequest
         })
     ) {
-        return refreshToken(originalRequest, userRefreshToken);
+        return refreshToken(originalRequest);
     } else if (isRefreshTokenRequest(originalRequest)) {
         removeLocalStorage(LocalStorageItemNames.User);
     }
