@@ -1,22 +1,22 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
+import styled from 'styled-components';
 
 import Settings from '../modules/settings/pages/settings';
 import Queue from '../modules/queue/container/queue';
-import Header from '../modules/shared/components/header';
-import NavLink from '../modules/navigation/components/nav-link';
+import NavBar from '../modules/navigation/components/nav.bar';
+import NavLink from '../modules/navigation/components/nav.link';
 import GlobalStyle from '../modules/shared/styles/global';
-import Main from '../modules/shared/components/main';
 import { useUserIdentityContext } from '../modules/user/contexts/identity';
-import PrivateRoute from '../modules/navigation/components/private-route';
-import NavMenu from '../modules/navigation/components/nav-menu';
+import PrivateRoute from '../modules/navigation/components/nav.private-route';
+import NavMenu from '../modules/navigation/components/nav.menu';
 import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
 import PartyAuth from '../modules/party/containers/party.auth';
 
-const Router: React.FC = () => {
+const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
-    const { isLoggedIn, logout } = useAppIdentity();
+    const { isLoggedIn } = useAppIdentity();
     const { user } = useUserProfileContext();
 
     if (isRestoring) {
@@ -27,7 +27,7 @@ const Router: React.FC = () => {
         <BrowserRouter>
             <GlobalStyle />
             {isLoggedIn && (
-                <Header>
+                <NavBar>
                     <NavMenu>
                         <NavLink
                             to="/queue"
@@ -42,10 +42,9 @@ const Router: React.FC = () => {
                         />
                         <div id="partyId">{user?.party}</div>
                     </NavMenu>
-                    <button onClick={() => logout()}>Log out</button>
-                </Header>
+                </NavBar>
             )}
-            <Main>
+            <StyledMain useHeaderHeight={isLoggedIn}>
                 <Switch>
                     <PrivateRoute path="/settings">
                         <Settings />
@@ -62,9 +61,20 @@ const Router: React.FC = () => {
                         <Queue />
                     </PrivateRoute>
                 </Switch>
-            </Main>
+            </StyledMain>
         </BrowserRouter>
     );
 };
 
-export default Router;
+interface StyledMain {
+    useHeaderHeight: boolean;
+}
+
+const StyledMain = styled.div<StyledMain>`
+    margin-top: ${props =>
+        props.useHeaderHeight ? props.theme.header.height : ''};
+    height: 100%;
+    width: 100%;
+`;
+
+export default Main;

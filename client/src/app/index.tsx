@@ -15,15 +15,15 @@ import 'fontsource-roboto/400.css';
 import 'fontsource-roboto/500.css';
 import 'fontsource-roboto/700.css';
 
-import { Providers } from './providers';
-import Router from './router';
+import { Providers } from './app.providers';
+import Main from './app.main';
 
 library.add(faSearch, faListOl, faCog, faTimes, faPlus, faPlay, faPause);
 
 const App = () => {
     return (
         <Providers>
-            <Router />
+            <Main />
         </Providers>
     );
 };

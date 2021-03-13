@@ -128,7 +128,7 @@ const useLiveChat = () => {
                 partyId: user.party
             };
             const { status, data } = await sendAddMessageRequest(
-                '/message/create',
+                '/chat/create',
                 {
                     data: requestData,
                     method: 'POST'
@@ -154,7 +154,7 @@ const useLiveChat = () => {
         async id => {
             try {
                 const { status, data } = await sendDeleteMessageRequest(
-                    `/message/delete/${id}`,
+                    `/chat/delete/${id}`,
                     {
                         method: 'DELETE'
                     }
