@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 
-import { AppContextProvider } from '../contexts/app';
 import { theme } from '../modules/shared/styles/theme';
 import { UserIdentityContextProvider } from '../modules/user/contexts/identity';
 import { SpotifyIdentityContextProvider } from '../modules/spotify/context/identity';
@@ -21,15 +20,13 @@ export const Providers: React.FC = ({ children }) => {
                         <SpotifyIdentityContextProvider>
                             <UserProfileContextProvider>
                                 <WebSocketContextProvider>
-                                    <AppContextProvider>
-                                        <PartyContextProvider>
-                                            <SpotifyContextProvider>
-                                                <SpotifyPlayerProvider>
-                                                    {children}
-                                                </SpotifyPlayerProvider>
-                                            </SpotifyContextProvider>
-                                        </PartyContextProvider>
-                                    </AppContextProvider>
+                                    <PartyContextProvider>
+                                        <SpotifyContextProvider>
+                                            <SpotifyPlayerProvider>
+                                                {children}
+                                            </SpotifyPlayerProvider>
+                                        </SpotifyContextProvider>
+                                    </PartyContextProvider>
                                 </WebSocketContextProvider>
                             </UserProfileContextProvider>
                         </SpotifyIdentityContextProvider>

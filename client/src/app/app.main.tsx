@@ -13,6 +13,7 @@ import NavMenu from '../modules/navigation/components/nav.menu';
 import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
 import PartyAuth from '../modules/party/containers/party.auth';
+import SpotifySearch from '../modules/spotify/containers/spotify.search-tracks';
 
 const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
@@ -29,7 +30,8 @@ const Main: React.FC = () => {
             {isLoggedIn && (
                 <NavBar>
                     <NavMenu>
-                        <NavLink
+                        <SpotifySearch />
+                        {/* <NavLink
                             to="/queue"
                             label={'Queue'}
                             icon={'list-ol'}
@@ -40,7 +42,7 @@ const Main: React.FC = () => {
                             label={'Settings'}
                             icon={'cog'}
                         />
-                        <div id="partyId">{user?.party}</div>
+                        <div id="partyId">{user?.party}</div> */}
                     </NavMenu>
                 </NavBar>
             )}

@@ -32,18 +32,8 @@ const Search: React.FC<Props> = ({
 
     const [searchListPosition, setSearchListPosition] = useState<
         SearchListPosition
-    >();
+    >({ left: null, top: null, width: null });
     const [showResults, setShowResults] = useState<boolean>(false);
-
-    useEffect(() => {
-        const searchBarRect = searchBarContainerRef.current.getBoundingClientRect();
-
-        setSearchListPosition({
-            left: searchBarRect.left,
-            top: searchBarRect.top,
-            width: searchBarRect.width
-        });
-    }, []);
 
     useEffect(() => {
         if (showResults) {
@@ -103,55 +93,45 @@ const Search: React.FC<Props> = ({
     };
 
     return (
-        <SearchContainer>
-            <SearchBarContainer ref={searchBarContainerRef}>
-                <SearchInputContainer>
-                    <SearchIcon onClick={() => setShowResults(true)}>
-                        <FontAwesomeIcon icon={'search'} />
-                    </SearchIcon>
-                    <SearchInput
-                        placeholder={placeholder}
-                        onChange={changeHandler}
-                        value={searchTerm}
-                        ref={searchInputRef}
-                        onKeyUp={keyPressHandler}
-                        onFocus={() => setShowResults(true)}
-                    />
-                    {searchTerm && (
-                        <SearchClearIcon
-                            onClick={() => {
-                                searchInputRef.current.focus();
-                                onClear();
-                            }}
-                        >
-                            <FontAwesomeIcon icon={'times'} />
-                        </SearchClearIcon>
-                    )}
-                </SearchInputContainer>
-                {searchResults && showResults && (
-                    <SearchList
-                        positionLeft={searchListPosition.left}
-                        positionTop={searchListPosition.top}
-                        width={searchListPosition.width}
+        <SearchBarContainer ref={searchBarContainerRef}>
+            <SearchInputContainer>
+                <SearchIcon onClick={() => setShowResults(true)}>
+                    <FontAwesomeIcon color="black" icon={'search'} />
+                </SearchIcon>
+                <SearchInput
+                    placeholder={placeholder}
+                    onChange={changeHandler}
+                    value={searchTerm}
+                    ref={searchInputRef}
+                    onKeyUp={keyPressHandler}
+                    onFocus={() => setShowResults(true)}
+                />
+                {searchTerm && (
+                    <SearchClearIcon
+                        onClick={() => {
+                            searchInputRef.current.focus();
+                            onClear();
+                        }}
                     >
-                        {searchResults}
-                    </SearchList>
+                        <FontAwesomeIcon icon={'times'} />
+                    </SearchClearIcon>
                 )}
-            </SearchBarContainer>
-        </SearchContainer>
+            </SearchInputContainer>
+            {searchResults && showResults && (
+                <SearchList
+                    positionLeft={searchListPosition.left}
+                    positionTop={searchListPosition.top}
+                    width={searchListPosition.width}
+                >
+                    {searchResults}
+                </SearchList>
+            )}
+        </SearchBarContainer>
     );
 };
 
 const searchIconWidth = '40px';
 const searchInputHeight = '32px';
-
-const SearchContainer = styled.div`
-    display: flex;
-    flex: 1 1;
-    position: relative;
-    justify-content: center;
-    align-items: center;
-`;
 
 const SearchInputContainer = styled.div`
     display: flex;
@@ -161,12 +141,23 @@ const SearchInputContainer = styled.div`
     align-items: center;
 `;
 
+const SearchInput = styled.input`
+    flex: 1 1;
+    height: ${searchInputHeight};
+    padding: 0px 0px 0px ${searchIconWidth};
+`;
+
 const SearchBarContainer = styled.div`
     display: flex;
-    flex: 1 1;
+    flex: 1;
     position: relative;
     justify-content: center;
     align-items: center;
+    transition: ${props => props.theme.transitions.create('flex')};
+
+    ${SearchInput}:focus & {
+        flex: 1;
+    }
 `;
 
 interface SearchListProps {
@@ -183,9 +174,9 @@ const SearchList = styled.div<SearchListProps>`
     top: ${props => props.positionTop + parseInt(searchInputHeight)}px;
     flex-direction: column;
     justify-content: center;
-    align-items: start;
     width: ${props => props.width}px;
-    background-color: green;
+    color: black;
+    background-color: white;
 `;
 
 const SearchIcon = styled.span`
@@ -208,12 +199,6 @@ const SearchClearIcon = styled.span`
     align-items: center;
     justify-content: center;
     position: absolute;
-`;
-
-const SearchInput = styled.input`
-    flex: 1 1;
-    height: ${searchInputHeight};
-    padding: 0px 0px 0px ${searchIconWidth};
 `;
 
 Search.defaultProps = {

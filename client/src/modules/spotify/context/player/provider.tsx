@@ -21,7 +21,6 @@ import {
     CurrentTrack,
     Track
 } from '../../../../../../api/src/modules/party/party.model';
-import { useAppContext } from '../../../../contexts/app';
 import SpotifyWebApi from 'spotify-web-api-js';
 import { UserRole } from '../../../user/contexts/profile/types';
 // import { useWebSocketContext } from '../../../shared/contexts/websocket';

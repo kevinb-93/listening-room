@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 interface TrackItemImage {
@@ -46,14 +45,8 @@ const TrackItem: React.FC<TrackItemProps> = ({
         onPressPlayback(track.id);
     };
 
-    /*
-     src={track.album.images.find(i => i.height === 64).url}
-     {track.artists.map(a => a.name).join(', ')
-     convertDurationMs(track.duration_ms)
-    */
-
     return (
-        <StyledTrackItemContainer key={track.id}>
+        <StyledTrackItemContainer>
             <img height={image.size} width={image.size} src={image.src}></img>
             <StyledTrackInfo>
                 <span>{track.songTitle}</span>
@@ -74,8 +67,14 @@ const TrackItem: React.FC<TrackItemProps> = ({
     );
 };
 
-const StyledTrackItemContainer = styled.div`
+const StyledTrackItemContainer = styled.li`
     display: flex;
+    padding: ${props => props.theme.spacing(1)}px;
+    flex: 1;
+
+    &:hover {
+        background-color: red;
+    }
 `;
 
 const StyledTrackInfo = styled.div`

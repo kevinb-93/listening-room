@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
-import Search from '../../shared/components/FormElements/search';
-import TrackItem, { TrackItemProps } from '../../spotify/components/track-item';
+import TrackItem, {
+    TrackItemProps
+} from '../../spotify/components/spotify.track-list-item';
 import Player from '../../shared/components/audio/Player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
 import Chat from '../../chat/containers/chat';
 import { convertDurationMs } from '../../shared/utils/datetime';
-import useSpotifySearch from '../../spotify/hooks/useSpotifySearch';
 import { getArtists, getTrackImage } from '../../spotify/utils/track';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import SpotifyAuthButton from '../../spotify/containers/auth';
@@ -21,7 +21,6 @@ const Queue: React.FC = () => {
         playTrack,
         playbackState
     } = useSpotifyPlayerContext();
-    const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
 
     const resumePlayback = useCallback(() => {
         if (!player || !playbackState.paused) {
@@ -40,8 +39,6 @@ const Queue: React.FC = () => {
             player.pause().then(() => console.log('paused!'));
         }
     }, [playbackState?.paused, player]);
-
-    const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
 
     const isTrackQueued = useCallback(
         (trackId: SpotifyApi.TrackObjectFull['id']) => {
@@ -63,23 +60,12 @@ const Queue: React.FC = () => {
         },
         [isCurrentTrack, playbackState?.paused]
     );
-    const getTrackList = useCallback(() => {
-        if (searchResults?.tracks?.items?.length > 0) {
-            setTracks(searchResults.tracks.items);
-        } else {
-            setTracks(queue);
-        }
-    }, [queue, searchResults?.tracks?.items]);
-
-    useEffect(() => {
-        getTrackList();
-    }, [getTrackList]);
 
     const getTrack = useCallback(
         (trackId: string) => {
-            return tracks.find(t => t.id === trackId);
+            return queue.find(t => t.id === trackId);
         },
-        [tracks]
+        [queue]
     );
 
     const pressPlaybackHandler = useCallback(
@@ -141,34 +127,11 @@ const Queue: React.FC = () => {
         resumePlayback
     ]);
 
-    const changeHandler = useCallback(
-        (searchTerm: string) => {
-            setSearchTerm(searchTerm);
-        },
-        [setSearchTerm]
-    );
-
-    const clearHandler = useCallback(() => {
-        setSearchTerm('');
-    }, [setSearchTerm]);
-
-    const renderSearch = useMemo(() => {
-        return (
-            <div>
-                <Search
-                    onChange={changeHandler}
-                    searchTerm={searchTerm}
-                    onClear={clearHandler}
-                />
-            </div>
-        );
-    }, [changeHandler, clearHandler, searchTerm]);
-
     const renderQueue = useMemo(() => {
         return (
             <StyledQueue>
                 <StyledTrackList>
-                    {tracks.slice(0, 10).map(t => {
+                    {queue.slice(0, 10).map(t => {
                         const track: TrackItemProps['track'] = {
                             id: t.id,
                             artist: getArtists(t),
@@ -205,7 +168,7 @@ const Queue: React.FC = () => {
         isTrackQueued,
         pressPlaybackHandler,
         queueTrackHandler,
-        tracks
+        queue
     ]);
 
     return (
@@ -214,7 +177,6 @@ const Queue: React.FC = () => {
                 {spotifyToken ? (
                     <>
                         {renderPlayer}
-                        {renderSearch}
                         {renderQueue}
                     </>
                 ) : (

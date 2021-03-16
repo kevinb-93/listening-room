@@ -5,14 +5,12 @@ import useAppIdentity from '../../shared/hooks/use-identity';
 
 const Header: React.FC = ({ children }) => {
     const { logout } = useAppIdentity();
+
     return (
         <StyledHeader>
             <AppBar>
                 <Toolbar>
-                    <StyledToolbarMenu>
-                        <span>Header</span>
-                        {children}
-                    </StyledToolbarMenu>
+                    <StyledToolbarMenu>{children}</StyledToolbarMenu>
                     <Button onClick={logout}>Log out</Button>
                 </Toolbar>
             </AppBar>
