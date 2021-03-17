@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import AudioControls, { AudioControlsProps } from './audio-controls';
 import ProgressBar, { ProgressBarProps } from '../UIElements/progress-bar';
+import Card from '@material-ui/core/Card';
+import { CardContent, CardMedia, Typography } from '@material-ui/core';
 
 export interface PlayerProps {
     artWork: PlayerArtWork;
@@ -25,41 +27,55 @@ const Player: React.FC<PlayerProps> = ({
     progress
 }) => {
     return (
-        <StyledPlayerContainer>
-            <StyledArtWork
-                src={artWork.src}
-                height={artWork.height}
-                width={artWork.width}
-            />
-            <StyledCreatorName>{creatorName}</StyledCreatorName>
-            <StyledTitle>{title}</StyledTitle>
-            <AudioControls color="#fff" {...controls} />
-            <ProgressBar {...progress} />
-        </StyledPlayerContainer>
+        <StyledContainer raised>
+            <StyledMedia {...artWork} />
+            <StyledPlayerContainer>
+                <StyledTrackDetails>
+                    <StyledCreatorName variant="h5">
+                        {creatorName}
+                    </StyledCreatorName>
+                    <StyledTitle variant="subtitle1" color="textSecondary">
+                        {title}
+                    </StyledTitle>
+                </StyledTrackDetails>
+                <StyledControls>
+                    <AudioControls {...controls} />
+                    <ProgressBar {...progress} />
+                </StyledControls>
+            </StyledPlayerContainer>
+        </StyledContainer>
     );
 };
 
-const StyledArtWork = styled.img`
-    position: relative;
+const StyledMedia = styled((props: PlayerArtWork) => (
+    <CardMedia component="img" {...props} />
+))`
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `;
 
-const StyledTitle = styled.span`
-    color: inherit;
-    position: relative;
+const StyledTrackDetails = styled.div`
+    flex: 1;
 `;
 
-const StyledCreatorName = styled.span`
-    color: inherit;
-    position: relative;
+const StyledControls = styled.div`
+    flex: 0;
 `;
 
-const StyledPlayerContainer = styled.div`
+const StyledTitle = styled(Typography)``;
+
+const StyledCreatorName = styled(Typography)``;
+
+const StyledPlayerContainer = styled(CardContent)`
     display: flex;
-    align-items: center;
-    justify-content: center;
     flex-direction: column;
-    color: #fff;
-    padding: 16px 0px 16px 0px;
+    flex: 1;
+`;
+
+const StyledContainer = styled(Card)`
+    display: flex;
+    flex-direction: row;
+    color: black;
 `;
 
 export default Player;

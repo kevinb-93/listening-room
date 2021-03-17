@@ -175,10 +175,10 @@ const Queue: React.FC = () => {
         <StyledContainer>
             <div>
                 {spotifyToken ? (
-                    <>
+                    <StyledWrapper>
                         {renderPlayer}
                         {renderQueue}
-                    </>
+                    </StyledWrapper>
                 ) : (
                     <SpotifyAuthButton />
                 )}
@@ -190,12 +190,8 @@ const Queue: React.FC = () => {
 
 const StyledContainer = styled.div`
     display: grid;
-    margin: 0 auto;
-    grid-gap: 1rem;
-    background-color: green;
-    justify-items: stretch;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    align-items: start;
+    grid-template-columns: 1fr auto;
+    height: 100%;
 `;
 
 const StyledQueue = styled.div`
@@ -205,6 +201,10 @@ const StyledQueue = styled.div`
 const StyledTrackList = styled.div`
     display: flex;
     flex-direction: column;
+`;
+
+const StyledWrapper = styled.div`
+    padding: ${props => props.theme.spacing(1)}px;
 `;
 
 export default Queue;

@@ -7,14 +7,12 @@ const Header: React.FC = ({ children }) => {
     const { logout } = useAppIdentity();
 
     return (
-        <StyledHeader>
-            <AppBar>
-                <Toolbar>
-                    <StyledToolbarMenu>{children}</StyledToolbarMenu>
-                    <Button onClick={logout}>Log out</Button>
-                </Toolbar>
-            </AppBar>
-        </StyledHeader>
+        <StyledAppBar position="static">
+            <Toolbar>
+                <StyledToolbarMenu>{children}</StyledToolbarMenu>
+                <Button onClick={logout}>Log out</Button>
+            </Toolbar>
+        </StyledAppBar>
     );
 };
 
@@ -22,17 +20,10 @@ const StyledToolbarMenu = styled.div`
     flex-grow: 1;
 `;
 
-const StyledHeader = styled.div`
-    position: fixed;
-    height: ${props => props.theme.header.height};
+const StyledAppBar = styled(AppBar)`
     z-index: 2;
     background-color: white;
-    left: 0;
-    top: 0;
-    right: 0;
     display: flex;
-    align-items: center;
-    padding: 0px 16px;
 `;
 
 export default Header;

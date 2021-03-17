@@ -1,3 +1,4 @@
+import Slider from '@material-ui/core/Slider';
 import React from 'react';
 import styled from 'styled-components';
 import { convertDurationMs } from '../../utils/datetime';
@@ -12,53 +13,29 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     songDurationMs
 }) => {
     return (
-        <Container>
-            <ElaspedTime>{convertDurationMs(elaspedTime)}</ElaspedTime>
-            <ProgressBarContainer>
-                <Progress elaspedTime={elaspedTime} duration={songDurationMs} />
-            </ProgressBarContainer>
-            <Duration>{convertDurationMs(songDurationMs)}</Duration>
-        </Container>
+        <StyledContainer>
+            <StyledElaspedTime>
+                {convertDurationMs(elaspedTime)}
+            </StyledElaspedTime>
+            <Slider value={elaspedTime} max={songDurationMs} />
+            <StyledDuration>{convertDurationMs(songDurationMs)}</StyledDuration>
+        </StyledContainer>
     );
 };
 
-const Container = styled.div`
+const StyledContainer = styled.div`
     display: flex;
-    color: #fff;
-    position: relative;
-    width: 200px;
+    min-width: 200px;
+    justify-content: center;
     align-items: center;
 `;
 
-const ProgressBarContainer = styled.div`
-    align-self: center;
-    position: relative;
-    display: flex;
-    flex: 1 1;
-    height: 5px;
-    border: 1px solid #fff;
-    border-radius: 2.5px;
-`;
-
-interface ProgressProps {
-    elaspedTime: number;
-    duration: number;
-}
-
-const Progress = styled.div.attrs<ProgressProps>(props => ({
-    style: {
-        width: `${(props.elaspedTime / props.duration) * 100}%`
-    }
-}))<ProgressProps>`
-    background-color: #fff;
-`;
-
-const ElaspedTime = styled.div`
+const StyledElaspedTime = styled.div`
     flex: 0 0;
     padding-right: 8px;
 `;
 
-const Duration = styled.div`
+const StyledDuration = styled.div`
     flex: 0 0;
     padding-left: 8px;
 `;

@@ -18,7 +18,6 @@ import SpotifySearch from '../modules/spotify/containers/spotify.search-tracks';
 const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
     const { isLoggedIn } = useAppIdentity();
-    const { user } = useUserProfileContext();
 
     if (isRestoring) {
         return <div>Restoring Token</div>;
@@ -28,7 +27,7 @@ const Main: React.FC = () => {
         <BrowserRouter>
             <GlobalStyle />
             {isLoggedIn && (
-                <NavBar>
+                <StyledNavBar>
                     <NavMenu>
                         <SpotifySearch />
                         {/* <NavLink
@@ -44,7 +43,7 @@ const Main: React.FC = () => {
                         />
                         <div id="partyId">{user?.party}</div> */}
                     </NavMenu>
-                </NavBar>
+                </StyledNavBar>
             )}
             <StyledMain useHeaderHeight={isLoggedIn}>
                 <Switch>
@@ -72,11 +71,12 @@ interface StyledMain {
     useHeaderHeight: boolean;
 }
 
-const StyledMain = styled.div<StyledMain>`
-    margin-top: ${props =>
-        props.useHeaderHeight ? props.theme.header.height : ''};
-    height: 100%;
-    width: 100%;
+const StyledNavBar = styled(NavBar)`
+    grid-area: header;
+`;
+
+const StyledMain = styled.main<StyledMain>`
+    grid-area: main;
 `;
 
 export default Main;

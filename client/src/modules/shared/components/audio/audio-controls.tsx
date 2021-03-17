@@ -1,6 +1,7 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import styled from 'styled-components';
+import IconButton from '@material-ui/core/IconButton';
+import { PlayArrow, Pause } from '@material-ui/icons';
 
 export interface AudioControlsProps {
     color?: string;
@@ -17,19 +18,13 @@ const PlayerControls: React.FC<AudioControlsProps> = ({
 }) => {
     return (
         <Controls>
-            {isPlaying ? (
-                <FontAwesomeIcon
-                    icon={'pause'}
-                    color={color}
-                    onClick={pauseHandler}
-                />
-            ) : (
-                <FontAwesomeIcon
-                    icon={'play'}
-                    color={color}
-                    onClick={playHandler}
-                />
-            )}
+            <IconButton onClick={isPlaying ? pauseHandler : playHandler}>
+                {isPlaying ? (
+                    <Pause fontSize="large" />
+                ) : (
+                    <PlayArrow fontSize="large" />
+                )}
+            </IconButton>
         </Controls>
     );
 };
@@ -39,7 +34,8 @@ PlayerControls.defaultProps = {
 };
 
 const Controls = styled.div`
-    position: relative;
+    display: flex;
+    justify-content: center;
 `;
 
 export default PlayerControls;
