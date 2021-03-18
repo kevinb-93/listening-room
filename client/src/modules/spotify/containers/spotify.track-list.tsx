@@ -77,7 +77,7 @@ const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
         [addTrackToQueue, deleteTrackFromQueue, getTrack, isTrackQueued]
     );
 
-    const trackItems = tracks?.slice(0, 10).map(t => {
+    const trackItems = tracks?.map(t => {
         const track: TrackItemProps['track'] = {
             id: t.id,
             artist: getArtists(t),

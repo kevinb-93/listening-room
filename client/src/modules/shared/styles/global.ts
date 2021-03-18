@@ -24,6 +24,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     margin: 0;
+    overflow: hidden;
 }
 
 a {

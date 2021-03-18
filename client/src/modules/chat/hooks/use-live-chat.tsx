@@ -95,6 +95,8 @@ const useLiveChat = () => {
     }, [initChatEvents]);
 
     const getChatMessages = useCallback(async () => {
+        if (!user.party) return;
+
         try {
             const { status, data } = await getMessagesRequest(
                 `party/${user.party}/messages`,
@@ -122,6 +124,8 @@ const useLiveChat = () => {
     }, [getChatMessages]);
 
     const addChatMessage: ChatFormSubmit = async ({ message }) => {
+        if (!user.party) return;
+
         try {
             const requestData = {
                 message,

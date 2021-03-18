@@ -23,7 +23,7 @@ const Reducer = (
 };
 
 const initialState: UserProfileContextState = {
-    user: null
+    user: Object.create(null)
 };
 
 export const __useUserProfileReducer = () =>

@@ -363,14 +363,14 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
 
     useEffect(
         function loadSpotifyPlayer() {
-            if (isLoggedIn && user?.role === UserRole.Admin) {
+            if (isLoggedIn && user?.role === UserRole.Admin && spotifyToken) {
                 loadScript(
                     'https://sdk.scdn.co/spotify-player.js',
                     'spotify-player'
                 );
             }
         },
-        [isLoggedIn, user?.role]
+        [isLoggedIn, spotifyToken, user?.role]
     );
 
     const addTrackToQueue = useCallback(
