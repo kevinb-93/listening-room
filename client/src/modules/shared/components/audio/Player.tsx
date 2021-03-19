@@ -76,6 +76,7 @@ const StyledContainer = styled(Card)`
     display: flex;
     flex-direction: row;
     color: black;
+    height: min-content;
 `;
 
 export default Player;

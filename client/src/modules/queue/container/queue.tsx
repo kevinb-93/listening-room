@@ -6,8 +6,9 @@ import Chat from '../../chat/containers/chat';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import SpotifyAuthButton from '../../spotify/containers/auth';
 import Card from '@material-ui/core/Card';
-import { CardContent, CardHeader, Typography } from '@material-ui/core';
+import { Avatar, CardContent, CardHeader, Typography } from '@material-ui/core';
 import SpotifyTrackList from '../../spotify/containers/spotify.track-list';
+import QueueMusicIcon from '@material-ui/icons/QueueMusic';
 
 const Queue: React.FC = () => {
     const { spotifyToken } = useSpotifyIdentityContext();
@@ -66,15 +67,32 @@ const Queue: React.FC = () => {
     const renderQueuedTrackList = useCallback(() => {
         if (!queue?.length) return <Typography>Queue is empty.</Typography>;
 
-        return <SpotifyTrackList tracks={queue} />;
+        return (
+            <>
+                <SpotifyTrackList tracks={queue} />
+            </>
+        );
     }, [queue]);
 
     const renderQueue = useMemo(() => {
         return (
-            <StyledCard raised>
-                <CardHeader title="Queue" />
-                <StyledCardContent>{renderQueuedTrackList()}</StyledCardContent>
-            </StyledCard>
+            <StyledQueueWrapper>
+                {' '}
+                <StyledCard raised>
+                    <CardHeader
+                        avatar={
+                            <Avatar>
+                                <QueueMusicIcon />
+                            </Avatar>
+                        }
+                        title="Queue"
+                        titleTypographyProps={{ variant: 'h6' }}
+                    />
+                    <StyledCardContent>
+                        {renderQueuedTrackList()}
+                    </StyledCardContent>
+                </StyledCard>
+            </StyledQueueWrapper>
         );
     }, [renderQueuedTrackList]);
 
@@ -95,26 +113,38 @@ const Queue: React.FC = () => {
     );
 };
 
+const StyledQueueWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+`;
+
 const StyledCardContent = styled(CardContent)`
     padding-top: 0px;
+    flex: 1;
+    overflow-y: auto;
 `;
 
 const StyledContainer = styled.div`
     display: grid;
+    overflow: hidden;
     grid-template-columns: 1fr auto;
     height: 100%;
 `;
 
 const StyledCard = styled(Card)`
+    display: flex;
+    flex-direction: column;
     height: fit-content;
 `;
 
 const StyledWrapper = styled.div`
     display: grid;
+    overflow: hidden;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
     gap: ${props => props.theme.spacing()}px;
-    padding: ${props => props.theme.spacing()}px;
+    margin: ${props => props.theme.spacing()}px;
 `;
 
 export default Queue;

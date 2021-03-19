@@ -77,6 +77,7 @@ const StyledNavBar = styled(NavBar)`
 
 const StyledMain = styled.main<StyledMain>`
     grid-area: main;
+    overflow: hidden;
 `;
 
 export default Main;
