@@ -2,8 +2,6 @@ import { useEffect, useCallback, useReducer } from 'react';
 import { useWebSocketContext } from '../../shared/contexts/websocket';
 import { useApiRequest } from '../../shared/hooks/use-api-request';
 import { useUserProfileContext } from '../../user/contexts/profile';
-import { ChatFormSubmit } from '../components/chat.form-send';
-import { Message, OnDeleteMessage } from '../components/chat.message';
 
 enum ChatReducerActionType {
     AddMessage,
@@ -11,8 +9,8 @@ enum ChatReducerActionType {
     SetMessages
 }
 
-type ChatReducerState = Message[];
-type ChatReducerActionPayload = Message | Message[];
+type ChatReducerState = MessageData[];
+type ChatReducerActionPayload = MessageData | MessageData[] | DeleteMessageData;
 
 interface ReducerAction<
     T extends ChatReducerActionType,
@@ -23,22 +21,22 @@ interface ReducerAction<
 }
 
 type ChatReducerAction =
-    | ReducerAction<ChatReducerActionType.AddMessage, Message>
-    | ReducerAction<ChatReducerActionType.DeleteMessage, Message>
-    | ReducerAction<ChatReducerActionType.SetMessages, Message[]>;
-
-export interface AddMessageData {
-    _id: string;
-    message: string;
-}
+    | ReducerAction<ChatReducerActionType.AddMessage, MessageData>
+    | ReducerAction<ChatReducerActionType.DeleteMessage, DeleteMessageData>
+    | ReducerAction<ChatReducerActionType.SetMessages, MessageData[]>;
 
 export interface DeleteMessageData {
     messageId: string;
 }
 
-export interface GetMessagesData {
-    _id: string;
-    message: string;
+export interface MessageData {
+    id: string;
+    timestamp: Date;
+    sender: {
+        id: string;
+        name: string;
+    };
+    content: string;
 }
 
 const chatReducer = (state: ChatReducerState, action: ChatReducerAction) => {
@@ -46,7 +44,7 @@ const chatReducer = (state: ChatReducerState, action: ChatReducerAction) => {
         case ChatReducerActionType.AddMessage:
             return [...state, action.payload];
         case ChatReducerActionType.DeleteMessage:
-            return [...state.filter(s => s.id !== action.payload.id)];
+            return [...state.filter(s => s.id !== action.payload.messageId)];
         case ChatReducerActionType.SetMessages:
             return action.payload;
         default:
@@ -68,14 +66,11 @@ const useLiveChat = () => {
             return;
         }
 
-        socket.on('add_message', (data: AddMessageData) => {
+        socket.on('add_message', (data: MessageData) => {
             console.log(data);
             dispatch({
                 type: ChatReducerActionType.AddMessage,
-                payload: {
-                    id: data._id,
-                    message: data.message
-                }
+                payload: data
             });
         });
 
@@ -83,9 +78,7 @@ const useLiveChat = () => {
             console.log(data);
             dispatch({
                 type: ChatReducerActionType.DeleteMessage,
-                payload: {
-                    id: data.messageId
-                }
+                payload: { messageId: data.messageId }
             });
         });
     }, [socket]);
@@ -104,14 +97,9 @@ const useLiveChat = () => {
             );
 
             if (status === 200) {
-                const messages: Message[] = data.messages.map(
-                    (m: GetMessagesData) => {
-                        return { id: m._id, message: m.message };
-                    }
-                );
                 dispatch({
                     type: ChatReducerActionType.SetMessages,
-                    payload: messages
+                    payload: data.messages
                 });
             }
         } catch (e) {
@@ -123,7 +111,7 @@ const useLiveChat = () => {
         getChatMessages();
     }, [getChatMessages]);
 
-    const addChatMessage: ChatFormSubmit = async ({ message }) => {
+    const addChatMessage = async (message: string) => {
         if (!user.party) return;
 
         try {
@@ -143,18 +131,16 @@ const useLiveChat = () => {
                 socket.emit('add_message', data);
                 dispatch({
                     type: ChatReducerActionType.AddMessage,
-                    payload: {
-                        id: data._id,
-                        message: data.message
-                    }
+                    payload: data
                 });
             }
         } catch (e) {
             console.error(e);
+            throw e;
         }
     };
 
-    const deleteChatMessage: OnDeleteMessage = useCallback(
+    const deleteChatMessage = useCallback(
         async id => {
             try {
                 const { status, data } = await sendDeleteMessageRequest(
@@ -168,7 +154,7 @@ const useLiveChat = () => {
                     socket.emit('delete_message', data);
                     dispatch({
                         type: ChatReducerActionType.DeleteMessage,
-                        payload: { id: data.messageId }
+                        payload: { messageId: data.messageId }
                     });
                 }
             } catch (e) {

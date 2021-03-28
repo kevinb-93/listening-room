@@ -4,6 +4,7 @@ import { NextFunction, Request, Response } from 'express';
 import Message from './chat.model';
 import Party from '../party/party.model';
 import HttpError from '../../shared/models/http-error.model';
+import { UserService } from '../../modules/user/user.service';
 
 export const createMessage = async (
     req: Request,
@@ -24,6 +25,9 @@ export const createMessage = async (
 
         const { message, partyId } = req.body;
         const senderId = req.user?.userId;
+        if (!senderId) {
+            return next(new HttpError("Sender doesn't exist", 422));
+        }
 
         const party = await Party.findById(partyId);
 
@@ -38,8 +42,16 @@ export const createMessage = async (
         });
 
         await newMessage.save();
+        const sender = await UserService.getUser(senderId);
 
-        res.status(201).json(newMessage.toObject());
+        const response = {
+            id: newMessage._id,
+            timestamp: newMessage._id.getTimestamp(),
+            sender: { id: senderId, name: sender.userDoc.name },
+            content: message
+        };
+
+        res.status(201).json(response);
     } catch (e) {
         console.error(e);
         return next(new HttpError('Internal Server Error', 500));

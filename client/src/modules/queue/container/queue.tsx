@@ -143,8 +143,8 @@ const StyledWrapper = styled.div`
     overflow: hidden;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
-    gap: ${props => props.theme.spacing()}px;
-    margin: ${props => props.theme.spacing()}px;
+    gap: ${props => props.theme.spacing(2)}px;
+    margin: ${props => props.theme.spacing(2)}px;
 `;
 
 export default Queue;

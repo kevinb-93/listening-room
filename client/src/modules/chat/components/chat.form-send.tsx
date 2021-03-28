@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
-import { Formik, Field, Form } from 'formik';
+import {
+    Formik,
+    Field,
+    Form,
+    FormikProps,
+    FormikConfig,
+    FieldProps
+} from 'formik';
 import { IconButton } from '@material-ui/core';
 import { SendRounded } from '@material-ui/icons';
+import { InputBase, InputBaseProps } from 'formik-material-ui';
 
 export interface ChatFormValues {
     message: string;
@@ -20,41 +28,64 @@ const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
         message: Yup.string().required('Required')
     });
 
+    const inputRef = useRef<HTMLInputElement>();
+
     const initialValues: ChatFormValues = { message: '' };
+
+    const handleSubmit: FormikConfig<ChatFormValues>['onSubmit'] = async (
+        values,
+        helpers
+    ) => {
+        try {
+            await onSubmit(values);
+            helpers.resetForm();
+            inputRef.current.focus();
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     return (
         <Formik
             initialValues={initialValues}
-            onSubmit={onSubmit}
+            onSubmit={handleSubmit}
             validationSchema={validationSchema}
         >
-            <Form>
-                <ChatMessageBox>
-                    <Field
-                        name="message"
-                        type="text"
-                        label="Message"
-                        placeholder="Type a message..."
-                        as={ChatInput}
-                    />
-                    <ChatSendMessage type="submit">
-                        <SendRounded />
-                    </ChatSendMessage>
-                </ChatMessageBox>
-            </Form>
+            <StyledForm>
+                <Field
+                    name="message"
+                    inputRef={inputRef}
+                    component={ChatInput}
+                />
+                <ChatSendMessage type="submit">
+                    <SendRounded />
+                </ChatSendMessage>
+            </StyledForm>
         </Formik>
     );
 };
 
-const ChatInput = styled.input`
-    background-color: lightcyan;
+const StyledForm = styled(Form)`
+    display: flex;
     flex: 1;
 `;
 
-const ChatMessageBox = styled.div`
-    display: flex;
-    background-color: lightcoral;
-    flex: 0 0 50px;
+const ChatInput = styled((props: InputBaseProps) => (
+    <InputBase placeholder="Send a message..." {...props} autoComplete="off" />
+))`
+    flex: 1;
+    border-radius: ${props => props.theme.spacing(2)}px;
+    padding: ${props => props.theme.spacing()}px;
+    background-color: ${props => props.theme.palette.grey[50]};
+    margin-right: ${props => props.theme.spacing()}px;
+
+    &:hover {
+        background-color: ${props => props.theme.palette.action.hover};
+    }
+
+    &:focus {
+        background-color: ${props => props.theme.palette.action.focus};
+    }
 `;
 
 const ChatSendMessage = styled(IconButton)`

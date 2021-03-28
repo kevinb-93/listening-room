@@ -176,9 +176,22 @@ export const messages = async (
         const partyId = req.params.pid;
 
         const messages = await Message.find({ partyId: partyId }).exec();
+        await Message.populate(messages, {
+            path: 'senderId',
+            select: ['name', 'id']
+        });
+
+        const chatMessages = messages.map(m => {
+            return {
+                id: m._id,
+                timestamp: m._id.getTimestamp(),
+                content: m.message,
+                sender: { id: m.senderId._id, name: m.senderId.name }
+            };
+        });
 
         res.status(200).json({
-            messages: messages
+            messages: chatMessages
         });
     } catch (e) {
         console.error(e);
