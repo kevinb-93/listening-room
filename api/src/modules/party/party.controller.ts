@@ -1,6 +1,7 @@
 import { validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import getUnixTime from 'date-fns/getUnixTime';
 
 import Party, { Track } from './party.model';
 import Message from '../chat/chat.model';
@@ -157,7 +158,7 @@ export const party = async (
 };
 
 export const messages = async (
-    req: Request,
+    req: Request<{ pid: string }, unknown, unknown, { createdBefore?: string }>,
     res: Response,
     next: NextFunction
 ) => {
@@ -174,12 +175,26 @@ export const messages = async (
         }
 
         const partyId = req.params.pid;
+        const { createdBefore } = req.query;
+        const createdBeforeDate = createdBefore
+            ? new Date(createdBefore)
+            : new Date();
+        const createdBeforeSeconds = getUnixTime(createdBeforeDate);
+        const objectId = mongoose.Types.ObjectId.createFromTime(
+            createdBeforeSeconds
+        );
 
-        const messages = await Message.find({ partyId: partyId }).exec();
-        await Message.populate(messages, {
-            path: 'senderId',
-            select: ['name', 'id']
-        });
+        const messages = await Message.find({
+            partyId: partyId,
+            _id: { $lte: objectId }
+        })
+            .limit(50)
+            .populate({
+                path: 'senderId',
+                select: ['name', 'id']
+            })
+            .sort('-_id')
+            .exec();
 
         const chatMessages = messages.map(m => {
             return {
