@@ -32,7 +32,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = ({
                 message={{
                     id: message.id,
                     content: message.content,
-                    timestamp: message.timestamp,
+                    time: message.timestamp.toISOString(),
                     sender: message.sender.name
                 }}
                 allowDelete

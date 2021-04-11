@@ -11,7 +11,7 @@ module.exports = {
         path: path.resolve(__dirname, '../src'),
         filename: 'bundled.js'
     },
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     module: {
         rules: [
             {

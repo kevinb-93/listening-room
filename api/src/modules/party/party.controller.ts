@@ -188,7 +188,7 @@ export const messages = async (
             partyId: partyId,
             _id: { $lte: objectId }
         })
-            .limit(50)
+            .limit(51)
             .populate({
                 path: 'senderId',
                 select: ['name', 'id']
@@ -196,16 +196,22 @@ export const messages = async (
             .sort('-_id')
             .exec();
 
-        const chatMessages = messages.map(m => {
-            return {
-                id: m._id,
-                timestamp: m._id.getTimestamp(),
-                content: m.message,
-                sender: { id: m.senderId._id, name: m.senderId.name }
-            };
-        });
+        const nextMessages = messages.slice(50);
+        const hasNextPage = Boolean(nextMessages.length);
+
+        const chatMessages = messages
+            .filter((_m, index) => index < 50)
+            .map(m => {
+                return {
+                    id: m._id,
+                    timestamp: m._id.getTimestamp(),
+                    content: m.message,
+                    sender: { id: m.senderId._id, name: m.senderId.name }
+                };
+            });
 
         res.status(200).json({
+            hasNextPage,
             messages: chatMessages
         });
     } catch (e) {

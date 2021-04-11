@@ -1,4 +1,5 @@
-import { useEffect, useCallback, useReducer } from 'react';
+import { useEffect, useCallback, useReducer, useState } from 'react';
+import sortBy from 'lodash/sortBy';
 import { useWebSocketContext } from '../../shared/contexts/websocket';
 import { useApiRequest } from '../../shared/hooks/use-api-request';
 import { useUserProfileContext } from '../../user/contexts/profile';
@@ -46,20 +47,55 @@ const chatReducer = (state: ChatReducerState, action: ChatReducerAction) => {
         case ChatReducerActionType.DeleteMessage:
             return [...state.filter(s => s.id !== action.payload.messageId)];
         case ChatReducerActionType.SetMessages:
-            return action.payload;
+            return [...action.payload, ...state];
         default:
             return state;
     }
 };
 
+export const BATCH_SIZE = 50;
+
 const useLiveChat = () => {
     const [chatMessages, dispatch] = useReducer(chatReducer, []);
     const { socket } = useWebSocketContext();
     const { user } = useUserProfileContext();
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const { sendRequest: sendAddMessageRequest } = useApiRequest();
-    const { sendRequest: sendDeleteMessageRequest } = useApiRequest();
-    const { sendRequest: getMessagesRequest } = useApiRequest();
+    const {
+        sendRequest: sendAddMessageRequest,
+        isLoading: isAddMessageLoading
+    } = useApiRequest();
+    const {
+        sendRequest: sendDeleteMessageRequest,
+        isLoading: isDeleteMessageLoading
+    } = useApiRequest();
+    const {
+        sendRequest: getMessagesRequest,
+        isLoading: isGetMessagesLoading
+    } = useApiRequest();
+
+    useEffect(
+        function isLoadingEffect() {
+            if (isGetMessagesLoading) {
+                setIsLoading(true);
+            } else {
+                setIsLoading(false);
+            }
+        },
+        [isAddMessageLoading, isDeleteMessageLoading, isGetMessagesLoading]
+    );
+
+    // useEffect(
+    //     function hasNextPageEffect() {
+    //         if (chatMessages.length && chatMessages.length % PAGE_LIMIT === 0) {
+    //             setHasNextPage(true);
+    //         } else {
+    //             setHasNextPage(false);
+    //         }
+    //     },
+    //     [chatMessages.length]
+    // );
 
     const initChatEvents = useCallback(() => {
         if (!socket) {
@@ -87,25 +123,33 @@ const useLiveChat = () => {
         initChatEvents();
     }, [initChatEvents]);
 
-    const getChatMessages = useCallback(async () => {
-        if (!user.party) return;
+    const getChatMessages = useCallback(
+        async (createdBefore: Date = new Date()) => {
+            if (!user.party) return;
 
-        try {
-            const { status, data } = await getMessagesRequest(
-                `party/${user.party}/messages`,
-                {}
-            );
+            try {
+                const { status, data } = await getMessagesRequest(
+                    `party/${user.party}/messages`,
+                    {
+                        params: { createdBefore }
+                    }
+                );
 
-            if (status === 200) {
-                dispatch({
-                    type: ChatReducerActionType.SetMessages,
-                    payload: data.messages
-                });
+                const messages = sortBy(data.messages, 'timestamp');
+
+                if (status === 200) {
+                    dispatch({
+                        type: ChatReducerActionType.SetMessages,
+                        payload: messages
+                    });
+                    setHasNextPage(data.hasNextPage);
+                }
+            } catch (e) {
+                console.error(e);
             }
-        } catch (e) {
-            console.error(e);
-        }
-    }, [getMessagesRequest, user?.party]);
+        },
+        [getMessagesRequest, user?.party]
+    );
 
     useEffect(() => {
         getChatMessages();
@@ -164,7 +208,14 @@ const useLiveChat = () => {
         [sendDeleteMessageRequest, socket]
     );
 
-    return { chatMessages, addChatMessage, deleteChatMessage };
+    return {
+        chatMessages,
+        addChatMessage,
+        deleteChatMessage,
+        getChatMessages,
+        hasNextPage,
+        isLoading
+    };
 };
 
 export default useLiveChat;

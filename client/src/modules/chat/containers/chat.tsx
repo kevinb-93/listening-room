@@ -1,43 +1,224 @@
 import { Paper, Typography } from '@material-ui/core';
-import React, { useMemo } from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from 'react';
 import styled from 'styled-components';
-
 import ChatForm, { ChatFormSubmit } from '../components/chat.form-send';
-import ChatMessageList from '../components/chat.message-list';
-import ChatPost from '../components/chat.message-list-item';
-import useLiveChat from '../hooks/use-live-chat';
+import InfiniteList, {
+    ListItem
+} from '../../shared/components/UIElements/infinite-loader.list-reversed';
+import useLiveChat, { BATCH_SIZE, MessageData } from '../hooks/use-live-chat';
+import ChatMessageListItem, {
+    ChatMessage,
+    OnDeleteMessage
+} from '../components/chat.message-list-item';
+import format from 'date-fns/format';
+import { List } from 'react-virtualized';
+import { filter, findLast, forEach, groupBy } from 'lodash';
+
+interface DateHeaderItem {
+    itemType: ChatListItemType.DateHeader;
+    data: { date: string; id: string };
+}
+
+interface MessageItem {
+    itemType: ChatListItemType.Message;
+    data: MessageData;
+}
+
+enum ChatListItemType {
+    DateHeader,
+    Message
+}
+
+type ChatListItem = DateHeaderItem | MessageItem;
 
 const Chat: React.FC = () => {
-    const { chatMessages, addChatMessage, deleteChatMessage } = useLiveChat();
+    const {
+        chatMessages,
+        addChatMessage,
+        deleteChatMessage,
+        hasNextPage,
+        isLoading,
+        getChatMessages
+    } = useLiveChat();
 
-    // const renderMessages = useMemo(() => {
-    //     return chatMessages.map(message => {
-    //         return (
-    //             <ChatPost
-    //                 onDeleteMessage={deleteChatMessage}
-    //                 key={message.id}
-    //                 message={{
-    //                     id: message.id,
-    //                     content: message.content,
-    //                     timestamp: message.timestamp,
-    //                     sender: message.sender.name
-    //                 }}
-    //             />
-    //         );
-    //     });
-    // }, [chatMessages, deleteChatMessage]);
+    const [chatListItems, setChatListItems] = useState<ChatListItem[]>([]);
 
-    const chatMessageList = useMemo(
-        () => (
-            <ChatMessageList
-                chatMessages={chatMessages}
-                onDeleteMessage={deleteChatMessage}
-            />
-        ),
+    const listRef = useRef<List>();
+    const chatListMessagesCountRef = useRef<number>();
+    const oldestMessageIdRef = useRef<string>();
+    const latestMessageIdRef = useRef<string>();
+    const deleteMessageIndexRef = useRef<number>();
+
+    const deleteMessageHandler = useCallback<OnDeleteMessage>(
+        id => {
+            const deleteMessageIndex = chatMessages.findIndex(m => m.id === id);
+            deleteMessageIndexRef.current = deleteMessageIndex;
+            deleteChatMessage(id);
+        },
         [chatMessages, deleteChatMessage]
     );
 
-    const handleChatSubmit: ChatFormSubmit = ({ message }) => {
+    const chatMessageList = useMemo<ListItem[]>(
+        () =>
+            chatListItems.map(item => {
+                if (item.itemType == ChatListItemType.DateHeader) {
+                    return {
+                        id: item.data.date,
+                        component: (
+                            <StyledDateHeaderItemContainer>
+                                <Typography variant="subtitle2">
+                                    {item.data.date}
+                                </Typography>
+                            </StyledDateHeaderItemContainer>
+                        )
+                    };
+                }
+
+                const messageItem = item.data;
+
+                const time = format(new Date(messageItem.timestamp), 'H:mm');
+                const message: ChatMessage = {
+                    ...messageItem,
+                    sender: messageItem.sender.name,
+                    time
+                };
+                return {
+                    component: (
+                        <ChatMessageListItem
+                            message={message}
+                            onDeleteMessage={deleteMessageHandler}
+                            allowDelete
+                        />
+                    ),
+                    id: message.id
+                };
+            }),
+        [chatListItems, deleteMessageHandler]
+    );
+
+    const hasNewLatestMessage = (latestMessageId: string) => {
+        return latestMessageId !== latestMessageIdRef.current;
+    };
+
+    const hasNewOldestMessage = (oldestMessageId: string) => {
+        return oldestMessageId !== oldestMessageIdRef.current;
+    };
+
+    const scrollChatList = useCallback(
+        (
+            latestMessageId: string,
+            messagesCount: number,
+            listItems: ChatListItem[],
+            oldestMessageId: string
+        ) => {
+            if (messagesCount < 1) {
+                return;
+            }
+            listRef.current?.recomputeRowHeights();
+            if (
+                hasNewLatestMessage(latestMessageId) &&
+                messagesCount > BATCH_SIZE
+            ) {
+                listRef.current.scrollToRow(listItems.length);
+            } else if (messagesCount <= BATCH_SIZE) {
+                const scrollHeight = listRef.current?.Grid.props.height;
+                listRef?.current.scrollToPosition(scrollHeight);
+            } else if (hasNewOldestMessage(oldestMessageId)) {
+                const scrollRowIndex = listItems.findIndex(
+                    i => i.data.id === oldestMessageId
+                );
+                listRef.current?.scrollToRow(scrollRowIndex);
+            }
+        },
+        []
+    );
+
+    useEffect(
+        function chatListItemsEffect() {
+            const latestMessage = findLast(chatListItems, i => {
+                return i.itemType === ChatListItemType.Message;
+            }) as MessageItem;
+            const latestMessageId = latestMessage?.data?.id;
+
+            const chatListMessages = filter(
+                chatListItems,
+                i => i.itemType === ChatListItemType.Message
+            ) as MessageItem[];
+
+            const newChatMessagesCount =
+                chatListMessages.length - chatListMessagesCountRef.current;
+
+            let oldestMessageId: string;
+            if (chatListMessages.length > BATCH_SIZE) {
+                oldestMessageId =
+                    chatListMessages[newChatMessagesCount]?.data?.id;
+            }
+
+            const messagesCount = chatListItems.filter(
+                i => i.itemType === ChatListItemType.Message
+            ).length;
+
+            listRef.current?.recomputeRowHeights();
+
+            if (!deleteMessageIndexRef.current) {
+                scrollChatList(
+                    latestMessageId,
+                    messagesCount,
+                    chatListItems,
+                    oldestMessageId
+                );
+            }
+
+            chatListMessagesCountRef.current = chatListMessages.length;
+            deleteMessageIndexRef.current = undefined;
+            latestMessageIdRef.current = latestMessageId;
+            oldestMessageIdRef.current = oldestMessageId;
+        },
+        [chatListItems, scrollChatList]
+    );
+
+    useEffect(
+        function messagesEffect() {
+            const groupedDates = groupBy(chatMessages, m =>
+                format(new Date(m.timestamp), 'dd/MM/yyyy')
+            );
+
+            let chatListItems: ChatListItem[] = [];
+
+            forEach(groupedDates, (values, key) => {
+                const dateHeaderItem: DateHeaderItem = {
+                    itemType: ChatListItemType.DateHeader,
+                    data: { date: key, id: key }
+                };
+
+                const messageItems: MessageItem[] = values.map(m => {
+                    return { itemType: ChatListItemType.Message, data: m };
+                });
+
+                chatListItems = [
+                    ...chatListItems,
+                    dateHeaderItem,
+                    ...messageItems
+                ];
+            });
+
+            setChatListItems(chatListItems);
+        },
+        [chatMessages]
+    );
+
+    const loadNextChatPage = useCallback(
+        () => getChatMessages(chatMessages[0]?.timestamp),
+        [chatMessages, getChatMessages]
+    );
+
+    const handleChatSubmit: ChatFormSubmit = async ({ message }) => {
         addChatMessage(message);
     };
 
@@ -46,7 +227,19 @@ const Chat: React.FC = () => {
             <StyledChatHeader>
                 <Typography variant="h6">CHAT</Typography>
             </StyledChatHeader>
-            {chatMessageList}
+            <StyledInfiniteListContainer>
+                <InfiniteList
+                    list={chatMessageList}
+                    batchSize={BATCH_SIZE}
+                    hasNextPage={hasNextPage}
+                    isNextPageLoading={isLoading}
+                    loadNextPage={loadNextChatPage}
+                    virtualListProps={{ scrollToAlignment: 'start' }}
+                    setListRef={el => {
+                        listRef.current = el;
+                    }}
+                />
+            </StyledInfiniteListContainer>
             <StyledChatBox>
                 <ChatForm onSubmit={handleChatSubmit} />
             </StyledChatBox>
@@ -62,6 +255,13 @@ const StyledContainer = styled(Paper)`
     border: 1px solid ${props => props.theme.palette.grey[400]};
 `;
 
+const StyledDateHeaderItemContainer = styled.div`
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+`;
+
 const StyledChatHeader = styled.div`
     display: flex;
     flex: 0 0;
@@ -71,13 +271,8 @@ const StyledChatHeader = styled.div`
     background-color: ${props => props.theme.palette.grey.A100};
 `;
 
-const StyledChatWindow = styled.div`
+const StyledInfiniteListContainer = styled.div`
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    overflow-y: auto;
-    overflow-x: hidden;
 `;
 
 const StyledChatBox = styled.div`

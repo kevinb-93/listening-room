@@ -1,56 +1,70 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { DeleteForever } from '@material-ui/icons';
-import {
-    IconButton,
-    Typography,
-    TypographyProps,
-    Collapse
-} from '@material-ui/core';
-import format from 'date-fns/format';
+import { IconButton, Typography, TypographyProps } from '@material-ui/core';
 
-export interface Message {
+export interface ChatMessage {
     id: string;
-    message?: string;
+    content: string;
+    sender: string;
+    time: string;
 }
 
-export type OnDeleteMessage = (id: Message['id']) => void;
+export type OnDeleteMessage = (id: ChatMessage['id']) => void;
 
 export interface ChatMessageProps {
-    message: {
-        id: string;
-        content: string;
-        sender: string;
-        timestamp: Date;
-    };
+    message: ChatMessage;
     allowDelete?: boolean;
     onDeleteMessage: OnDeleteMessage;
 }
+
+export type ChatMessageSimpleProps = Pick<ChatMessageProps, 'message'>;
+
+export const ChatMessageSimple: React.FC<ChatMessageSimpleProps> = ({
+    message
+}) => {
+    return (
+        <StyledListItem>
+            <StyledMessage>
+                <StyledMessageTime component="span" variant="body2">
+                    {message.time}
+                </StyledMessageTime>
+                <StyledMessageSender component="span" variant="body2">
+                    {message.sender}
+                </StyledMessageSender>
+                <StyledMessageContent component="span" variant="body2">
+                    {message.content}
+                </StyledMessageContent>
+            </StyledMessage>
+        </StyledListItem>
+    );
+};
 
 const ChatMessage: React.FC<ChatMessageProps> = ({
     message,
     allowDelete,
     onDeleteMessage
 }) => {
-    const deleteMessageHandler = () => onDeleteMessage(message.id);
-
-    const time = format(new Date(message.timestamp), 'H:mm');
+    const deleteMessageHandler = useCallback(
+        () => onDeleteMessage(message.id),
+        [message.id, onDeleteMessage]
+    );
 
     return (
         <StyledListItem>
-            <div style={{ flex: 0, position: 'relative' }}>
-                {allowDelete && (
+            {allowDelete && (
+                <div>
                     <StyledDeleteMessage
                         size="small"
                         onClick={deleteMessageHandler}
                     >
                         <DeleteForever fontSize="small" />
                     </StyledDeleteMessage>
-                )}
-            </div>
+                </div>
+            )}
             <StyledMessage>
                 <StyledMessageTime component="span" variant="body2">
-                    {time}
+                    {message.time}
                 </StyledMessageTime>
                 <StyledMessageSender component="span" variant="body2">
                     {message.sender}
@@ -66,12 +80,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 const StyledListItem = styled.li`
     background-color: #fff;
     display: flex;
-    padding: ${props => props.theme.spacing(0.5)}px;
+    padding: ${({ theme }) => theme.spacing(0.5)}px;
     border-radius: ${props => props.theme.shape.borderRadius}px;
-    transition: ${props =>
-        props.theme.transitions.create(['height'], {
-            duration: 1000
-        })};
 
     &:hover {
         background-color: ${({ theme }) => theme.palette.action.hover};
@@ -90,14 +100,7 @@ const StyledMessage = styled.div`
     overflow-wrap: break-word;
     word-wrap: break-word;
     word-break: break-word;
-    transition: ${props =>
-        props.theme.transitions.create(['height'], {
-            duration: 1000
-        })};
-
-    ${StyledListItem}:hover & {
-        padding-top: 3px;
-    }
+    padding-top: 3px;
 `;
 
 type MessageTypography = React.ComponentType<
@@ -113,10 +116,6 @@ const StyledMessageContent: MessageTypography = styled(Typography)``;
 
 const StyledDeleteMessage = styled(IconButton)`
     display: none;
-    transition: ${props =>
-        props.theme.transitions.create(['height'], {
-            duration: 1000
-        })};
     position: relative;
 
     ${StyledListItem}:hover & {
