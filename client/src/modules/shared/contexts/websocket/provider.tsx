@@ -44,7 +44,7 @@ export const Provider: React.FC = ({ children }) => {
             }
 
             const room: Room = {
-                id: user?.id,
+                id: user?._id,
                 type: roomType
             };
 
@@ -56,7 +56,7 @@ export const Provider: React.FC = ({ children }) => {
 
             console.log(res);
         },
-        [state.socket, user?.id, user?.role]
+        [state.socket, user?._id, user?.role]
     );
 
     useEffect(

@@ -19,6 +19,8 @@ import ChatMessageListItem, {
 import format from 'date-fns/format';
 import { List } from 'react-virtualized';
 import { filter, findLast, forEach, groupBy } from 'lodash';
+import { useUserProfileContext } from '../../user/contexts/profile';
+import { UserRole } from '../../user/contexts/profile/types';
 
 interface DateHeaderItem {
     itemType: ChatListItemType.DateHeader;
@@ -47,6 +49,7 @@ const Chat: React.FC = () => {
         getChatMessages
     } = useLiveChat();
 
+    const { user } = useUserProfileContext();
     const [chatListItems, setChatListItems] = useState<ChatListItem[]>([]);
 
     const listRef = useRef<List>();
@@ -62,6 +65,15 @@ const Chat: React.FC = () => {
             deleteChatMessage(id);
         },
         [chatMessages, deleteChatMessage]
+    );
+
+    const canDeleteMessage = useCallback(
+        (senderId: ChatMessage['sender']) => {
+            if (user.role === UserRole.Admin) return true;
+            if (senderId === user._id) return true;
+            return false;
+        },
+        [user._id, user.role]
     );
 
     const chatMessageList = useMemo<ListItem[]>(
@@ -81,6 +93,7 @@ const Chat: React.FC = () => {
                 }
 
                 const messageItem = item.data;
+                const allowDelete = canDeleteMessage(messageItem.sender.id);
 
                 const time = format(new Date(messageItem.timestamp), 'H:mm');
                 const message: ChatMessage = {
@@ -93,13 +106,13 @@ const Chat: React.FC = () => {
                         <ChatMessageListItem
                             message={message}
                             onDeleteMessage={deleteMessageHandler}
-                            allowDelete
+                            allowDelete={allowDelete}
                         />
                     ),
                     id: message.id
                 };
             }),
-        [chatListItems, deleteMessageHandler]
+        [canDeleteMessage, chatListItems, deleteMessageHandler]
     );
 
     const hasNewLatestMessage = (latestMessageId: string) => {
