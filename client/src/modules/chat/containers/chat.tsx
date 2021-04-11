@@ -1,4 +1,13 @@
-import { Paper, Typography } from '@material-ui/core';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Paper,
+    Typography
+} from '@material-ui/core';
 import React, {
     useCallback,
     useEffect,
@@ -51,21 +60,38 @@ const Chat: React.FC = () => {
 
     const { user } = useUserProfileContext();
     const [chatListItems, setChatListItems] = useState<ChatListItem[]>([]);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const listRef = useRef<List>();
     const chatListMessagesCountRef = useRef<number>();
     const oldestMessageIdRef = useRef<string>();
     const latestMessageIdRef = useRef<string>();
-    const deleteMessageIndexRef = useRef<number>();
+    const deleteMessageIdRef = useRef<string>();
+
+    const cancelDeleteMessageHandler = () => {
+        deleteMessageIdRef.current = undefined;
+        setShowDeleteDialog(false);
+    };
 
     const deleteMessageHandler = useCallback<OnDeleteMessage>(
         id => {
-            const deleteMessageIndex = chatMessages.findIndex(m => m.id === id);
-            deleteMessageIndexRef.current = deleteMessageIndex;
-            deleteChatMessage(id);
+            const message = chatMessages.find(m => m.id === id);
+            deleteMessageIdRef.current = message.id;
+            setShowDeleteDialog(true);
         },
-        [chatMessages, deleteChatMessage]
+        [chatMessages]
     );
+
+    const confirmDeleteMessageHandler = useCallback(async () => {
+        try {
+            await deleteChatMessage(deleteMessageIdRef.current);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            deleteMessageIdRef.current = undefined;
+            setShowDeleteDialog(false);
+        }
+    }, [deleteChatMessage]);
 
     const canDeleteMessage = useCallback(
         (senderId: ChatMessage['sender']) => {
@@ -179,7 +205,7 @@ const Chat: React.FC = () => {
 
             listRef.current?.recomputeRowHeights();
 
-            if (!deleteMessageIndexRef.current) {
+            if (!deleteMessageIdRef.current) {
                 scrollChatList(
                     latestMessageId,
                     messagesCount,
@@ -189,7 +215,6 @@ const Chat: React.FC = () => {
             }
 
             chatListMessagesCountRef.current = chatListMessages.length;
-            deleteMessageIndexRef.current = undefined;
             latestMessageIdRef.current = latestMessageId;
             oldestMessageIdRef.current = oldestMessageId;
         },
@@ -237,6 +262,22 @@ const Chat: React.FC = () => {
 
     return (
         <StyledContainer square component="section">
+            <Dialog maxWidth="xs" open={showDeleteDialog}>
+                <DialogTitle>Delete Message</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to permantely delete this message?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={cancelDeleteMessageHandler}>
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmDeleteMessageHandler}>
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <StyledChatHeader>
                 <Typography variant="h6">CHAT</Typography>
             </StyledChatHeader>
