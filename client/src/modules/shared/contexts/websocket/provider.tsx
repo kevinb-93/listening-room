@@ -2,10 +2,12 @@ import React, { useCallback, useEffect } from 'react';
 import { WebSocketContext } from './context';
 import { WebSocketContextInterface } from './types';
 import { __useWebSocketReducer } from './reducer';
-import useActions from './useActions';
 import useAppIdentity from '../../hooks/use-identity';
 import { useUserProfileContext } from '../../../user/contexts/profile';
 import { UserRole } from '../../../user/contexts/profile/types';
+import { io } from 'socket.io-client';
+import { baseUrl } from '../../config/api';
+import { WebSocketReducerActionType } from './reducer/types';
 
 type JoinCallback = (err: null | Error, response?: { room: string }) => void;
 
@@ -25,16 +27,15 @@ export const Provider: React.FC = ({ children }) => {
     const { isLoggedIn } = useAppIdentity();
     const { user } = useUserProfileContext();
 
-    const { setSocket } = useActions(state, dispatch);
-
     const value: WebSocketContextInterface = {
-        ...state,
-        setSocket
+        ...state
     };
 
-    const connectPartyResponse: JoinCallback = useCallback(
+    const connectPartyCallback: JoinCallback = useCallback(
         (err, res) => {
             if (err) return console.error(err);
+            if (!state.socket) return;
+            if (!user?.role || !user?._id) return;
 
             let roomType: RoomType;
             if (user?.role === UserRole.User) {
@@ -48,10 +49,6 @@ export const Provider: React.FC = ({ children }) => {
                 type: roomType
             };
 
-            if (!state.socket || !room) {
-                return;
-            }
-
             state.socket.emit('join', room);
 
             console.log(res);
@@ -61,17 +58,25 @@ export const Provider: React.FC = ({ children }) => {
 
     useEffect(
         function connectToParty() {
+            if (!state.socket) return;
+
             const party = user?.party;
+            if (!party) return;
+
             const room = { id: party, type: RoomType.Party };
 
-            if (!state.socket || !room) {
-                return;
-            }
-
-            state.socket.emit('join', room, connectPartyResponse);
+            state.socket.emit('join', room, connectPartyCallback);
         },
-        [connectPartyResponse, state.socket, user?.party]
+        [connectPartyCallback, state.socket, user?.party]
     );
+
+    const setSocket = useCallback(() => {
+        const socket = io(baseUrl);
+        dispatch({
+            type: WebSocketReducerActionType.setSocket,
+            payload: { socket }
+        });
+    }, [dispatch]);
 
     useEffect(
         function connectToWebSocket() {

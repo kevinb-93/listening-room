@@ -1,24 +1,20 @@
+import { Reducer } from 'react';
 import { WebSocketContextState } from '../types';
-import { SetSocketPayload } from './websocket/set-socket';
+import { ReducerAction } from '../../../../../types/react';
 
-export enum WebSocketReducerAction {
-    SetSocket
+export enum WebSocketReducerActionType {
+    setSocket
+}
+export interface SetSocketPayload {
+    socket: WebSocketContextState['socket'];
 }
 
-export interface WebSocketReducerActionPayload<T> {
-    type: WebSocketReducerAction;
-    payload: T;
-}
+export type WebSocketReducer = Reducer<
+    WebSocketContextState,
+    WebSocketReducerAction
+>;
 
-export type WebSocketReducerPayload = SetSocketPayload;
-
-export interface WebSocketReducer {
-    (
-        state: WebSocketContextState,
-        payload: WebSocketReducerPayload
-    ): WebSocketContextState;
-}
-
-export interface WebSocketReducerMap {
-    [key: string]: WebSocketReducer;
-}
+export type WebSocketReducerAction = ReducerAction<
+    WebSocketReducerActionType.setSocket,
+    SetSocketPayload
+>;

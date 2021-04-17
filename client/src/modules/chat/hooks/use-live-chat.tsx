@@ -86,17 +86,6 @@ const useLiveChat = () => {
         [isAddMessageLoading, isDeleteMessageLoading, isGetMessagesLoading]
     );
 
-    // useEffect(
-    //     function hasNextPageEffect() {
-    //         if (chatMessages.length && chatMessages.length % PAGE_LIMIT === 0) {
-    //             setHasNextPage(true);
-    //         } else {
-    //             setHasNextPage(false);
-    //         }
-    //     },
-    //     [chatMessages.length]
-    // );
-
     const initChatEvents = useCallback(() => {
         if (!socket) {
             return;
