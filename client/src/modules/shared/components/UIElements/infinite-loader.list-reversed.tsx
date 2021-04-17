@@ -13,6 +13,8 @@ import {
 import debounce from 'lodash/debounce';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import styled from 'styled-components';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
+import { IconButton } from '@material-ui/core';
 
 export interface ListItem {
     id: string;
@@ -56,6 +58,9 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
         const setListIds = useCallback(() => {
             listIds.current = list.map(l => l.id);
         }, [list]);
+        const listRef = useRef<VirtualizedList>();
+        const scrollHeightRef = useRef<number>();
+        const [showScrollBottom, setShowScrollBottom] = useState(false);
 
         useEffect(
             function onListChangeEffect() {
@@ -128,7 +133,19 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
         }, [isNextPageLoading]);
 
         const onListScroll = useCallback(
-            ({ scrollTop }: OnScrollParams) => {
+            ({ scrollTop, clientHeight, scrollHeight }: OnScrollParams) => {
+                const scrollBottom = getScrollBottom({
+                    scrollTop,
+                    scrollHeight,
+                    clientHeight
+                });
+                scrollHeightRef.current = scrollHeight;
+                if (scrollBottom > 0) {
+                    setShowScrollBottom(true);
+                } else {
+                    setShowScrollBottom(false);
+                }
+
                 if (!allowLoadMore) return;
 
                 if (scrollTop === 0) {
@@ -141,41 +158,68 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
 
         const debouncedScroll = debounce(onListScroll, 150);
 
+        const scrollBottomClickHandler = () => {
+            listRef.current?.scrollToPosition(scrollHeightRef.current);
+        };
+
         return (
-            <AutoSizer>
-                {({ height, width }) => (
-                    <InfiniteLoader
-                        isRowLoaded={isRowLoaded}
-                        minimumBatchSize={batchSize}
-                        loadMoreRows={loadMoreRows}
-                        rowCount={rowCount}
-                        ref={infiniteLoaderRef}
-                        {...infiniteLoaderProps}
-                    >
-                        {({ onRowsRendered, registerChild }) => (
-                            <VirtualizedList
-                                ref={el => {
-                                    setListRef(el);
-                                    registerChild(el);
-                                }}
-                                onRowsRendered={onRowsRendered}
-                                height={height}
-                                onScroll={debouncedScroll}
-                                rowCount={rowCount}
-                                width={width}
-                                estimatedRowSize={31}
-                                rowRenderer={rowRenderer}
-                                deferredMeasurementCache={cache.current}
-                                rowHeight={cache.current?.rowHeight}
-                                {...virtualListProps}
+            <>
+                <AutoSizer>
+                    {({ height, width }) => (
+                        <InfiniteLoader
+                            isRowLoaded={isRowLoaded}
+                            minimumBatchSize={batchSize}
+                            loadMoreRows={loadMoreRows}
+                            rowCount={rowCount}
+                            ref={infiniteLoaderRef}
+                            {...infiniteLoaderProps}
+                        >
+                            {({ onRowsRendered, registerChild }) => (
+                                <VirtualizedList
+                                    ref={el => {
+                                        listRef.current = el;
+                                        setListRef(el);
+                                        registerChild(el);
+                                    }}
+                                    onRowsRendered={onRowsRendered}
+                                    height={height}
+                                    onScroll={debouncedScroll}
+                                    rowCount={rowCount}
+                                    width={width}
+                                    estimatedRowSize={31}
+                                    rowRenderer={rowRenderer}
+                                    deferredMeasurementCache={cache.current}
+                                    rowHeight={cache.current?.rowHeight}
+                                    {...virtualListProps}
+                                />
+                            )}
+                        </InfiniteLoader>
+                    )}
+                </AutoSizer>
+                {showScrollBottom && (
+                    <StyledScrollBottomButtonContainer>
+                        <StyledScrollBottomButton
+                            onClick={scrollBottomClickHandler}
+                        >
+                            <ArrowDownwardIcon
+                                color="secondary"
+                                fontSize="large"
                             />
-                        )}
-                    </InfiniteLoader>
+                        </StyledScrollBottomButton>
+                    </StyledScrollBottomButtonContainer>
                 )}
-            </AutoSizer>
+            </>
         );
     }
 );
+
+const getScrollBottom = ({
+    scrollHeight,
+    scrollTop,
+    clientHeight
+}: Pick<OnScrollParams, 'clientHeight' | 'scrollTop' | 'scrollHeight'>) => {
+    return scrollHeight - scrollTop - clientHeight;
+};
 
 const StyledLoading = styled.div`
     display: flex;
@@ -188,6 +232,19 @@ InfiniteListReversed.defaultProps = {
     setListRef: () => null,
     batchSize: 50
 };
+
+const StyledScrollBottomButton = styled(IconButton)`
+    background-color: blue;
+`;
+
+const StyledScrollBottomButtonContainer = styled.div`
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+`;
 
 InfiniteListReversed.displayName = 'InfiniteListReversed';
 

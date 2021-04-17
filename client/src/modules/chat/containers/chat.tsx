@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    IconButton,
     Paper,
     Typography
 } from '@material-ui/core';
@@ -30,6 +31,7 @@ import { List } from 'react-virtualized';
 import { filter, findLast, forEach, groupBy } from 'lodash';
 import { useUserProfileContext } from '../../user/contexts/profile';
 import { UserRole } from '../../user/contexts/profile/types';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 interface DateHeaderItem {
     itemType: ChatListItemType.DateHeader;
@@ -293,6 +295,11 @@ const Chat: React.FC = () => {
                         listRef.current = el;
                     }}
                 />
+                {/* <StyledScrollBottomButtonContainer>
+                    <StyledScrollBottomButton>
+                        <ArrowDownwardIcon color="secondary" fontSize="large" />
+                    </StyledScrollBottomButton>
+                </StyledScrollBottomButtonContainer> */}
             </StyledInfiniteListContainer>
             <StyledChatBox>
                 <ChatForm onSubmit={handleChatSubmit} />
