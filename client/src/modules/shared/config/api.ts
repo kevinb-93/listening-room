@@ -72,7 +72,7 @@ const errorInterceptor = (error: {
 
     if (
         shouldRefreshToken({
-            status: error.response.status,
+            status: error.response?.status,
             requestConfig: originalRequest
         })
     ) {

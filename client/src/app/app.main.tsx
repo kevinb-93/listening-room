@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -14,10 +14,48 @@ import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
 import PartyAuth from '../modules/party/containers/party.auth';
 import SpotifySearch from '../modules/spotify/containers/spotify.search-tracks';
+import { useWebSocketContext } from '../modules/shared/contexts/websocket';
+import { io } from 'socket.io-client';
+import { WebSocketReducerActionType } from '../modules/shared/contexts/websocket/reducer/types';
+import { baseUrl } from '../modules/shared/config/api';
 
 const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
     const { isLoggedIn } = useAppIdentity();
+    const { user } = useUserProfileContext();
+    const { socket, dispatch } = useWebSocketContext();
+
+    useEffect(
+        function connectPartyUserWebsocketEffect() {
+            if (!socket) return;
+            if (!user.party) return;
+
+            const roomId = user.party;
+
+            socket.emit('join', roomId);
+        },
+        [socket, user.party]
+    );
+
+    useEffect(
+        function disconnectWebSocketEffect() {
+            if (!isLoggedIn && !socket?.disconnected) socket?.disconnect();
+        },
+        [isLoggedIn, socket]
+    );
+
+    useEffect(
+        function connectWebSocketEffect() {
+            if (!isLoggedIn || socket) return;
+
+            const socketIo = io(baseUrl);
+            dispatch({
+                type: WebSocketReducerActionType.setSocket,
+                payload: { socket: socketIo }
+            });
+        },
+        [dispatch, isLoggedIn, socket]
+    );
 
     if (isRestoring) {
         return <div>Restoring Token</div>;

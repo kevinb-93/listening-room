@@ -16,7 +16,6 @@ import { errorHandler } from './shared/middleware/error';
 import { notFound } from './shared/middleware/not-found';
 import { corsOptions } from './shared/config/cors';
 import { initIO } from './shared/utils/socket';
-import Party from './modules/party/party.model';
 
 // initialize express app
 const app = express();
@@ -35,33 +34,10 @@ app.use('/api/chat', chatRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-interface MessageData {
-    messageId: string;
-    message: string;
-    partyId: string;
-    senderId: string;
+interface SocketPayload {
+    data: unknown;
+    roomId: string;
 }
-
-enum RoomType {
-    Host = 'host',
-    Guest = 'guest',
-    Party = 'party'
-}
-
-interface Room {
-    id: string;
-    type: RoomType;
-}
-
-interface UpdatePlayback {
-    room: {
-        id: string;
-        type: RoomType;
-    };
-    playbackState: unknown;
-}
-
-type JoinCallback = (err: null | Error, response?: { room: Room }) => void;
 
 // setup database connection
 mongoose
@@ -77,78 +53,47 @@ mongoose
 
         io.on('connection', socket => {
             console.log('client connected');
-            console.log(socket.rooms);
 
             socket.on('disconnect', () => {
                 console.log('client disconnected');
             });
 
             socket.on('disconnecting', () => {
+                console.log('client disconnecting');
+            });
+
+            socket.on('join', (roomId: string) => {
+                socket.join(roomId);
                 console.log(socket.rooms);
-                console.log('client disconnected');
             });
 
-            socket.on('join', (room: Room, callback: JoinCallback) => {
-                socket.join(room.type + room.id);
-                console.log(socket.rooms);
-
-                if (callback) {
-                    callback(null, { room });
+            socket.on(
+                'add_message',
+                async ({ data, roomId }: SocketPayload) => {
+                    try {
+                        socket.in(roomId).emit('add_message', data);
+                    } catch (e) {
+                        console.error(e);
+                        socket
+                            .in(roomId)
+                            .emit('message_error', 'Internal server error');
+                    }
                 }
-            });
+            );
 
-            socket.on('get_host_playback', async (partyId: string) => {
-                try {
-                    const party = await Party.findById(partyId);
-                    const hostId = party?.host.toString();
-                    socket.to(RoomType.Host + hostId).emit('get_host_playback');
-                } catch (e) {
-                    console.error(e);
+            socket.on(
+                'delete_message',
+                async ({ data, roomId }: SocketPayload) => {
+                    try {
+                        socket.in(roomId).emit('delete_message', data);
+                    } catch (e) {
+                        console.error(e);
+                        socket
+                            .in(roomId)
+                            .emit('message_error', 'Internal server error');
+                    }
                 }
-            });
-
-            socket.on('update_playback', (data: UpdatePlayback) => {
-                const { room, playbackState } = data;
-
-                if (!room.id) {
-                    return;
-                }
-
-                if (room.type === RoomType.Guest) {
-                    io.to(room.type + room.id).emit(
-                        'update_playback',
-                        playbackState
-                    );
-                } else if (room.type === RoomType.Party) {
-                    socket
-                        .to(room.type + room.id)
-                        .emit('update_playback', playbackState);
-                }
-            });
-
-            socket.on('add_message', async (data: MessageData) => {
-                try {
-                    socket.in(data.partyId).emit('add_message', data);
-                } catch (e) {
-                    console.error(e);
-                    socket
-                        .in(data.partyId)
-                        .emit('message_error', 'Internal server error');
-                }
-            });
-
-            socket.on('delete_message', async (data: MessageData) => {
-                try {
-                    socket
-                        .in(data.partyId)
-                        .emit('delete_message', { messageId: data.messageId });
-                } catch (e) {
-                    console.error(e);
-                    socket
-                        .in(data.partyId)
-                        .emit('message_error', 'Internal server error');
-                }
-            });
+            );
         });
 
         server.listen(port, () => console.log(`Listening on ${port}`));

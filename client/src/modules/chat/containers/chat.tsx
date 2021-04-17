@@ -293,11 +293,6 @@ const Chat: React.FC = () => {
                         listRef.current = el;
                     }}
                 />
-                {/* <StyledScrollBottomButtonContainer>
-                    <StyledScrollBottomButton>
-                        <ArrowDownwardIcon color="secondary" fontSize="large" />
-                    </StyledScrollBottomButton>
-                </StyledScrollBottomButtonContainer> */}
             </StyledInfiniteListContainer>
             <StyledChatBox>
                 <ChatForm onSubmit={handleChatSubmit} />

@@ -161,7 +161,10 @@ const useLiveChat = () => {
             );
 
             if (status === 201) {
-                socket.emit('add_message', data);
+                socket.emit('add_message', {
+                    data,
+                    roomId: user.party
+                });
                 dispatch({
                     type: ChatReducerActionType.AddMessage,
                     payload: data
@@ -184,7 +187,10 @@ const useLiveChat = () => {
                 );
 
                 if (status === 200) {
-                    socket.emit('delete_message', data);
+                    socket.emit('delete_message', {
+                        data,
+                        roomId: user.party
+                    });
                     dispatch({
                         type: ChatReducerActionType.DeleteMessage,
                         payload: { messageId: data.messageId }
@@ -194,7 +200,7 @@ const useLiveChat = () => {
                 console.error(e);
             }
         },
-        [sendDeleteMessageRequest, socket]
+        [sendDeleteMessageRequest, socket, user.party]
     );
 
     return {
