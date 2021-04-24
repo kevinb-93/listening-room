@@ -6,7 +6,6 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 module.exports = {
     entry: './src/app/index.tsx',
     context: path.join(__dirname, '/..'),
-    /* how to emit the bundles */
     output: {
         path: path.resolve(__dirname, '../src'),
         filename: 'bundled.js'
@@ -19,25 +18,11 @@ module.exports = {
                 use: ['css-loader']
             },
             {
-                /* babel-loader for hot module replacement */
-                /* ts-loader for typescript */
-                /* stylint-loader for styled components */
-                test: /\.tsx?$/,
-                exclude: /(node_modules|bower_components)/,
-                use: [
-                    {
-                        loader: 'babel-loader',
-                        options: { plugins: ['react-refresh/babel'] }
-                    },
-                    {
-                        loader: 'ts-loader',
-                        options: { transpileOnly: true }
-                    },
-                    'stylelint-custom-processor-loader'
-                ].filter(Boolean)
+                test: /\.(ts|js)x?$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader'
             },
             {
-                // file loader for imgs
                 test: /\.(png|jpe?g|gif)$/i,
                 use: [
                     {
@@ -46,19 +31,17 @@ module.exports = {
                 ]
             },
             {
-                // url loader for fonts
                 test: /\.(woff|woff2|eot|ttf|svg)$/,
                 loader: 'url-loader?limit=100000'
             }
         ]
     },
     resolve: {
-        extensions: ['.tsx', '.ts', '.js']
+        extensions: ['.tsx', '.ts', '.js', '.json']
     },
     mode: 'development',
     devServer: {
         before: function (app, server) {
-            // refresh browser if html file changes
             server._watch('./src/**/*.html');
         },
         contentBase: path.join(__dirname, '/../src'),
@@ -68,22 +51,16 @@ module.exports = {
         port: 3000
     },
     plugins: [
-        /* React hot module replacement */
         new ReactRefreshWebpackPlugin(),
-        new ForkTsCheckerWebpackPlugin(),
-        //     {
-        //     eslint: {
-        //         enabled: true,
-        //         files: './src/**/*'
-        //     },
-        //     typescript: {
-        //         diagnosticOptions: {
-        //             semantic: true,
-        //             syntactic: true
-        //         }
-        //     }
-        // }
-        /* simplifies creation of HTML */
+        new ForkTsCheckerWebpackPlugin({
+            typescript: {
+                diagnosticOptions: {
+                    semantic: true,
+                    syntactic: true
+                },
+                mode: 'write-references'
+            }
+        }),
         new HtmlWebpackPlugin({
             template: 'src/app/index.html'
         })

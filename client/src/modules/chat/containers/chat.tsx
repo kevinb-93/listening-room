@@ -27,7 +27,7 @@ import ChatMessageListItem, {
 } from '../components/chat.message-list-item';
 import format from 'date-fns/format';
 import { List } from 'react-virtualized';
-import { filter, findLast, forEach, groupBy } from 'lodash';
+import { filter, findLast, first, forEach, groupBy } from 'lodash';
 import { useUserProfileContext } from '../../user/contexts/profile';
 import { UserRole } from '../../user/contexts/profile/types';
 
@@ -48,6 +48,15 @@ enum ChatListItemType {
 
 type ChatListItem = DateHeaderItem | MessageItem;
 
+enum ScrollChatReason {
+    firstLoad = 'firstLoad',
+    loadMore = 'loadMore',
+    messageReceived = 'messageReceived',
+    messageDeleted = 'messagedDeleted',
+    messageCreated = 'messageCreated',
+    noScroll = 'noScroll'
+}
+
 const Chat: React.FC = () => {
     const {
         chatMessages,
@@ -63,15 +72,73 @@ const Chat: React.FC = () => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const listRef = useRef<List>();
-    const chatListMessagesCountRef = useRef<number>();
+    const messageCountRef = useRef<number>();
     const oldestMessageIdRef = useRef<string>();
+    const fetchMessagesCounterRef = useRef<number>(0);
     const latestMessageIdRef = useRef<string>();
     const deleteMessageIdRef = useRef<string>();
+    const isScrolledBottomRef = useRef<boolean>();
 
     const cancelDeleteMessageHandler = () => {
         deleteMessageIdRef.current = undefined;
         setShowDeleteDialog(false);
     };
+
+    const isFirstLoad = () => fetchMessagesCounterRef.current < 1;
+    const isLoadMore = useCallback((oldestMessageId: string) => {
+        return !isFirstLoad() && hasNewOldestMessage(oldestMessageId);
+    }, []);
+    const hasDeletedMessage = (messageCount: number) =>
+        messageCount < messageCountRef.current;
+
+    const didUserCreateMessage = useCallback(
+        (messageId: string) => {
+            const chatListMessages = filter(
+                chatListItems,
+                i => i.itemType === ChatListItemType.Message
+            ) as MessageItem[];
+            const message = chatListMessages?.find(
+                m => m.data.id === messageId
+            );
+            const wasCreatedByUser = message?.data?.sender?.id === user?._id;
+            return wasCreatedByUser;
+        },
+        [chatListItems, user?._id]
+    );
+
+    const hasReceivedMessage = useCallback(
+        (latestMessageId: string) =>
+            hasNewLatestMessage(latestMessageId) &&
+            !didUserCreateMessage(latestMessageId),
+        [didUserCreateMessage]
+    );
+
+    const hasCreatedMessage = useCallback(
+        (latestMessageId: string) =>
+            hasNewLatestMessage(latestMessageId) &&
+            didUserCreateMessage(latestMessageId),
+        [didUserCreateMessage]
+    );
+
+    const getScrollChatReason = useCallback(
+        (
+            oldestMessageId: string,
+            latestMessageId: string,
+            messageCount: number
+        ): ScrollChatReason => {
+            if (isFirstLoad()) return ScrollChatReason.firstLoad;
+            if (isLoadMore(oldestMessageId)) return ScrollChatReason.loadMore;
+            if (hasReceivedMessage(latestMessageId))
+                return ScrollChatReason.messageReceived;
+            if (hasDeletedMessage(messageCount))
+                return ScrollChatReason.messageDeleted;
+            if (hasCreatedMessage(latestMessageId))
+                return ScrollChatReason.messageCreated;
+
+            return null;
+        },
+        [hasCreatedMessage, hasReceivedMessage, isLoadMore]
+    );
 
     const deleteMessageHandler = useCallback<OnDeleteMessage>(
         id => {
@@ -150,79 +217,63 @@ const Chat: React.FC = () => {
     };
 
     const scrollChatList = useCallback(
-        (
-            latestMessageId: string,
-            messagesCount: number,
-            listItems: ChatListItem[],
-            oldestMessageId: string
-        ) => {
-            if (messagesCount < 1) {
-                return;
-            }
-            listRef.current?.recomputeRowHeights();
-            if (
-                hasNewLatestMessage(latestMessageId) &&
-                messagesCount > BATCH_SIZE
-            ) {
-                listRef.current.scrollToRow(listItems.length);
-            } else if (messagesCount <= BATCH_SIZE) {
-                const scrollHeight = listRef.current?.Grid.props.height;
-                listRef?.current.scrollToPosition(scrollHeight);
-            } else if (hasNewOldestMessage(oldestMessageId)) {
-                const scrollRowIndex = listItems.findIndex(
-                    i => i.data.id === oldestMessageId
-                );
-                listRef.current?.scrollToRow(scrollRowIndex);
+        (scrollReason: ScrollChatReason, oldestMessageId: string) => {
+            console.log(scrollReason);
+            switch (scrollReason) {
+                case ScrollChatReason.firstLoad: {
+                    const scrollHeight = listRef.current?.Grid.props.height;
+                    return listRef.current?.scrollToPosition(scrollHeight);
+                }
+                case ScrollChatReason.loadMore: {
+                    const scrollRowIndex = chatListItems.findIndex(
+                        m => m.data.id === oldestMessageId
+                    );
+                    return listRef.current.scrollToRow(scrollRowIndex);
+                }
+                case ScrollChatReason.messageReceived: {
+                    if (!isScrolledBottomRef.current) return;
+                    return listRef.current?.scrollToRow(chatListItems.length);
+                }
+                case ScrollChatReason.messageCreated: {
+                    return listRef.current?.scrollToRow(chatListItems.length);
+                }
+                default:
+                    return null;
             }
         },
-        []
+        [chatListItems]
     );
 
     useEffect(
         function chatListItemsEffect() {
-            const latestMessage = findLast(chatListItems, i => {
-                return i.itemType === ChatListItemType.Message;
-            }) as MessageItem;
-            const latestMessageId = latestMessage?.data?.id;
-
             const chatListMessages = filter(
                 chatListItems,
                 i => i.itemType === ChatListItemType.Message
             ) as MessageItem[];
+            const latestMessage = findLast(chatListMessages);
+            const oldestMessage = first(chatListMessages);
 
-            const newChatMessagesCount =
-                chatListMessages.length - chatListMessagesCountRef.current;
+            const scrollChatReason = getScrollChatReason(
+                oldestMessage?.data?.id,
+                latestMessage?.data?.id,
+                chatListMessages.length
+            );
 
-            let oldestMessageId: string;
-            if (chatListMessages.length > BATCH_SIZE) {
-                oldestMessageId =
-                    chatListMessages[newChatMessagesCount]?.data?.id;
-            }
+            scrollChatList(scrollChatReason, oldestMessageIdRef.current);
 
-            const messagesCount = chatListItems.filter(
-                i => i.itemType === ChatListItemType.Message
-            ).length;
-
-            listRef.current?.recomputeRowHeights();
-
-            if (!deleteMessageIdRef.current) {
-                scrollChatList(
-                    latestMessageId,
-                    messagesCount,
-                    chatListItems,
-                    oldestMessageId
-                );
-            }
-
-            chatListMessagesCountRef.current = chatListMessages.length;
-            latestMessageIdRef.current = latestMessageId;
-            oldestMessageIdRef.current = oldestMessageId;
+            latestMessageIdRef.current = latestMessage?.data?.id;
+            oldestMessageIdRef.current = oldestMessage?.data?.id;
+            messageCountRef.current = chatListMessages.length;
         },
-        [chatListItems, scrollChatList]
+        [chatListItems, getScrollChatReason, scrollChatList]
     );
 
     useEffect(
         function messagesEffect() {
+            let fetchCount = chatMessages.length / BATCH_SIZE;
+            if (fetchCount > 0) fetchCount += 1;
+            fetchMessagesCounterRef.current = fetchCount;
+
             const groupedDates = groupBy(chatMessages, m =>
                 format(new Date(m.timestamp), 'dd/MM/yyyy')
             );
@@ -256,8 +307,15 @@ const Chat: React.FC = () => {
         [chatMessages, getChatMessages]
     );
 
-    const handleChatSubmit: ChatFormSubmit = async ({ message }) => {
-        addChatMessage(message);
+    const handleChatSubmit: ChatFormSubmit = useCallback(
+        async ({ message }) => {
+            addChatMessage(message);
+        },
+        [addChatMessage]
+    );
+
+    const onListScroll = (isScrolledBottom: boolean) => {
+        isScrolledBottomRef.current = isScrolledBottom;
     };
 
     return (
@@ -266,7 +324,8 @@ const Chat: React.FC = () => {
                 <DialogTitle>Delete Message</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Are you sure you want to permantely delete this message?
+                        Are you sure you want to permanately delete this
+                        message?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -286,6 +345,7 @@ const Chat: React.FC = () => {
                     list={chatMessageList}
                     batchSize={BATCH_SIZE}
                     hasNextPage={hasNextPage}
+                    onListScroll={onListScroll}
                     isNextPageLoading={isLoading}
                     loadNextPage={loadNextChatPage}
                     virtualListProps={{ scrollToAlignment: 'start' }}

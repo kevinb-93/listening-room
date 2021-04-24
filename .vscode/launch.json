@@ -43,7 +43,7 @@
     ],
     "compounds": [
         {
-            "name": "Launch app (development)",
+            "name": "Debug app (Chrome)",
             "configurations": ["API", "Client", "Chrome"]
         }
     ]

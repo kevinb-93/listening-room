@@ -137,7 +137,7 @@ const useLiveChat = () => {
                 console.error(e);
             }
         },
-        [getMessagesRequest, user?.party]
+        [getMessagesRequest, user.party]
     );
 
     useEffect(() => {

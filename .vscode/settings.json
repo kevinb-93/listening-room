@@ -11,4 +11,5 @@
     "files.autoSave": "onWindowChange",
     "scss.lint.unknownAtRules": "ignore",
     "scss.lint.unknownProperties": "ignore",
+    "editor.fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
 }

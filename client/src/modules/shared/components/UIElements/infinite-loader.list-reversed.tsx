@@ -25,6 +25,7 @@ export interface InfiniteLoaderListProps {
     hasNextPage: boolean;
     isNextPageLoading: boolean;
     batchSize?: number;
+    onListScroll?: (isScrolledBottom: boolean) => void;
     list: ListItem[];
     loadNextPage: () => Promise<any>;
     setListRef?: (el: VirtualizedList) => void;
@@ -44,7 +45,8 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
         infiniteLoaderProps,
         virtualListProps,
         setListRef,
-        batchSize
+        batchSize,
+        onListScroll
     }) => {
         const listIds = useRef([]);
         const cache = useRef(
@@ -132,7 +134,7 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
             }
         }, [isNextPageLoading]);
 
-        const onListScroll = useCallback(
+        const scrollHandler = useCallback(
             ({ scrollTop, clientHeight, scrollHeight }: OnScrollParams) => {
                 const scrollBottom = getScrollBottom({
                     scrollTop,
@@ -140,11 +142,9 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                     clientHeight
                 });
                 scrollHeightRef.current = scrollHeight;
-                if (scrollBottom > 0) {
-                    setShowScrollBottom(true);
-                } else {
-                    setShowScrollBottom(false);
-                }
+                const isScrolledBottom = scrollBottom === 0;
+                setShowScrollBottom(!isScrolledBottom);
+                onListScroll(isScrolledBottom);
 
                 if (!allowLoadMore) return;
 
@@ -153,10 +153,10 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                     loadMoreRows();
                 }
             },
-            [allowLoadMore, loadMoreRows]
+            [allowLoadMore, loadMoreRows, onListScroll]
         );
 
-        const debouncedScroll = debounce(onListScroll, 150);
+        const debouncedScrollHandler = debounce(scrollHandler, 150);
 
         const scrollBottomClickHandler = () => {
             listRef.current?.scrollToPosition(scrollHeightRef.current);
@@ -183,7 +183,7 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                                     }}
                                     onRowsRendered={onRowsRendered}
                                     height={height}
-                                    onScroll={debouncedScroll}
+                                    onScroll={debouncedScrollHandler}
                                     rowCount={rowCount}
                                     width={width}
                                     estimatedRowSize={31}
