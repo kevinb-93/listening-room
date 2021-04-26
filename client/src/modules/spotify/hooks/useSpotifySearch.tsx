@@ -3,7 +3,7 @@ import { spotifyApi } from '../config/spotify-web-api';
 
 interface SpotifySearch {
     searchTerm: string;
-    searchResults: SpotifyApi.SearchResponse;
+    searchResults: SpotifyApi.SearchResponse | undefined;
     searchTrack: () => void;
     setSearchTerm: (term: SpotifySearch['searchTerm']) => void;
 }
@@ -12,9 +12,10 @@ type SpotifySearchHook = () => SpotifySearch;
 
 const useSpotifySearch: SpotifySearchHook = () => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState<
-        SpotifyApi.SearchResponse
-    >();
+    const [
+        searchResults,
+        setSearchResults
+    ] = useState<SpotifyApi.SearchResponse>();
 
     const searchTimeout = useRef<number>();
 
@@ -37,7 +38,7 @@ const useSpotifySearch: SpotifySearchHook = () => {
     const clearSearchResults = useCallback(() => {
         if (!searchTerm) {
             clearSearchTimeout();
-            setSearchResults(null);
+            setSearchResults(undefined);
         }
     }, [clearSearchTimeout, searchTerm]);
 
@@ -54,7 +55,7 @@ const useSpotifySearch: SpotifySearchHook = () => {
             clearSearchTimeout();
         }
 
-        searchTimeout.current = setTimeout(() => searchTrack(), 1000);
+        searchTimeout.current = window.setTimeout(() => searchTrack(), 1000);
     }, [clearSearchTimeout, searchTerm, searchTrack]);
 
     useEffect(() => {

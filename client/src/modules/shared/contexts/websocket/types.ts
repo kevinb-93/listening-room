@@ -6,5 +6,5 @@ export type WebSocketContextInterface = WebSocketContextState & {
 };
 
 export interface WebSocketContextState {
-    socket: Socket;
+    socket: Socket | undefined;
 }

@@ -24,7 +24,7 @@ const CreatePartyForm: React.FC<CreatePartyFormProps> = ({
     onSubmit,
     submitDisabled
 }) => {
-    const validationSchema = Yup.object<CreatePartyFormValues>({
+    const validationSchema: Yup.SchemaOf<CreatePartyFormValues> = Yup.object({
         name: Yup.string().required('Required'),
         password: Yup.string().required('Required')
     });

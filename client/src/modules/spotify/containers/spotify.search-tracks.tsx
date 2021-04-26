@@ -9,7 +9,8 @@ const SpotifySearch: React.FC = () => {
 
     useEffect(
         function updateTracks() {
-            setTracks(searchResults?.tracks?.items);
+            const tracks = searchResults?.tracks?.items ?? [];
+            setTracks(tracks);
         },
         [searchResults?.tracks?.items]
     );

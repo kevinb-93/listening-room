@@ -34,7 +34,7 @@ export const Provider: React.FC = ({ children }) => {
             state.socket.on('disconnect', (reason: string) => {
                 console.log(`socket disconnected: ${reason}`);
                 if (reason === 'io server disconnect') {
-                    state.socket.connect();
+                    state?.socket?.connect();
                 }
             });
 

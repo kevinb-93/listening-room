@@ -1,6 +1,6 @@
 type GetTrackImage = (
     track: SpotifyApi.TrackObjectFull
-) => SpotifyApi.ImageObject;
+) => SpotifyApi.ImageObject | null;
 type GetArtists = (track: SpotifyApi.TrackObjectFull) => string;
 
 export const getArtists: GetArtists = track => {
@@ -11,5 +11,5 @@ export const getArtists: GetArtists = track => {
 export const getTrackImage: GetTrackImage = track => {
     const height = 64;
     const image = track.album.images.find(i => i.height === height);
-    return image;
+    return image || null;
 };

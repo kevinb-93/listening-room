@@ -41,7 +41,7 @@ const InfiniteList: React.FC<InfiniteListProps> = ({
     loadNextPage,
     scrollToIndex
 }) => {
-    const infiniteLoaderRef = useRef<InfiniteLoader>();
+    const infiniteLoaderRef = useRef<InfiniteLoader>(null);
     const listRef = useRef<VirtualizedList>();
 
     useEffect(() => {
@@ -51,8 +51,6 @@ const InfiniteList: React.FC<InfiniteListProps> = ({
     useEffect(() => {
         listRef.current?.recomputeRowHeights();
     }, [list.length]);
-
-    // console.log('infinite List scroll index ' + scrollToIndex);
 
     const rowRenderer: React.FC<ListRowProps> = ({
         index,
@@ -117,7 +115,7 @@ const InfiniteList: React.FC<InfiniteListProps> = ({
                     {({ onRowsRendered, registerChild }) => (
                         <VirtualizedList
                             ref={el => {
-                                listRef.current = el;
+                                listRef.current = el ?? undefined;
                                 registerChild(el);
                             }}
                             scrollToIndex={scrollToIndex}

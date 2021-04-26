@@ -13,7 +13,7 @@ const isValidUser = ({ userToken }: ValidUser) => {
 
 const useAppIdentity = () => {
     const { userToken, userLogout } = useUserIdentityContext();
-    const { spotifyLogout } = useSpotifyIdentityContext();
+    const { logoutSpotify } = useSpotifyIdentityContext();
 
     const isLoggedIn = useMemo(() => {
         const userIsValid = isValidUser({
@@ -25,8 +25,8 @@ const useAppIdentity = () => {
 
     const logout = useCallback(() => {
         userLogout();
-        spotifyLogout();
-    }, [spotifyLogout, userLogout]);
+        logoutSpotify();
+    }, [logoutSpotify, userLogout]);
 
     return { isLoggedIn, logout };
 };

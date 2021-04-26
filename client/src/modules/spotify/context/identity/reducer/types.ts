@@ -1,23 +1,39 @@
 import { SpotifyIdentityContextState } from '../types';
+import { ReducerAction } from '../../../../../types/react';
 
-export enum SpotifyIdentityReducerAction {
+export enum SpotifyIdentityReducerActionType {
     spotifyLogin,
     spotifyLogout,
     restoreState
 }
 
-export interface SpotifyIdentityReducerActionPayload<T> {
-    type: SpotifyIdentityReducerAction;
-    payload: T;
-}
-
 export interface SpotifyIdentityReducer {
     (
         state: SpotifyIdentityContextState,
-        payload: unknown
+        payload: SpotifyIdentityReducerActionPayload
     ): SpotifyIdentityContextState;
 }
 
-export interface SpotifyIdentityReducerMap {
-    [key: string]: SpotifyIdentityReducer;
+interface SpotifyLoginPayload {
+    spotifyToken: SpotifyIdentityContextState['spotifyToken'];
+    spotifyRefreshToken: SpotifyIdentityContextState['spotifyRefreshToken'];
+    spotifyExpirationDate: SpotifyIdentityContextState['spotifyExpirationDate'];
 }
+
+type RestoreStatePayload = boolean;
+
+export type SpotifyIdentityReducerAction =
+    | ReducerAction<
+          SpotifyIdentityReducerActionType.spotifyLogin,
+          SpotifyLoginPayload
+      >
+    | ReducerAction<SpotifyIdentityReducerActionType.spotifyLogout, null>
+    | ReducerAction<
+          SpotifyIdentityReducerActionType.restoreState,
+          RestoreStatePayload
+      >;
+
+type SpotifyIdentityReducerActionPayload =
+    | SpotifyLoginPayload
+    | RestoreStatePayload
+    | null;

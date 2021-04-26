@@ -6,7 +6,7 @@ import img from '../../shared/assets/logos/spotify/Spotify_Logo_RGB_Black.png';
 import Button from '../../shared/components/FormElements/Button';
 
 const SpotifyAuthButton: React.FC = () => {
-    const { spotifyLogin, spotifyToken } = useSpotifyIdentityContext();
+    const { loginSpotify, spotifyToken } = useSpotifyIdentityContext();
 
     const spotifyAuthHandler = () => {
         const url = `http://localhost:5000/api/spotify/login`;
@@ -39,13 +39,13 @@ const SpotifyAuthButton: React.FC = () => {
                 if (
                     Object.prototype.hasOwnProperty.call(hash, 'access_token')
                 ) {
-                    w.close();
+                    w?.close();
 
                     const tokenExpiration = new Date(
                         new Date().getTime() + 1000 * hash.expires_in
                     );
 
-                    spotifyLogin(
+                    loginSpotify(
                         hash.access_token,
                         hash.refresh_token,
                         tokenExpiration

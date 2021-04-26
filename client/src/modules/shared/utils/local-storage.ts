@@ -30,7 +30,9 @@ export const setLocalStorage = <K extends keyof LocalStorage>(
     itemName: K,
     item: LocalStorage[K]
 ) => {
-    let localStorageItem: string;
+    if (!item) return;
+
+    let localStorageItem = '';
 
     if (typeof item !== 'string') {
         localStorageItem = JSON.stringify(item);
@@ -43,12 +45,13 @@ export const getLocalStorage = <K extends keyof LocalStorage>(
     itemName: K
 ): LocalStorage[K] => {
     const localItem = localStorage.getItem(itemName);
+    if (!localItem) return;
 
     let parsedItem: LocalStorage[K];
     try {
         parsedItem = JSON.parse(localItem);
     } catch (e) {
-        parsedItem = null;
+        return;
     }
 
     return parsedItem;

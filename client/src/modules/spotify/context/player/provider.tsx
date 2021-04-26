@@ -1,27 +1,15 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import SpotifyPlayerContext from './index';
-import {
-    SpotifyPlayerContextInterface,
-    SpotifyPlayerContextState
-} from './types';
+import { SpotifyPlayerContextInterface } from './types';
 import { __useSpotifyPlayerReducer } from './reducer';
 import { loadScript } from '../../../shared/utils/load-script';
 import { useSpotifyIdentityContext } from '../identity';
 import useAppIdentity from '../../../shared/hooks/use-identity';
 import { useUserProfileContext } from '../../../user/contexts/profile';
-import {
-    getLocalStorage,
-    LocalStorageItemNames
-} from '../../../shared/utils/local-storage';
-import { useSpotifyContext } from '../spotify';
 import { SpotifyPlayerReducerActionType } from './reducer/types';
 import { spotifyApi } from '../../config/spotify-web-api';
 import { useApiRequest } from '../../../shared/hooks/use-api-request';
-import {
-    CurrentTrack,
-    Track
-} from '../../../../../../api/src/modules/party/party.model';
-import SpotifyWebApi from 'spotify-web-api-js';
+import { Track } from '../../../../../../api/src/modules/party/party.model';
 import { UserRole } from '../../../user/contexts/profile/types';
 // import { useWebSocketContext } from '../../../shared/contexts/websocket';
 
@@ -36,7 +24,7 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
     const { isLoggedIn } = useAppIdentity();
     const { user } = useUserProfileContext();
     const { spotifyToken } = useSpotifyIdentityContext();
-    const { activeDeviceId, setActiveDevice } = useSpotifyContext();
+    // const { activeDeviceId, setActiveDevice } = useSpotifyContext();
 
     const { sendRequest: sendGetPlayerRequest } = useApiRequest();
     const { sendRequest: sendNowPlayingRequest } = useApiRequest();
@@ -44,18 +32,11 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
     const { sendRequest: sendDeleteQueueTrack } = useApiRequest();
     // const { socket } = useWebSocketContext();
 
-    const {
-        player,
-        playerInstance,
-        playbackState,
-        queue,
-        playNext,
-        nowPlaying
-    } = state;
+    const { player, playerInstance, playbackState, queue, playNext } = state;
 
     const playbackTimer = useRef<number>();
     const elaspedTime = useRef<number>();
-    const playbackListener = useRef<Spotify.PlaybackState>(null);
+    const playbackListener = useRef<Spotify.PlaybackState>();
     const isPlaybackInitialized = useRef<boolean>(false);
 
     // const getHostPlayback = useCallback(() => {
@@ -166,7 +147,7 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
                     device_id: playerInstance?.device_id,
                     position_ms
                 })
-                .then(data => {
+                .then(() => {
                     if (!isPlaybackInitialized.current) {
                         isPlaybackInitialized.current = true;
                     }
@@ -303,10 +284,11 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
     useEffect(
         function syncPlaybackPosition() {
             elaspedTime.current = playbackState?.position ?? 0;
+            const playbackDuration = playbackState?.duration ?? 0;
 
             if (
                 playbackState?.paused ||
-                elaspedTime.current > playbackState?.duration
+                elaspedTime.current > playbackDuration
             ) {
                 clearPlaybackTimer();
             }
@@ -320,8 +302,9 @@ const SpotifyPlayerProvider: React.FC = ({ children }) => {
 
     const setPlaybackTimer = useCallback(
         (timeoutDuration: number) =>
-            setInterval(() => {
-                elaspedTime.current += timeoutDuration;
+            window.setInterval(() => {
+                elaspedTime.current =
+                    (elaspedTime.current ?? 0) + timeoutDuration;
                 dispatch({
                     type: SpotifyPlayerReducerActionType.SetPlaybackPosition,
                     payload: { position: elaspedTime.current }

@@ -1,8 +1,6 @@
 import { UserProfileReducerAction } from './reducer/types';
 
-export type UserProfileReducerDispatch = React.Dispatch<
-    UserProfileReducerAction
->;
+export type UserProfileReducerDispatch = React.Dispatch<UserProfileReducerAction>;
 
 export type UserProfileContextInterface = UserProfileContextState & {
     dispatch: UserProfileReducerDispatch;

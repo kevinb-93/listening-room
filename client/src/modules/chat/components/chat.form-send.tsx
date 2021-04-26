@@ -1,14 +1,7 @@
 import React, { useRef } from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
-import {
-    Formik,
-    Field,
-    Form,
-    FormikProps,
-    FormikConfig,
-    FieldProps
-} from 'formik';
+import { Formik, Field, Form, FormikConfig } from 'formik';
 import { IconButton } from '@material-ui/core';
 import { SendRounded } from '@material-ui/icons';
 import { InputBase, InputBaseProps } from 'formik-material-ui';
@@ -24,7 +17,7 @@ export interface ChatFormProps {
 }
 
 const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
-    const validationSchema = Yup.object<ChatFormValues>({
+    const validationSchema: Yup.SchemaOf<ChatFormValues> = Yup.object({
         message: Yup.string().required('Required')
     });
 
@@ -39,7 +32,7 @@ const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
         try {
             await onSubmit(values);
             helpers.resetForm();
-            inputRef.current.focus();
+            inputRef.current?.focus();
         } catch (e) {
             console.error(e);
         }

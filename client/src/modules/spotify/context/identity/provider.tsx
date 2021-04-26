@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect } from 'react';
 import { SpotifyIdentityContext } from './context';
 import { SpotifyIdentityContextInterface } from './types';
-import { __useSpotifyIdentityReducer, actions } from './reducer';
+import { __useSpotifyIdentityReducer } from './reducer';
 import { useApiRequest } from '../../../shared/hooks/use-api-request';
 import { baseUrl } from '../../../shared/config/api';
 import {
     getLocalStorage,
-    LocalStorageItemNames
+    LocalStorageItemNames,
+    removeLocalStorage,
+    setLocalStorage
 } from '../../../shared/utils/local-storage';
-import useActions from './useActions';
+import { SpotifyIdentityReducerActionType } from './reducer/types';
+import SpotifyWebApi from 'spotify-web-api-js';
 
 let spotifyRefreshTokenTimer: number;
 
@@ -17,15 +20,43 @@ export const Provider: React.FC = ({ children }) => {
 
     const { sendRequest } = useApiRequest();
 
-    const { setRestoreState, spotifyLogin, spotifyLogout } = useActions(
-        dispatch
+    const loginSpotify = useCallback<
+        SpotifyIdentityContextInterface['loginSpotify']
+    >(
+        (spotifyToken, spotifyRefreshToken, spotifyExpirationDate) => {
+            dispatch({
+                type: SpotifyIdentityReducerActionType.spotifyLogin,
+                payload: {
+                    spotifyExpirationDate,
+                    spotifyRefreshToken,
+                    spotifyToken
+                }
+            });
+            const spotifyApi = new SpotifyWebApi();
+            spotifyApi.setAccessToken(spotifyToken);
+
+            setLocalStorage(LocalStorageItemNames.Spotify, {
+                spotifyToken,
+                spotifyRefreshToken,
+                spotifyExpirationDate
+            });
+        },
+        [dispatch]
     );
+
+    const logoutSpotify = useCallback(() => {
+        dispatch({
+            type: SpotifyIdentityReducerActionType.spotifyLogout,
+            payload: null
+        });
+        removeLocalStorage(LocalStorageItemNames.Spotify);
+    }, [dispatch]);
 
     const value: SpotifyIdentityContextInterface = {
         ...state,
-        spotifyLogin,
-        spotifyLogout,
-        setRestoreState
+        dispatch,
+        loginSpotify,
+        logoutSpotify
     };
 
     const restoreSpotifyToken = useCallback(async () => {
@@ -33,22 +64,24 @@ export const Provider: React.FC = ({ children }) => {
             const { spotifyToken, spotifyRefreshToken, spotifyExpirationDate } =
                 getLocalStorage(LocalStorageItemNames.Spotify) || {};
 
-            if (
-                spotifyToken &&
-                spotifyRefreshToken &&
-                new Date(spotifyExpirationDate) > new Date()
-            ) {
+            if (!spotifyToken || !spotifyRefreshToken || !spotifyExpirationDate)
+                return;
+
+            if (new Date(spotifyExpirationDate) > new Date()) {
                 console.log('restoring spotify token...');
-                actions.auth.spotifyLogin(dispatch, {
+                loginSpotify(
                     spotifyToken,
                     spotifyRefreshToken,
-                    spotifyExpirationDate: new Date(spotifyExpirationDate)
-                });
+                    new Date(spotifyExpirationDate)
+                );
             }
         } catch (e) {
-            setRestoreState(false);
+            dispatch({
+                type: SpotifyIdentityReducerActionType.restoreState,
+                payload: false
+            });
         }
-    }, [dispatch, setRestoreState]);
+    }, [dispatch, loginSpotify]);
 
     useEffect(() => {
         restoreSpotifyToken();
@@ -67,15 +100,15 @@ export const Provider: React.FC = ({ children }) => {
                 new Date().getTime() + 1000 * response.data.expires_in
             );
 
-            actions.auth.spotifyLogin(dispatch, {
-                spotifyToken: response.data.access_token,
-                spotifyRefreshToken: state.spotifyRefreshToken,
-                spotifyExpirationDate: expirationDate
-            });
+            loginSpotify(
+                response.data.access_token,
+                state.spotifyRefreshToken,
+                expirationDate
+            );
         } catch (e) {
             console.error(e);
         }
-    }, [dispatch, sendRequest, state.spotifyRefreshToken]);
+    }, [loginSpotify, sendRequest, state.spotifyRefreshToken]);
 
     React.useEffect(() => {
         console.log('checking spotify token remaining time...');
@@ -86,7 +119,7 @@ export const Provider: React.FC = ({ children }) => {
         ) {
             const remainingTime =
                 state.spotifyExpirationDate.getTime() - new Date().getTime();
-            spotifyRefreshTokenTimer = setTimeout(
+            spotifyRefreshTokenTimer = window.setTimeout(
                 () => refreshSpotifyToken(),
                 remainingTime
             );

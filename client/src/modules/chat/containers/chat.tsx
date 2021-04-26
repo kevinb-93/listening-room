@@ -72,7 +72,7 @@ const Chat: React.FC = () => {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const listRef = useRef<List>();
-    const messageCountRef = useRef<number>();
+    const messageCountRef = useRef<number>(0);
     const oldestMessageIdRef = useRef<string>();
     const fetchMessagesCounterRef = useRef<number>(0);
     const latestMessageIdRef = useRef<string>();
@@ -125,7 +125,7 @@ const Chat: React.FC = () => {
             oldestMessageId: string,
             latestMessageId: string,
             messageCount: number
-        ): ScrollChatReason => {
+        ): ScrollChatReason | null => {
             if (isFirstLoad()) return ScrollChatReason.firstLoad;
             if (isLoadMore(oldestMessageId)) return ScrollChatReason.loadMore;
             if (hasReceivedMessage(latestMessageId))
@@ -143,7 +143,7 @@ const Chat: React.FC = () => {
     const deleteMessageHandler = useCallback<OnDeleteMessage>(
         id => {
             const message = chatMessages.find(m => m.id === id);
-            deleteMessageIdRef.current = message.id;
+            deleteMessageIdRef.current = message?.id;
             setShowDeleteDialog(true);
         },
         [chatMessages]
@@ -221,14 +221,14 @@ const Chat: React.FC = () => {
             console.log(scrollReason);
             switch (scrollReason) {
                 case ScrollChatReason.firstLoad: {
-                    const scrollHeight = listRef.current?.Grid.props.height;
+                    const scrollHeight = listRef.current?.Grid?.props.height;
                     return listRef.current?.scrollToPosition(scrollHeight);
                 }
                 case ScrollChatReason.loadMore: {
                     const scrollRowIndex = chatListItems.findIndex(
                         m => m.data.id === oldestMessageId
                     );
-                    return listRef.current.scrollToRow(scrollRowIndex);
+                    return listRef.current?.scrollToRow(scrollRowIndex);
                 }
                 case ScrollChatReason.messageReceived: {
                     if (!isScrolledBottomRef.current) return;
@@ -254,12 +254,16 @@ const Chat: React.FC = () => {
             const oldestMessage = first(chatListMessages);
 
             const scrollChatReason = getScrollChatReason(
-                oldestMessage?.data?.id,
-                latestMessage?.data?.id,
+                oldestMessage?.data.id ?? '',
+                latestMessage?.data.id ?? '',
                 chatListMessages.length
             );
 
-            scrollChatList(scrollChatReason, oldestMessageIdRef.current);
+            if (scrollChatReason)
+                scrollChatList(
+                    scrollChatReason,
+                    oldestMessageIdRef?.current ?? ''
+                );
 
             latestMessageIdRef.current = latestMessage?.data?.id;
             oldestMessageIdRef.current = oldestMessage?.data?.id;

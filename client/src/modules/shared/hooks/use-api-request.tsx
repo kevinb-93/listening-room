@@ -51,7 +51,7 @@ export const useApiRequest = () => {
     );
 
     const clearError = () => {
-        setError(null);
+        setError('');
     };
 
     // useEffect(() => {

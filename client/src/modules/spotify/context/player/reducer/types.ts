@@ -1,5 +1,4 @@
 import { SpotifyPlayerContextState } from '../types';
-import { CurrentTrack } from '../../../../../../../api/src/modules/party/party.model';
 
 interface ReducerAction<
     T extends SpotifyPlayerReducerActionType,
@@ -25,7 +24,7 @@ export type SetPlayNextPayload = boolean;
 export interface PlaybackPositionPayload {
     position: Spotify.PlaybackState['position'];
 }
-export type PlaybackPayload = Spotify.PlaybackState;
+export type PlaybackPayload = Spotify.PlaybackState | null;
 export type PlayerInstancePayload = Spotify.WebPlaybackInstance;
 export type PlayerPayload = Spotify.SpotifyPlayer;
 export type NowPlayingPayload = SpotifyApi.TrackObjectFull;

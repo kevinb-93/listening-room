@@ -55,9 +55,9 @@ const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
             const track = getTrack(id);
 
             if (!isCurrentTrack(id)) {
-                playTrack(track);
+                if (track) playTrack(track);
             } else {
-                player.togglePlay();
+                player?.togglePlay();
             }
         },
         [getTrack, isCurrentTrack, playTrack, player]
@@ -71,7 +71,7 @@ const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
                 deleteTrackFromQueue(id);
             } else {
                 const track = getTrack(id);
-                addTrackToQueue(track);
+                if (track) addTrackToQueue(track);
             }
         },
         [addTrackToQueue, deleteTrackFromQueue, getTrack, isTrackQueued]
@@ -85,7 +85,7 @@ const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
             songTitle: t.name
         };
         const image: TrackItemProps['image'] = {
-            src: getTrackImage(t).url,
+            src: getTrackImage(t)?.url ?? '',
             size: 64
         };
 

@@ -13,15 +13,17 @@ const Reducer = (
         case SpotifyPlayerReducerActionType.setPlayback:
             return {
                 ...state,
-                playbackState: action.payload
+                playbackState: action.payload ?? undefined
             };
         case SpotifyPlayerReducerActionType.SetPlaybackPosition:
             return {
                 ...state,
-                playbackState: {
-                    ...state.playbackState,
-                    position: action.payload.position
-                }
+                playbackState: state.playbackState
+                    ? {
+                          ...state.playbackState,
+                          position: action.payload.position
+                      }
+                    : undefined
             };
         case SpotifyPlayerReducerActionType.setPlayNext:
             return {
@@ -75,11 +77,11 @@ const Reducer = (
 };
 
 const initialState: SpotifyPlayerContextState = {
-    playbackState: null,
-    player: null,
-    playerInstance: null,
+    playbackState: undefined,
+    player: undefined,
+    playerInstance: undefined,
     playNext: false,
-    nowPlaying: null,
+    nowPlaying: undefined,
     queue: []
 };
 

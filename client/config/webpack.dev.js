@@ -8,9 +8,10 @@ module.exports = {
     context: path.join(__dirname, '/..'),
     output: {
         path: path.resolve(__dirname, '../src'),
-        filename: 'bundled.js'
+        filename: '[name].js',
+        pathinfo: false
     },
-    devtool: 'source-map',
+    devtool: 'eval-cheap-module-source-map',
     module: {
         rules: [
             {
@@ -19,11 +20,20 @@ module.exports = {
             },
             {
                 test: /\.(ts|js)x?$/,
-                exclude: /node_modules/,
+                include: path.resolve(__dirname, '../src'),
                 loader: 'babel-loader'
             },
+            // {
+            //     test: /\.tsx?$/,
+            //     loader: 'ts-loader',
+            //     exclude: /node_modules/,
+            //     options: {
+            //         transpileOnly: true
+            //     }
+            // },
             {
                 test: /\.(png|jpe?g|gif)$/i,
+                include: path.resolve(__dirname, '../src'),
                 use: [
                     {
                         loader: 'file-loader'
@@ -32,7 +42,14 @@ module.exports = {
             },
             {
                 test: /\.(woff|woff2|eot|ttf|svg)$/,
-                loader: 'url-loader?limit=100000'
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 100000
+                        }
+                    }
+                ]
             }
         ]
     },
@@ -64,5 +81,11 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: 'src/app/index.html'
         })
-    ]
+    ],
+    optimization: {
+        runtimeChunk: true,
+        removeAvailableModules: false,
+        splitChunks: false,
+        removeEmptyChunks: false
+    }
 };

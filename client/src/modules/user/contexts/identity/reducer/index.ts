@@ -24,7 +24,7 @@ const Reducer: IdentityReducer = (state, action) => {
             removeLocalStorage(LocalStorageItemNames.User);
             return {
                 ...state,
-                userToken: null,
+                userToken: '',
                 isRestoring: false
             };
         }
@@ -40,7 +40,7 @@ const Reducer: IdentityReducer = (state, action) => {
 };
 
 const initialState: UserIdentityContextState = {
-    userToken: null,
+    userToken: '',
     isRestoring: true
 };
 

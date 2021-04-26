@@ -24,7 +24,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     onSubmit,
     submitDisabled
 }) => {
-    const validationSchema = Yup.object<RegisterFormValues>({
+    const validationSchema: Yup.SchemaOf<RegisterFormValues> = Yup.object({
         name: Yup.string().required('Required'),
         password: Yup.string().required('Required')
     });

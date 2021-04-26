@@ -14,7 +14,7 @@ const Reducer: WebSocketReducer = (state, action) => {
 };
 
 const initialState: WebSocketContextState = {
-    socket: null
+    socket: undefined
 };
 
 export const __useWebSocketReducer = () =>

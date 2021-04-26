@@ -1,6 +1,7 @@
+import { SpotifyReducerAction } from './reducer/types';
+
 export interface SpotifyContextActions {
-    setDevices: (device: SpotifyContextState['devices']) => void;
-    setActiveDevice: (id: SpotifyApi.UserDevice['id']) => void;
+    dispatch: React.Dispatch<SpotifyReducerAction>;
 }
 
 export type SpotifyContextInterface = SpotifyContextState &
@@ -9,7 +10,6 @@ export type SpotifyContextInterface = SpotifyContextState &
 export interface SpotifyContextState {
     devices: SpotifyApi.UserDevice[];
     activeDeviceId: SpotifyApi.UserDevice['id'];
-    // api: SpotifyWebApi.SpotifyWebApiJs;
 }
 
 export interface SetSpotifyQueueParams {

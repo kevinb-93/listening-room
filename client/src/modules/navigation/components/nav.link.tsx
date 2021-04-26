@@ -53,8 +53,8 @@ const StyledNavLinkLabel = styled.span`
 `;
 
 NavigationLink.defaultProps = {
-    activePaths: null,
-    icon: null
+    activePaths: undefined,
+    icon: undefined
 };
 
 export default NavigationLink;

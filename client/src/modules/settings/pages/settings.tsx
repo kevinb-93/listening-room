@@ -1,31 +1,38 @@
+import { SpotifyReducerActionType } from '../../../modules/spotify/context/spotify/reducer/types';
 import React, { useEffect } from 'react';
 import SpotifyWebApi from 'spotify-web-api-js';
 
 import { useSpotifyContext } from '../../spotify/context/spotify';
 
 const Settings: React.FC = () => {
-    const {
-        devices,
-        setDevices,
-        setActiveDevice,
-        activeDeviceId
-    } = useSpotifyContext();
+    const { devices, dispatch, activeDeviceId } = useSpotifyContext();
 
     useEffect(() => {
         const s = new SpotifyWebApi();
         s.getMyDevices()
-            .then(data => setDevices(data.devices))
+            .then(data =>
+                dispatch({
+                    type: SpotifyReducerActionType.setDevices,
+                    payload: data.devices
+                })
+            )
             .catch(e => console.error(e));
-    }, [setDevices]);
+    }, [dispatch]);
 
     const isActiveDevice = (id: SpotifyApi.UserDevice['id']) => {
         return id === activeDeviceId;
     };
 
     const setActiveDeviceHandler = (id: SpotifyApi.UserDevice['id']) => {
+        if (!id) return;
         const s = new SpotifyWebApi();
         s.transferMyPlayback([id])
-            .then(() => setActiveDevice(id))
+            .then(() =>
+                dispatch({
+                    type: SpotifyReducerActionType.setActiveDevice,
+                    payload: id
+                })
+            )
             .catch(e => console.error('Could not transfer playback', e));
     };
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 import { Formik, Field, Form, FieldProps } from 'formik';
@@ -46,7 +46,7 @@ const AnonymousCheckbox = (props: CheckboxWithLabelProps) => {
             setFieldValue(name, checked);
 
             if (checked) {
-                setErrors({ ...errors, name: null, password: null });
+                setErrors({ ...errors, name: '', password: '' });
             }
         },
         [errors, name, setErrors, setFieldValue]
@@ -62,16 +62,16 @@ const AnonymousCheckbox = (props: CheckboxWithLabelProps) => {
     );
 };
 
-const userValidationSchema = Yup.object<LoginFormValues>({
+const userValidationSchema: Yup.SchemaOf<LoginFormValues> = Yup.object({
     name: Yup.string().required('Required'),
     password: Yup.string().required('Required'),
-    anonymous: Yup.boolean().optional()
+    anonymous: Yup.boolean().optional().default(false)
 });
 
-const anonValidationSchema = Yup.object<LoginFormValues>({
-    name: Yup.string().optional(),
-    password: Yup.string().optional(),
-    anonymous: Yup.boolean().optional()
+const anonValidationSchema: Yup.SchemaOf<LoginFormValues> = Yup.object({
+    name: Yup.string().optional().default(''),
+    password: Yup.string().optional().default(''),
+    anonymous: Yup.boolean().optional().default(false)
 });
 
 const getValidationSchema = () =>

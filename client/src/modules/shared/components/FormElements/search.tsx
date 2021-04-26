@@ -11,9 +11,9 @@ interface Props {
 }
 
 interface SearchListPosition {
-    left: number;
-    top: number;
-    width: number;
+    left: number | undefined;
+    top: number | undefined;
+    width: number | undefined;
 }
 
 const Search: React.FC<Props> = ({
@@ -24,28 +24,33 @@ const Search: React.FC<Props> = ({
     onClear
 }) => {
     const changeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        onChange(event.target.value);
+        if (onChange) onChange(event.target.value);
     };
 
     const searchBarContainerRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
 
-    const [searchListPosition, setSearchListPosition] = useState<
-        SearchListPosition
-    >({ left: null, top: null, width: null });
+    const [
+        searchListPosition,
+        setSearchListPosition
+    ] = useState<SearchListPosition>({
+        left: undefined,
+        top: undefined,
+        width: undefined
+    });
     const [showResults, setShowResults] = useState<boolean>(false);
 
     useEffect(() => {
         if (showResults) {
-            const searchBarRect = searchBarContainerRef.current.getBoundingClientRect();
+            const searchBarRect = searchBarContainerRef.current?.getBoundingClientRect();
             if (
-                searchListPosition.left !== searchBarRect.left ||
-                searchListPosition.top !== searchBarRect.top
+                searchListPosition.left !== searchBarRect?.left ||
+                searchListPosition.top !== searchBarRect?.top
             ) {
                 setSearchListPosition({
-                    left: searchBarRect.left,
-                    top: searchBarRect.top,
-                    width: searchBarRect.width
+                    left: searchBarRect?.left,
+                    top: searchBarRect?.top,
+                    width: searchBarRect?.width
                 });
             }
         }
@@ -109,8 +114,8 @@ const Search: React.FC<Props> = ({
                 {searchTerm && (
                     <SearchClearIcon
                         onClick={() => {
-                            searchInputRef.current.focus();
-                            onClear();
+                            searchInputRef.current?.focus();
+                            if (onClear) onClear();
                         }}
                     >
                         <FontAwesomeIcon icon={'times'} />
@@ -119,9 +124,9 @@ const Search: React.FC<Props> = ({
             </SearchInputContainer>
             {searchResults && showResults && (
                 <SearchList
-                    positionLeft={searchListPosition.left}
-                    positionTop={searchListPosition.top}
-                    width={searchListPosition.width}
+                    positionLeft={searchListPosition?.left}
+                    positionTop={searchListPosition?.top}
+                    width={searchListPosition?.width}
                 >
                     {searchResults}
                 </SearchList>
@@ -161,9 +166,9 @@ const SearchBarContainer = styled.div`
 `;
 
 interface SearchListProps {
-    positionLeft: number;
-    positionTop: number;
-    width: number;
+    positionLeft: number | undefined;
+    positionTop: number | undefined;
+    width: number | undefined;
 }
 
 const SearchList = styled.div<SearchListProps>`
@@ -171,7 +176,7 @@ const SearchList = styled.div<SearchListProps>`
     flex: 1 1;
     position: fixed;
     left: ${props => props.positionLeft}px;
-    top: ${props => props.positionTop + parseInt(searchInputHeight)}px;
+    top: ${props => (props.positionTop ?? 0) + parseInt(searchInputHeight)}px;
     flex-direction: column;
     justify-content: center;
     width: ${props => props.width}px;
@@ -205,7 +210,7 @@ Search.defaultProps = {
     placeholder: 'Search',
     searchTerm: '',
     onChange: () => null,
-    searchResults: null
+    searchResults: undefined
 };
 
 export default Search;

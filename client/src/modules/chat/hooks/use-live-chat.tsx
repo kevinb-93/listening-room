@@ -161,7 +161,7 @@ const useLiveChat = () => {
             );
 
             if (status === 201) {
-                socket.emit('add_message', {
+                socket?.emit('add_message', {
                     data,
                     roomId: user.party
                 });
@@ -187,7 +187,7 @@ const useLiveChat = () => {
                 );
 
                 if (status === 200) {
-                    socket.emit('delete_message', {
+                    socket?.emit('delete_message', {
                         data,
                         roomId: user.party
                     });

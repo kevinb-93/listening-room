@@ -8,7 +8,6 @@ import { useApiRequest } from '../../shared/hooks/use-api-request';
 import { useUserIdentityContext } from '../../user/contexts/identity';
 import { CreatePartySubmit } from '../components/party.form-create';
 import { JoinPartySubmit } from '../components/party.form-join';
-import { usePartyContext } from '../context';
 import LoginForm, {
     LoginFormValues,
     LoginSubmit
@@ -22,7 +21,7 @@ const TransitionUp = (props: TransitionProps) => (
 
 const PartyAuth: React.FC = () => {
     const { dispatch } = useUserIdentityContext();
-    const { createParty, createPartyUser } = usePartyContext();
+    // const { createParty, createPartyUser } = usePartyContext();
 
     const { sendRequest, error, clearError } = useApiRequest();
     const {
@@ -35,53 +34,53 @@ const PartyAuth: React.FC = () => {
         document.title = 'Get the party started!';
     }, []);
 
-    const createPartySubmitHandler: CreatePartySubmit = useCallback(
-        async data => {
-            try {
-                const response = await sendRequest(`party/create`, {
-                    data,
-                    method: 'POST'
-                });
-                dispatch({
-                    type: IdentityReducerActionType.userLogin,
-                    payload: { userToken: response.data.accessToken }
-                });
-                createParty({
-                    partyId: response.data.partyId,
-                    userIds: [response.data.userId],
-                    hostId: response.data.userId
-                });
-            } catch (e) {
-                throw new Error(e);
-            }
-        },
-        [createParty, dispatch, sendRequest]
-    );
+    // const createPartySubmitHandler: CreatePartySubmit = useCallback(
+    //     async data => {
+    //         try {
+    //             const response = await sendRequest(`party/create`, {
+    //                 data,
+    //                 method: 'POST'
+    //             });
+    //             dispatch({
+    //                 type: IdentityReducerActionType.userLogin,
+    //                 payload: { userToken: response.data.accessToken }
+    //             });
+    //             createParty({
+    //                 partyId: response.data.partyId,
+    //                 userIds: [response.data.userId],
+    //                 hostId: response.data.userId
+    //             });
+    //         } catch (e) {
+    //             throw new Error(e);
+    //         }
+    //     },
+    //     [createParty, dispatch, sendRequest]
+    // );
 
-    const joinPartySubmitHandler: JoinPartySubmit = useCallback(
-        async data => {
-            try {
-                const response = await sendRequest(
-                    `party/join/${data.partyCode}`,
-                    {
-                        method: 'POST',
-                        data: {
-                            partyId: data.partyCode
-                            // TODO: user id
-                        }
-                    }
-                );
-                dispatch({
-                    type: IdentityReducerActionType.userLogin,
-                    payload: { userToken: response.data.accessToken }
-                });
-                createPartyUser(response.data.userId, response.data.partyId);
-            } catch (e) {
-                throw new Error(e);
-            }
-        },
-        [createPartyUser, dispatch, sendRequest]
-    );
+    // const joinPartySubmitHandler: JoinPartySubmit = useCallback(
+    //     async data => {
+    //         try {
+    //             const response = await sendRequest(
+    //                 `party/join/${data.partyCode}`,
+    //                 {
+    //                     method: 'POST',
+    //                     data: {
+    //                         partyId: data.partyCode
+    //                         // TODO: user id
+    //                     }
+    //                 }
+    //             );
+    //             dispatch({
+    //                 type: IdentityReducerActionType.userLogin,
+    //                 payload: { userToken: response.data.accessToken }
+    //             });
+    //             createPartyUser(response.data.userId, response.data.partyId);
+    //         } catch (e) {
+    //             throw new Error(e);
+    //         }
+    //     },
+    //     [createPartyUser, dispatch, sendRequest]
+    // );
 
     const loginAnon = async () => {
         return await sendLoginRequest(`user/register`, {

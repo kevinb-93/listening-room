@@ -8,7 +8,7 @@ export interface FormTabProps {
 
 const FormTab: React.FC<FormTabProps> = ({ active, onTabClick, children }) => {
     return (
-        <StyledTab onClick={onTabClick} active={active}>
+        <StyledTab onClick={onTabClick} active={Boolean(active)}>
             {children}
         </StyledTab>
     );

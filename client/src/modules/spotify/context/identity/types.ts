@@ -1,19 +1,19 @@
+import { SpotifyIdentityReducerAction } from './reducer/types';
+
 export interface SpotifyIdentityContextInterface
     extends SpotifyIdentityContextState {
-    spotifyLogin: (
+    loginSpotify: (
         token: SpotifyIdentityContextState['spotifyToken'],
         refreshToken: SpotifyIdentityContextState['spotifyRefreshToken'],
         expirationDate: Date
     ) => void;
-    spotifyLogout: () => void;
-    setRestoreState: (
-        state: SpotifyIdentityContextState['isRestoring']
-    ) => void;
+    logoutSpotify: () => void;
+    dispatch: React.Dispatch<SpotifyIdentityReducerAction>;
 }
 
 export interface SpotifyIdentityContextState {
     isRestoring: boolean;
     spotifyToken: string;
     spotifyRefreshToken: string;
-    spotifyExpirationDate: Date;
+    spotifyExpirationDate: Date | null;
 }

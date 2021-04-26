@@ -1,23 +1,27 @@
+import { ReducerAction } from 'types/react';
 import { SpotifyContextState } from '../types';
 
-export enum SpotifyReducerAction {
-    setQueue,
-    playTrack,
+export enum SpotifyReducerActionType {
     setDevices,
-    setActiveDevice,
-    setPlayback,
-    SetApi
+    setActiveDevice
 }
-
-export interface SpotifyReducerActionPayload<T> {
-    type: SpotifyReducerAction;
-    payload: T;
-}
-
 export interface SpotifyReducer {
-    (state: SpotifyContextState, payload: unknown): SpotifyContextState;
+    (
+        state: SpotifyContextState,
+        payload: SpotifyReducerActionPayload
+    ): SpotifyContextState;
 }
 
-export interface SpotifyReducerMap {
-    [key: string]: SpotifyReducer;
-}
+type SetActiveDevicePayload = SpotifyApi.UserDevice['id'];
+type SetDevicesPayload = SpotifyApi.UserDevice[];
+
+export type SpotifyReducerAction =
+    | ReducerAction<
+          SpotifyReducerActionType.setActiveDevice,
+          SetActiveDevicePayload
+      >
+    | ReducerAction<SpotifyReducerActionType.setDevices, SetDevicesPayload>;
+
+export type SpotifyReducerActionPayload =
+    | SetActiveDevicePayload
+    | SetDevicesPayload;

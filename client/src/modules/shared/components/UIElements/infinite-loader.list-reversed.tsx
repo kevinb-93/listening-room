@@ -27,6 +27,7 @@ export interface InfiniteLoaderListProps {
     batchSize?: number;
     onListScroll?: (isScrolledBottom: boolean) => void;
     list: ListItem[];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     loadNextPage: () => Promise<any>;
     setListRef?: (el: VirtualizedList) => void;
 }
@@ -44,11 +45,11 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
         loadNextPage,
         infiniteLoaderProps,
         virtualListProps,
-        setListRef,
-        batchSize,
+        setListRef = () => null,
+        batchSize = 50,
         onListScroll
     }) => {
-        const listIds = useRef([]);
+        const listIds = useRef<string[]>([]);
         const cache = useRef(
             new CellMeasurerCache({
                 fixedWidth: true,
@@ -56,7 +57,7 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                 keyMapper: rowIndex => listIds.current?.[rowIndex]
             })
         );
-        const infiniteLoaderRef = useRef<InfiniteLoader>();
+        const infiniteLoaderRef = useRef<InfiniteLoader>(null);
         const setListIds = useCallback(() => {
             listIds.current = list.map(l => l.id);
         }, [list]);
@@ -128,9 +129,9 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
 
         useEffect(() => {
             if (!isNextPageLoading) {
-                setTimeout(() => {
+                window.setTimeout(() => {
                     setAllowLoadMore(true);
-                }, [300]);
+                }, 300);
             }
         }, [isNextPageLoading]);
 
@@ -144,7 +145,7 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                 scrollHeightRef.current = scrollHeight;
                 const isScrolledBottom = scrollBottom === 0;
                 setShowScrollBottom(!isScrolledBottom);
-                onListScroll(isScrolledBottom);
+                if (onListScroll) onListScroll(isScrolledBottom);
 
                 if (!allowLoadMore) return;
 
@@ -177,8 +178,8 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                             {({ onRowsRendered, registerChild }) => (
                                 <VirtualizedList
                                     ref={el => {
-                                        listRef.current = el;
-                                        setListRef(el);
+                                        listRef.current = el ?? undefined;
+                                        if (el) setListRef(el);
                                         registerChild(el);
                                     }}
                                     onRowsRendered={onRowsRendered}
@@ -227,11 +228,6 @@ const StyledLoading = styled.div`
     align-items: center;
     height: 100%;
 `;
-
-InfiniteListReversed.defaultProps = {
-    setListRef: () => null,
-    batchSize: 50
-};
 
 const StyledScrollBottomButton = styled(IconButton)`
     background-color: blue;

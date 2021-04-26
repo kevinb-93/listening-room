@@ -26,7 +26,7 @@ interface JoinPartyFormProps {
     partyList?: Party[];
 }
 
-const validationSchema = Yup.object<JoinPartyFormValues>({
+const validationSchema: Yup.SchemaOf<JoinPartyFormValues> = Yup.object({
     partyCode: Yup.string().required('required')
 });
 

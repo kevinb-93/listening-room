@@ -15,7 +15,7 @@ const Queue: React.FC = () => {
     const { player, queue, playbackState } = useSpotifyPlayerContext();
 
     const resumePlayback = useCallback(() => {
-        if (!player || !playbackState.paused) {
+        if (!player || !playbackState?.paused) {
             return;
         }
 
@@ -27,7 +27,7 @@ const Queue: React.FC = () => {
             return;
         }
 
-        if (!playbackState.paused) {
+        if (!playbackState?.paused) {
             player.pause().then(() => console.log('paused!'));
         }
     }, [playbackState?.paused, player]);
@@ -38,7 +38,7 @@ const Queue: React.FC = () => {
         return (
             <Player
                 artWork={{
-                    src: current_track?.album?.images[0]?.url,
+                    src: current_track?.album?.images[0]?.url ?? '',
                     height: 200,
                     width: 200
                 }}
@@ -47,8 +47,8 @@ const Queue: React.FC = () => {
                     pauseHandler: pausePlayback,
                     isPlaying: !(playbackState?.paused ?? true)
                 }}
-                creatorName={current_track?.artists[0]?.name}
-                title={current_track?.name}
+                creatorName={current_track?.artists[0]?.name ?? ''}
+                title={current_track?.name ?? ''}
                 progress={{
                     elaspedTime: playbackState?.position ?? 0,
                     songDurationMs: playbackState?.duration ?? 0

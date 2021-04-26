@@ -38,7 +38,7 @@ const Auth: React.FC = () => {
     const joinPartyHandler: JoinPartySubmit = useCallback(
         async data => {
             try {
-                const res = await joinPartyRequest(`party/join`, {
+                await joinPartyRequest(`party/join`, {
                     method: 'POST',
                     data
                 });
@@ -51,7 +51,7 @@ const Auth: React.FC = () => {
     const createPartyHandler: CreatePartySubmit = useCallback(
         async data => {
             try {
-                const res = await createpartyRequest(`party/create`, {
+                await createpartyRequest(`party/create`, {
                     method: 'POST',
                     data
                 });
@@ -106,15 +106,9 @@ const Auth: React.FC = () => {
                 onExited={clearErrors}
                 autoHideDuration={6000}
             >
-                {Boolean(alertError) && (
-                    <Alert
-                        variant="filled"
-                        severity="error"
-                        onClose={clearErrors}
-                    >
-                        {alertError}
-                    </Alert>
-                )}
+                <Alert variant="filled" severity="error" onClose={clearErrors}>
+                    {alertError}
+                </Alert>
             </Snackbar>
             <Typography variant={'h4'}>Get the party started!</Typography>
             <TabbedForm tabbedForms={tabbedForms} />
