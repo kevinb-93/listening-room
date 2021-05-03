@@ -8,5 +8,7 @@ export const corsOptions: CorsOptions = {
         'Accept',
         'Authorization'
     ],
-    methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    credentials: true,
+    origin: 'https://qsong.com:3000'
 };

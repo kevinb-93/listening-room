@@ -30,6 +30,8 @@ export interface InfiniteLoaderListProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     loadNextPage: () => Promise<any>;
     setListRef?: (el: VirtualizedList) => void;
+    onRowVisible?: (index: number) => void;
+    unreadItems?: number;
 }
 
 interface InfiniteListReversedProps extends InfiniteLoaderListProps {
@@ -47,7 +49,9 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
         virtualListProps,
         setListRef = () => null,
         batchSize = 50,
-        onListScroll
+        onListScroll,
+        onRowVisible = () => null,
+        unreadItems = 0
     }) => {
         const listIds = useRef<string[]>([]);
         const cache = useRef(
@@ -77,7 +81,8 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
             index,
             style,
             key,
-            parent
+            parent,
+            isVisible
         }) => {
             const getRowItem = () => {
                 if (isNextPageLoading && index === 0) {
@@ -87,6 +92,8 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                         </StyledLoading>
                     );
                 }
+
+                if (isVisible) onRowVisible(index);
 
                 const listIndex = isNextPageLoading ? index - 1 : index;
                 const listItem = list[listIndex];
@@ -206,6 +213,7 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                                 color="secondary"
                                 fontSize="large"
                             />
+                            {unreadItems > 0 && unreadItems}
                         </StyledScrollBottomButton>
                     </StyledScrollBottomButtonContainer>
                 )}

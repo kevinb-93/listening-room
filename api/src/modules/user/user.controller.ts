@@ -110,10 +110,6 @@ export const refreshToken = async (
             );
             res.status(200).json(response);
         } catch (error) {
-            res.cookie('refreshToken', null, {
-                ...REFRESH_TOKEN_COOKIE_OPTIONS,
-                expires: new Date()
-            });
             return next(error);
         }
     } catch (e) {

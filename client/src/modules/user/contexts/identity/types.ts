@@ -3,7 +3,6 @@ import { IdentityReducerAction } from './reducer/types';
 
 export interface UserIdentityContextActions extends UserIdentityContextState {
     userLogout: () => void;
-    setRestoreState: (state: UserIdentityContextState['isRestoring']) => void;
 }
 
 export type UserIdentityContextInterface = UserIdentityContextState & {

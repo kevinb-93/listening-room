@@ -31,7 +31,7 @@ const Reducer: IdentityReducer = (state, action) => {
         case IdentityReducerActionType.restoreState: {
             return {
                 ...state,
-                isRestoring: action.payload.restoreState
+                isRestoring: action.payload
             };
         }
         default:

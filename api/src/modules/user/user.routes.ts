@@ -16,11 +16,7 @@ router.post('/login', [check(['name', 'password']).not().isEmpty()], login);
 
 router.post('/register', register);
 
-router.post(
-    '/refresh-token',
-    [check(['refreshToken']).not().isEmpty()],
-    refreshToken
-);
+router.post('/refresh-token', refreshToken);
 
 router.use(verifyAccessToken);
 

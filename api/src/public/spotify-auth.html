@@ -34,7 +34,7 @@
             }
             else {
                 if (access_token) {
-                    window.opener.postMessage(JSON.stringify({ access_token, refresh_token, expires_in}), "http://localhost:3000/login")
+                    window.opener.postMessage(JSON.stringify({ access_token, refresh_token, expires_in}), "https://qsong.com:3000/login")
                 }
             }
 

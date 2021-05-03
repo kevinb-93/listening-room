@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const fs = require('fs');
 
 module.exports = {
     entry: './src/app/index.tsx',
@@ -61,9 +62,15 @@ module.exports = {
         before: function (app, server) {
             server._watch('./src/**/*.html');
         },
+        host: 'qsong.com',
         contentBase: path.join(__dirname, '/../src'),
         historyApiFallback: true,
+        allowedHosts: ['.qsong.com'],
         hot: true,
+        https: {
+            key: fs.readFileSync('C:/Windows/System32/qsong.com-key.pem'),
+            cert: fs.readFileSync('C:/Windows/System32/qsong.com.pem')
+        },
         compress: true,
         port: 3000
     },

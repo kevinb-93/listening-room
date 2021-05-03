@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import path from 'path';
 import http from 'http';
+import https from 'https';
 
 import spotifyRoutes from './modules/spotify/spotify.routes';
 import partiesRoutes from './modules/party/party.routes';
@@ -16,6 +17,12 @@ import { errorHandler } from './shared/middleware/error';
 import { notFound } from './shared/middleware/not-found';
 import { corsOptions } from './shared/config/cors';
 import { initIO } from './shared/utils/socket';
+import fs from 'fs';
+
+const privateKey = fs.readFileSync('C:/Windows/System32/qsong.com-key.pem');
+const cert = fs.readFileSync('C:/Windows/System32/qsong.com.pem');
+
+const serverOptions: https.ServerOptions = { key: privateKey, cert };
 
 // initialize express app
 const app = express();
@@ -48,7 +55,7 @@ mongoose
         useFindAndModify: false
     })
     .then(() => {
-        const server = http.createServer(app);
+        const server = https.createServer(serverOptions, app);
         const io = initIO(server);
 
         io.on('connection', socket => {

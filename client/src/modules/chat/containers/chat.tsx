@@ -27,7 +27,7 @@ import ChatMessageListItem, {
 } from '../components/chat.message-list-item';
 import format from 'date-fns/format';
 import { List } from 'react-virtualized';
-import { filter, findLast, first, forEach, groupBy } from 'lodash';
+import { debounce, filter, findLast, first, forEach, groupBy } from 'lodash';
 import { useUserProfileContext } from '../../user/contexts/profile';
 import { UserRole } from '../../user/contexts/profile/types';
 
@@ -76,6 +76,8 @@ const Chat: React.FC = () => {
     const oldestMessageIdRef = useRef<string>();
     const fetchMessagesCounterRef = useRef<number>(0);
     const latestMessageIdRef = useRef<string>();
+    const latestReadMessageRef = useRef<MessageData>();
+    const [unreadMessages, setUnreadMessages] = useState<MessageData[]>();
     const deleteMessageIdRef = useRef<string>();
     const isScrolledBottomRef = useRef<boolean>();
 
@@ -306,6 +308,21 @@ const Chat: React.FC = () => {
         [chatMessages]
     );
 
+    useEffect(
+        function setUnreadMessagesEffect() {
+            if (!latestReadMessageRef.current) return;
+
+            const lastReadTimestamp = latestReadMessageRef.current.timestamp;
+
+            const unreadMessages = chatMessages.filter(
+                m => m.timestamp > lastReadTimestamp
+            );
+
+            setUnreadMessages(unreadMessages);
+        },
+        [chatMessages]
+    );
+
     const loadNextChatPage = useCallback(
         () => getChatMessages(chatMessages[0]?.timestamp),
         [chatMessages, getChatMessages]
@@ -321,6 +338,28 @@ const Chat: React.FC = () => {
     const onListScroll = (isScrolledBottom: boolean) => {
         isScrolledBottomRef.current = isScrolledBottom;
     };
+
+    const rowVisibleHandler = debounce((index: number) => {
+        const listItem = chatListItems[index];
+        if (!listItem) return;
+
+        if (listItem.itemType !== ChatListItemType.Message) return;
+        if (!listItem.data) return;
+
+        const latestReadTimestamp = latestReadMessageRef.current?.timestamp;
+
+        if (
+            !latestReadTimestamp ||
+            listItem.data.timestamp > latestReadTimestamp
+        ) {
+            latestReadMessageRef.current = listItem.data;
+            const newUnreadMessages = unreadMessages?.filter(
+                m => m.timestamp > listItem.data.timestamp
+            );
+            setUnreadMessages(newUnreadMessages);
+            console.log(index);
+        }
+    }, 150);
 
     return (
         <StyledContainer square component="section">
@@ -356,6 +395,8 @@ const Chat: React.FC = () => {
                     setListRef={el => {
                         listRef.current = el;
                     }}
+                    onRowVisible={rowVisibleHandler}
+                    unreadItems={unreadMessages?.length}
                 />
             </StyledInfiniteListContainer>
             <StyledChatBox>

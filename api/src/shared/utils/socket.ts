@@ -6,7 +6,7 @@ let io: socketio.Server;
 export const initIO = (httpServer: http.Server) => {
     io = new socketio.Server(httpServer, {
         cors: {
-            origin: 'http://localhost:3000'
+            origin: 'https://qsong.com:3000'
         }
     });
     return io;

@@ -8,7 +8,7 @@ import {
 
 type RequestConfig = Record<string, unknown>;
 
-export const baseUrl = 'http://localhost:5000';
+export const baseUrl = 'https://qsong.com:5000';
 const refreshTokenUrl = `${baseUrl}/api/user/refresh-token`;
 
 const api = axios.create({
@@ -35,13 +35,20 @@ api.interceptors.request.use(
     }
 );
 
-const isRefreshTokenRequest = (requestConfig: RequestConfig) => {
+export const isRefreshTokenRequest = (
+    requestConfig: RequestConfig | AxiosRequestConfig
+) => {
     return requestConfig.url === refreshTokenUrl;
 };
 
 const refreshToken = (requestConfig: RequestConfig) => {
     requestConfig._retry = true;
-    return api.post(refreshTokenUrl).then(res => {
+
+    return api({
+        url: refreshTokenUrl,
+        withCredentials: true,
+        method: 'POST'
+    }).then(res => {
         if (res.status === 200) {
             setLocalStorage(LocalStorageItemNames.User, {
                 userToken: res.data.accessToken

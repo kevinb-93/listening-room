@@ -37,7 +37,7 @@
         "request": "launch",
         "name": "Chrome",
         "userDataDir": "${workspaceFolder}/.vscode/vscode-chrome-debug-userdatadir",
-        "url": "http://localhost:3000",
+        "url": "https://qsong.com:3000",
         "webRoot": "${workspaceFolder}/client"
     }
     ],

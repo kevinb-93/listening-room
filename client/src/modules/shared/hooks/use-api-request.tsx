@@ -1,11 +1,17 @@
-import { useState, useCallback } from 'react';
-import { AxiosRequestConfig } from 'axios';
+import { useState, useCallback, useEffect } from 'react';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 
-import axios from '../config/api';
+import axios, { isRefreshTokenRequest } from '../config/api';
+import { useUserIdentityContext } from '../../../modules/user/contexts/identity';
+import { IdentityReducerActionType } from '../../../modules/user/contexts/identity/reducer/types';
+
+const isAxiosError = (error: AxiosError | unknown): error is AxiosError =>
+    (error as AxiosError)?.isAxiosError;
 
 export const useApiRequest = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState<AxiosError>();
+    const { dispatch } = useUserIdentityContext();
 
     // const activeHttpRequests = useRef([]);
 
@@ -39,8 +45,8 @@ export const useApiRequest = () => {
                 setIsLoading(false);
                 return response;
             } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message);
+                if (isAxiosError(err)) {
+                    setError(err);
                 }
 
                 setIsLoading(false);
@@ -51,8 +57,21 @@ export const useApiRequest = () => {
     );
 
     const clearError = () => {
-        setError('');
+        setError(undefined);
     };
+
+    useEffect(
+        function refreshTokenErrorEffect() {
+            if (!isAxiosError(error)) return;
+            if (!isRefreshTokenRequest(error.config)) return;
+
+            dispatch({
+                type: IdentityReducerActionType.userLogout,
+                payload: null
+            });
+        },
+        [dispatch, error]
+    );
 
     // useEffect(() => {
     //     return () => {
@@ -62,5 +81,5 @@ export const useApiRequest = () => {
     //     };
     // }, []);
 
-    return { isLoading, error, sendRequest, clearError };
+    return { isLoading, error: error?.message ?? '', sendRequest, clearError };
 };

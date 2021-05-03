@@ -92,7 +92,8 @@ const PartyAuth: React.FC = () => {
     const loginUser = async ({ name, password }: LoginFormValues) => {
         return await sendLoginRequest(`user/login`, {
             method: 'POST',
-            data: { name, password }
+            data: { name, password },
+            withCredentials: true
         });
     };
 

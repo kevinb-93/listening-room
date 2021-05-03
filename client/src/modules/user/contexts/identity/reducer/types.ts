@@ -4,9 +4,7 @@ import { ReducerAction } from '../../../../../types/react';
 interface LoginPayload {
     userToken: UserIdentityContextState['userToken'];
 }
-interface RestoreStatePayload {
-    restoreState: UserIdentityContextState['isRestoring'];
-}
+type RestoreStatePayload = UserIdentityContextState['isRestoring'];
 
 export enum IdentityReducerActionType {
     userLogin,

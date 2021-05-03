@@ -9,7 +9,7 @@ const SpotifyAuthButton: React.FC = () => {
     const { loginSpotify, spotifyToken } = useSpotifyIdentityContext();
 
     const spotifyAuthHandler = () => {
-        const url = `http://localhost:5000/api/spotify/login`;
+        const url = `https://qsong.com:5000/api/spotify/login`;
         const width = 450,
             height = 730,
             left = screen.width / 2 - width / 2,
@@ -31,7 +31,7 @@ const SpotifyAuthButton: React.FC = () => {
         window.addEventListener(
             'message',
             event => {
-                if (event.origin !== 'http://localhost:5000') {
+                if (event.origin !== 'https://qsong.com:5000') {
                     return;
                 }
 

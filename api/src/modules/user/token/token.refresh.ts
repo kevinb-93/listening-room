@@ -7,7 +7,9 @@ const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 export const REFRESH_TOKEN_COOKIE_OPTIONS: CookieOptions = {
     httpOnly: true,
     expires,
-    path: '/api/user/refresh-token'
+    path: '/api/user/refresh-token',
+    sameSite: 'none',
+    secure: true
 };
 
 export interface SignedPayload {

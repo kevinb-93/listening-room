@@ -6,19 +6,33 @@ import {
     getLocalStorage,
     LocalStorageItemNames
 } from '../../../shared/utils/local-storage';
-import useActions from './useActions';
 import { IdentityReducerActionType } from './reducer/types';
+import { baseUrl } from '../../../../modules/shared/config/api';
+import { useApiRequest } from '../../../../modules/shared/hooks/use-api-request';
 
 export const Provider: React.FC = ({ children }) => {
     const [state, dispatch] = __useUserIdentityReducer();
+    const { sendRequest: sendLogoutRequest } = useApiRequest();
 
-    const { userLogout, setRestoreState } = useActions(state, dispatch);
+    const userLogout = useCallback(async () => {
+        try {
+            await sendLogoutRequest(`${baseUrl}/api/user/logout`, {
+                method: 'DELETE'
+            });
+        } catch (e) {
+            console.error(e);
+        } finally {
+            dispatch({
+                type: IdentityReducerActionType.userLogout,
+                payload: null
+            });
+        }
+    }, [dispatch, sendLogoutRequest]);
 
     const value: UserIdentityContextInterface = {
         ...state,
         dispatch,
-        userLogout,
-        setRestoreState
+        userLogout
     };
 
     const restoreUserToken = useCallback(async () => {
@@ -27,7 +41,10 @@ export const Provider: React.FC = ({ children }) => {
                 getLocalStorage(LocalStorageItemNames.User) || {};
 
             if (!userToken) {
-                return setRestoreState(false);
+                return dispatch({
+                    type: IdentityReducerActionType.restoreState,
+                    payload: false
+                });
             }
 
             dispatch({
@@ -35,9 +52,12 @@ export const Provider: React.FC = ({ children }) => {
                 payload: { userToken }
             });
         } catch (e) {
-            setRestoreState(false);
+            dispatch({
+                type: IdentityReducerActionType.restoreState,
+                payload: false
+            });
         }
-    }, [dispatch, setRestoreState]);
+    }, [dispatch]);
 
     useEffect(() => {
         restoreUserToken();
