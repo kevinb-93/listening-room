@@ -59,6 +59,11 @@ export const theme = createMuiTheme({
             root: {
                 color: 'rgb(107, 119, 140)'
             }
+        },
+        MuiPaper: {
+            rounded: {
+                borderRadius: '16px'
+            }
         }
         // MuiInputLabel: {
         //     root: {

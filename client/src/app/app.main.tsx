@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import Settings from '../modules/settings/pages/settings';
 import Queue from '../modules/queue/container/queue';
-import NavBar from '../modules/navigation/components/nav.bar';
+import Header from './app.header';
 import GlobalStyle from '../modules/shared/styles/global';
 import { useUserIdentityContext } from '../modules/user/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/nav.private-route';
@@ -18,10 +18,12 @@ import { io } from 'socket.io-client';
 import { WebSocketReducerActionType } from '../modules/shared/contexts/websocket/reducer/types';
 import { baseUrl } from '../modules/shared/config/api';
 import UserRegister from '../modules/user/containers/user.register';
+import { useSpotifyIdentityContext } from '../modules/spotify/context/identity';
 
 const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
     const { isLoggedIn } = useAppIdentity();
+    const { spotifyToken } = useSpotifyIdentityContext();
     const { user } = useUserProfileContext();
     const { socket, dispatch } = useWebSocketContext();
 
@@ -65,11 +67,9 @@ const Main: React.FC = () => {
         <BrowserRouter>
             <GlobalStyle />
             {isLoggedIn && (
-                <StyledNavBar>
-                    <NavMenu>
-                        <SpotifySearch />
-                    </NavMenu>
-                </StyledNavBar>
+                <StyledHeader>
+                    <NavMenu>{spotifyToken ? <SpotifySearch /> : null}</NavMenu>
+                </StyledHeader>
             )}
             <Switch>
                 <PrivateRoute path="/settings">
@@ -89,7 +89,7 @@ const Main: React.FC = () => {
     );
 };
 
-const StyledNavBar = styled(NavBar)`
+const StyledHeader = styled(Header)`
     grid-area: header;
 `;
 
