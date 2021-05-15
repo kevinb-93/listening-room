@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
-import { Formik, Field, Form } from 'formik';
+import { Formik, Field, Form, FormikHelpers } from 'formik';
 import { TextField } from 'formik-material-ui';
-
-import Button from '../../shared/components/FormElements/Button';
+import { Button } from '@material-ui/core';
 
 interface RegisterFormValues {
     name: string;
@@ -20,38 +19,30 @@ interface RegisterFormProps {
     submitDisabled?: boolean;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({
-    onSubmit,
-    submitDisabled
-}) => {
+const initialValues: RegisterFormValues = { name: '', password: '' };
+
+const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit }) => {
     const validationSchema: Yup.SchemaOf<RegisterFormValues> = Yup.object({
         name: Yup.string().required('Required'),
         password: Yup.string().required('Required')
     });
 
-    const canSubmit = useCallback(() => {
-        if (!submitDisabled) {
-            return false;
-        } else {
-            return !submitDisabled;
-        }
-    }, [submitDisabled]);
-
-    const [submitEnabled, setSubmitEnabled] = useState<boolean>(canSubmit());
-
-    useEffect(() => {
-        setSubmitEnabled(canSubmit());
-    }, [canSubmit]);
-
-    const initialValues: RegisterFormValues = { name: '', password: '' };
+    const onSubmitHandler = async (
+        values: RegisterFormValues,
+        { setSubmitting }: FormikHelpers<RegisterFormValues>
+    ) => {
+        await onSubmit(values);
+        setSubmitting(false);
+    };
 
     return (
         <Formik
             initialValues={initialValues}
-            onSubmit={onSubmit}
+            onSubmit={onSubmitHandler}
+            validateOnBlur={false}
             validationSchema={validationSchema}
         >
-            {() => (
+            {({ isValid, dirty, isSubmitting }) => (
                 <StyledForm>
                     <StyledFormInputSection>
                         <Field
@@ -70,14 +61,18 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                             component={TextField}
                         />
                     </StyledFormInputSection>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        variant="contained"
-                        disabled={!submitEnabled}
-                    >
-                        Register
-                    </Button>
+                    <StyledSubmitSection>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            variant="contained"
+                            size="large"
+                            fullWidth
+                            disabled={!(isValid && dirty) || isSubmitting}
+                        >
+                            Create Account
+                        </Button>
+                    </StyledSubmitSection>
                 </StyledForm>
             )}
         </Formik>
@@ -97,7 +92,11 @@ const StyledFormInputSection = styled.div`
     align-items: stretch;
     flex-direction: column;
     justify-content: center;
-    padding: 8px;
+`;
+
+const StyledSubmitSection = styled.div`
+    margin-top: ${props => props.theme.spacing(2)}px;
+    margin-bottom: ${props => props.theme.spacing()}px;
 `;
 
 RegisterForm.defaultProps = {

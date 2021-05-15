@@ -17,12 +17,12 @@ export class UserService {
     static async authenticate(username: string, password: string) {
         const user = await User.findOne({ name: username });
         if (!user) {
-            throw new HttpError('No user found', 404);
+            throw new HttpError('Invalid username or password!', 401);
         }
 
         const isValidPassword = await isPasswordValid(password, user.password);
         if (!isValidPassword) {
-            throw new HttpError('Invalid password', 401);
+            throw new HttpError('Invalid username or password!', 401);
         }
 
         const session = await mongoose.startSession();
@@ -49,7 +49,7 @@ export class UserService {
         if (!isAnonymous) {
             const user = await User.findOne({ name: username });
             if (user) {
-                throw new HttpError('User already exists', 400);
+                throw new HttpError('Username already taken!', 409);
             }
 
             hashedPassword = await bcrypt.hash(password, 12);
@@ -87,13 +87,13 @@ export class UserService {
             token: refreshToken
         }).populate('user');
 
-        if (!existingRefreshToken) throw new HttpError('Token not found', 404);
+        if (!existingRefreshToken) throw new HttpError('Token not found!', 401);
 
         if (
             !existingRefreshToken?.isActive ||
             !(existingRefreshToken.user instanceof User)
         )
-            throw new HttpError('Invalid token', 422);
+            throw new HttpError('Invalid token!', 401);
 
         const newRefreshToken = new RefreshToken(
             existingRefreshToken.user,
@@ -132,7 +132,7 @@ export class UserService {
         const userDoc = await User.findById(userId);
 
         if (!userDoc) {
-            throw new HttpError('User not found', 401);
+            throw new HttpError('No user found!', 404);
         }
 
         return { userDoc };

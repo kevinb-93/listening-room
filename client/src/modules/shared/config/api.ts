@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import {
     setLocalStorage,
     LocalStorageItemNames,
@@ -6,7 +6,7 @@ import {
     removeLocalStorage
 } from '../utils/local-storage';
 
-type RequestConfig = Record<string, unknown>;
+type ApiRequestConfig = AxiosRequestConfig & { _retry?: boolean };
 
 export const baseUrl = 'https://qsong.com:5000';
 const refreshTokenUrl = `${baseUrl}/api/user/refresh-token`;
@@ -35,13 +35,11 @@ api.interceptors.request.use(
     }
 );
 
-export const isRefreshTokenRequest = (
-    requestConfig: RequestConfig | AxiosRequestConfig
-) => {
-    return requestConfig.url === refreshTokenUrl;
+export const isRefreshTokenUrl = (url = '') => {
+    return url === refreshTokenUrl;
 };
 
-const refreshToken = (requestConfig: RequestConfig) => {
+const refreshToken = (requestConfig: ApiRequestConfig) => {
     requestConfig._retry = true;
 
     return api({
@@ -59,32 +57,30 @@ const refreshToken = (requestConfig: RequestConfig) => {
 };
 
 interface CheckRefreshTokenParams {
-    status: number;
-    requestConfig: RequestConfig;
+    error: AxiosError;
+    requestConfig: ApiRequestConfig;
 }
 
 const shouldRefreshToken = ({
-    status,
+    error,
     requestConfig
 }: CheckRefreshTokenParams) =>
-    status === 401 &&
-    !isRefreshTokenRequest(requestConfig) &&
+    error.response?.status === 401 &&
+    !isRefreshTokenUrl(requestConfig.url) &&
+    error.response.data.code === 1 &&
     !requestConfig._retry;
 
-const errorInterceptor = (error: {
-    config: RequestConfig;
-    response: { status: number };
-}) => {
-    const originalRequest = error.config;
+const errorInterceptor = (error: unknown) => {
+    if (!axios.isAxiosError(error)) return Promise.reject(error);
 
     if (
         shouldRefreshToken({
-            status: error.response?.status,
-            requestConfig: originalRequest
+            error,
+            requestConfig: error.config
         })
     ) {
-        return refreshToken(originalRequest);
-    } else if (isRefreshTokenRequest(originalRequest)) {
+        return refreshToken(error.config);
+    } else if (isRefreshTokenUrl(error.config.url)) {
         removeLocalStorage(LocalStorageItemNames.User);
     }
 

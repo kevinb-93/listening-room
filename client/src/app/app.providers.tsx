@@ -9,25 +9,28 @@ import { SpotifyContextProvider } from '../modules/spotify/context/spotify';
 import SpotifyPlayerProvider from '../modules/spotify/context/player/provider';
 import { UserProfileContextProvider } from '../modules/user/contexts/profile';
 import { WebSocketContextProvider } from '../modules/shared/contexts/websocket';
+import { CssBaseline } from '@material-ui/core';
 
 export const Providers: React.FC = ({ children }) => {
     return (
         <StylesProvider injectFirst>
             <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
-                    <UserIdentityContextProvider>
-                        <SpotifyIdentityContextProvider>
-                            <UserProfileContextProvider>
-                                <WebSocketContextProvider>
-                                    <SpotifyContextProvider>
-                                        <SpotifyPlayerProvider>
-                                            {children}
-                                        </SpotifyPlayerProvider>
-                                    </SpotifyContextProvider>
-                                </WebSocketContextProvider>
-                            </UserProfileContextProvider>
-                        </SpotifyIdentityContextProvider>
-                    </UserIdentityContextProvider>
+                    <CssBaseline>
+                        <UserIdentityContextProvider>
+                            <SpotifyIdentityContextProvider>
+                                <UserProfileContextProvider>
+                                    <WebSocketContextProvider>
+                                        <SpotifyContextProvider>
+                                            <SpotifyPlayerProvider>
+                                                {children}
+                                            </SpotifyPlayerProvider>
+                                        </SpotifyContextProvider>
+                                    </WebSocketContextProvider>
+                                </UserProfileContextProvider>
+                            </SpotifyIdentityContextProvider>
+                        </UserIdentityContextProvider>
+                    </CssBaseline>
                 </ThemeProvider>
             </MuiThemeProvider>
         </StylesProvider>

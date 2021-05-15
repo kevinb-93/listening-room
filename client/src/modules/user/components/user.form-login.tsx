@@ -1,16 +1,19 @@
 import React, { useCallback } from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
-import { Formik, Field, Form, FieldProps } from 'formik';
-import { TextField, Checkbox, FormControlLabel } from '@material-ui/core';
+import { Formik, Field, Form, FieldProps, FormikHelpers } from 'formik';
+import {
+    TextField,
+    Checkbox,
+    FormControlLabel,
+    Button
+} from '@material-ui/core';
 import {
     CheckboxWithLabelProps,
     fieldToCheckbox,
     fieldToTextField,
     TextFieldProps
 } from 'formik-material-ui';
-
-import Button from '../../shared/components/FormElements/Button';
 
 export interface LoginFormValues {
     name: string;
@@ -53,7 +56,7 @@ const AnonymousCheckbox = (props: CheckboxWithLabelProps) => {
     );
 
     return (
-        <FormControlLabel
+        <StyledFormControlLabel
             control={
                 <Checkbox {...fieldToCheckbox(props)} onChange={onChange} />
             }
@@ -79,21 +82,29 @@ const getValidationSchema = () =>
         return values.anonymous ? anonValidationSchema : userValidationSchema;
     });
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, submitDisabled }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     const initialValues: LoginFormValues = {
         name: '',
         password: '',
         anonymous: false
     };
 
+    const onSubmitHandler = async (
+        values: LoginFormValues,
+        { setSubmitting }: FormikHelpers<LoginFormValues>
+    ) => {
+        await onSubmit(values);
+        setSubmitting(false);
+    };
+
     return (
         <Formik
             initialValues={initialValues}
-            onSubmit={onSubmit}
+            onSubmit={onSubmitHandler}
             validateOnBlur={false}
             validationSchema={getValidationSchema}
         >
-            {() => (
+            {({ isValid, dirty, isSubmitting }) => (
                 <StyledForm>
                     <StyledFormInputSection>
                         <Field
@@ -117,14 +128,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, submitDisabled }) => {
                             name="anonymous"
                         />
                     </StyledFormInputSection>
-                    <Button
-                        type="submit"
-                        color="primary"
-                        variant="contained"
-                        disabled={submitDisabled}
-                    >
-                        Login
-                    </Button>
+                    <StyledSubmitSection>
+                        <Button
+                            type="submit"
+                            color="primary"
+                            variant="contained"
+                            size="large"
+                            fullWidth
+                            disabled={!(isValid && dirty) || isSubmitting}
+                        >
+                            Login
+                        </Button>
+                    </StyledSubmitSection>
                 </StyledForm>
             )}
         </Formik>
@@ -144,7 +159,16 @@ const StyledFormInputSection = styled.div`
     align-items: stretch;
     flex-direction: column;
     justify-content: center;
-    padding: 8px;
+`;
+
+const StyledSubmitSection = styled.div`
+    margin-top: ${props => props.theme.spacing(2)}px;
+    margin-bottom: ${props => props.theme.spacing()}px;
+`;
+
+const StyledFormControlLabel = styled(FormControlLabel)`
+    margin-top: ${props => props.theme.spacing(2)}px;
+    margin-bottom: ${props => props.theme.spacing()}px;
 `;
 
 LoginForm.defaultProps = {

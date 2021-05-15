@@ -5,19 +5,19 @@ import styled from 'styled-components';
 import Settings from '../modules/settings/pages/settings';
 import Queue from '../modules/queue/container/queue';
 import NavBar from '../modules/navigation/components/nav.bar';
-import NavLink from '../modules/navigation/components/nav.link';
 import GlobalStyle from '../modules/shared/styles/global';
 import { useUserIdentityContext } from '../modules/user/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/nav.private-route';
 import NavMenu from '../modules/navigation/components/nav.menu';
 import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
-import PartyAuth from '../modules/party/containers/party.auth';
+import UserLogin from '../modules/user/containers/user.login';
 import SpotifySearch from '../modules/spotify/containers/spotify.search-tracks';
 import { useWebSocketContext } from '../modules/shared/contexts/websocket';
 import { io } from 'socket.io-client';
 import { WebSocketReducerActionType } from '../modules/shared/contexts/websocket/reducer/types';
 import { baseUrl } from '../modules/shared/config/api';
+import UserRegister from '../modules/user/containers/user.register';
 
 const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
@@ -68,54 +68,29 @@ const Main: React.FC = () => {
                 <StyledNavBar>
                     <NavMenu>
                         <SpotifySearch />
-                        {/* <NavLink
-                            to="/queue"
-                            label={'Queue'}
-                            icon={'list-ol'}
-                            activePaths={['/', '/queue']}
-                        />
-                        <NavLink
-                            to="/settings"
-                            label={'Settings'}
-                            icon={'cog'}
-                        />
-                        <div id="partyId">{user?.party}</div> */}
                     </NavMenu>
                 </StyledNavBar>
             )}
-            <StyledMain useHeaderHeight={isLoggedIn}>
-                <Switch>
-                    <PrivateRoute path="/settings">
-                        <Settings />
-                    </PrivateRoute>
-                    <Route path="/auth">
-                        {isLoggedIn ? (
-                            <Redirect to={'/queue'} />
-                        ) : (
-                            <PartyAuth />
-                        )}
-                    </Route>
-                    {/* Fallback */}
-                    <PrivateRoute path="/">
-                        <Queue />
-                    </PrivateRoute>
-                </Switch>
-            </StyledMain>
+            <Switch>
+                <PrivateRoute path="/settings">
+                    <Settings />
+                </PrivateRoute>
+                <Route path="/register">
+                    {isLoggedIn ? <Redirect to={'/'} /> : <UserRegister />}
+                </Route>
+                <Route path="/login">
+                    {isLoggedIn ? <Redirect to={'/'} /> : <UserLogin />}
+                </Route>
+                <PrivateRoute path="/">
+                    <Queue />
+                </PrivateRoute>
+            </Switch>
         </BrowserRouter>
     );
 };
 
-interface StyledMain {
-    useHeaderHeight: boolean;
-}
-
 const StyledNavBar = styled(NavBar)`
     grid-area: header;
-`;
-
-const StyledMain = styled.main<StyledMain>`
-    grid-area: main;
-    overflow: hidden;
 `;
 
 export default Main;

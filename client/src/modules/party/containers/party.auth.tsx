@@ -1,5 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Snackbar, Slide } from '@material-ui/core';
+import React, {
+    MouseEventHandler,
+    useCallback,
+    useEffect,
+    useState
+} from 'react';
+import {
+    Snackbar,
+    Slide,
+    Paper,
+    CardContent,
+    Typography,
+    Card,
+    Container,
+    Divider,
+    Link
+} from '@material-ui/core';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { Alert } from '@material-ui/lab';
 import styled from 'styled-components';
@@ -130,44 +145,79 @@ const PartyAuth: React.FC = () => {
         setShowToastError(false);
     }, []);
 
+    const preventDefault: MouseEventHandler<HTMLAnchorElement> = event =>
+        event.preventDefault();
+
     return (
-        <StyledContainer>
-            <Snackbar
-                TransitionComponent={TransitionUp}
-                open={showToastError}
-                onClose={closeToastError}
-                onExited={clearError}
-                autoHideDuration={6000}
-            >
-                <Alert
-                    variant="filled"
-                    severity="error"
+        <StyledSection>
+            <StyledAuthContainer>
+                {/* <Snackbar
+                    TransitionComponent={TransitionUp}
+                    open={showToastError}
                     onClose={closeToastError}
+                    onExited={clearError}
+                    autoHideDuration={6000}
                 >
-                    {error}
-                </Alert>
-            </Snackbar>
-            <StyledFormContainer>
-                <LoginForm onSubmit={loginHandler} />
-            </StyledFormContainer>
-        </StyledContainer>
+                    <Alert
+                        variant="filled"
+                        severity="error"
+                        onClose={closeToastError}
+                    >
+                        {error}
+                    </Alert>
+                </Snackbar> */}
+                <Card>
+                    <StyledFormContent>
+                        <StyledFormHeader>
+                            <Typography variant="h4">Login</Typography>
+                        </StyledFormHeader>
+                        <LoginForm onSubmit={loginHandler} />
+                        {loginError ? (
+                            <StyledAlertSection>
+                                <Alert severity="error">
+                                    <b>{loginError}</b>
+                                </Alert>
+                            </StyledAlertSection>
+                        ) : null}
+                        <Divider />
+                        <StyledOtherActionsSection>
+                            <Link href="#" onClick={preventDefault}>
+                                Create new account
+                            </Link>
+                        </StyledOtherActionsSection>
+                    </StyledFormContent>
+                </Card>
+            </StyledAuthContainer>
+        </StyledSection>
     );
 };
 
-const StyledContainer = styled.section`
+const StyledSection = styled.section`
     display: flex;
     flex-direction: column;
-    height: 100%;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
+    min-height: 100vh;
 `;
 
-const StyledFormContainer = styled.div`
-    background-color: #fff;
-    padding: 32px;
-    border-radius: 32px;
-    max-width: 500px;
+const StyledAuthContainer = styled(Container)`
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 80px 16px;
+`;
+
+const StyledFormContent = styled(CardContent)`
+    padding: ${props => props.theme.spacing(4)}px;
+`;
+
+const StyledFormHeader = styled.div`
+    margin-bottom: ${props => props.theme.spacing(3)}px;
+`;
+
+const StyledAlertSection = styled.div`
+    margin-bottom: ${props => props.theme.spacing(3)}px;
+`;
+
+const StyledOtherActionsSection = styled.div`
+    margin-top: ${props => props.theme.spacing(3)}px;
 `;
 
 export default PartyAuth;
