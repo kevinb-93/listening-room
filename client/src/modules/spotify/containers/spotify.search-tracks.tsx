@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 import useSpotifySearch from '../hooks/useSpotifySearch';
 import SpotifyTrackList from './spotify.track-list';
+import Search from '../../shared/components/FormElements/Search';
 
 const SpotifySearch: React.FC = memo(() => {
     const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
