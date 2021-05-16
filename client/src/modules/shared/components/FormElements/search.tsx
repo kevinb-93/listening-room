@@ -169,6 +169,7 @@ const Search: React.FC<Props> = ({
                 value={searchTerm}
                 size="small"
                 fullWidth
+                spellCheck={false}
                 margin="none"
                 InputProps={{
                     startAdornment: (
