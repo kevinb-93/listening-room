@@ -64,11 +64,12 @@ export const theme = createMuiTheme({
             rounded: {
                 borderRadius: '16px'
             }
+        },
+        MuiOutlinedInput: {
+            root: {
+                borderRadius: '16px',
+                backgroundColor: 'rgb(255,255,255)'
+            }
         }
-        // MuiInputLabel: {
-        //     root: {
-        //         color: 'rgb(23, 43, 77)'
-        //     }
-        // }
     }
 });

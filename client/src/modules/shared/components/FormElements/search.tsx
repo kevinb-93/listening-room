@@ -1,13 +1,27 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, {
+    ChangeEvent,
+    useCallback,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
 import styled from 'styled-components';
+import {
+    IconButton,
+    InputAdornment,
+    Paper,
+    TextField
+} from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import ClearIcon from '@material-ui/icons/Clear';
+import debounce from 'lodash/debounce';
 
 interface Props {
     onChange?: (searchTerm: string) => void;
     onClear?: () => void;
     searchTerm?: HTMLInputElement['value'];
     placeholder?: HTMLInputElement['placeholder'];
-    searchResults?: JSX.Element;
+    searchListBoxComponent?: JSX.Element;
 }
 
 interface SearchListPosition {
@@ -16,201 +30,228 @@ interface SearchListPosition {
     width: number | undefined;
 }
 
+const defaultPopperWidth = 600;
+
 const Search: React.FC<Props> = ({
-    onChange,
+    onChange = () => null,
     searchTerm,
     placeholder,
-    searchResults,
-    onClear
+    searchListBoxComponent,
+    onClear = () => null
 }) => {
     const changeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-        if (onChange) onChange(event.target.value);
+        const inputValue = event.target.value;
+        onChange(inputValue);
     };
 
-    const searchBarContainerRef = useRef<HTMLDivElement>(null);
+    const searchContainerRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    const searchPopperRef = useRef<HTMLDivElement>(null);
 
-    const [
-        searchListPosition,
-        setSearchListPosition
-    ] = useState<SearchListPosition>({
-        left: undefined,
-        top: undefined,
-        width: undefined
-    });
+    const [searchListPosition, setSearchListPosition] =
+        useState<SearchListPosition>({
+            left: undefined,
+            top: undefined,
+            width: undefined
+        });
+
     const [showResults, setShowResults] = useState<boolean>(false);
 
-    useEffect(() => {
-        if (showResults) {
-            const searchBarRect = searchBarContainerRef.current?.getBoundingClientRect();
-            if (
-                searchListPosition.left !== searchBarRect?.left ||
-                searchListPosition.top !== searchBarRect?.top
-            ) {
-                setSearchListPosition({
-                    left: searchBarRect?.left,
-                    top: searchBarRect?.top,
-                    width: searchBarRect?.width
-                });
-            }
+    const handleSearchListPosition = useCallback(() => {
+        const searchBarRect =
+            searchContainerRef.current?.getBoundingClientRect();
+        const searchPopperRect =
+            searchPopperRef.current?.getBoundingClientRect();
+        if (!searchBarRect) return;
+
+        const searchContainerCenterPosition =
+            searchBarRect.left + searchBarRect.width / 2;
+
+        const popperWidth = searchPopperRect?.width ?? defaultPopperWidth;
+        let targetLeftPosition =
+            searchContainerCenterPosition - popperWidth / 2;
+
+        if (targetLeftPosition < 0) targetLeftPosition = 0;
+
+        if (
+            searchListPosition.left !== targetLeftPosition ||
+            searchListPosition.top !== searchBarRect.bottom
+        ) {
+            setSearchListPosition({
+                left: targetLeftPosition,
+                top: searchBarRect.bottom,
+                width: searchBarRect.width
+            });
         }
-    }, [searchListPosition, showResults]);
+    }, [searchListPosition.left, searchListPosition.top]);
+
+    useEffect(
+        function handleSearchListPositionEffect() {
+            if (showResults) handleSearchListPosition();
+        },
+        [handleSearchListPosition, showResults]
+    );
 
     useEffect(() => {
-        if (searchResults) {
-            setShowResults(true);
-        }
-    }, [searchResults]);
+        if (searchListBoxComponent) setShowResults(true);
+    }, [searchListBoxComponent]);
 
-    useEffect(() => {
-        /**
-         * Alert when clicked outside element
-         */
-        const clickOutsideHandler = (event: MouseEvent | UIEvent) => {
-            if (showResults) {
-                if (
-                    event instanceof MouseEvent &&
-                    searchBarContainerRef.current &&
-                    !searchBarContainerRef.current.contains(
-                        event.target as Node
-                    )
-                ) {
-                    setShowResults(false);
-                } else if (event.type === 'resize') {
-                    setShowResults(false);
+    useEffect(
+        function clickOutsideEffect() {
+            const clickOutsideHandler = (event: MouseEvent | UIEvent) => {
+                if (showResults) {
+                    if (
+                        event instanceof MouseEvent &&
+                        searchContainerRef.current &&
+                        !searchContainerRef.current.contains(
+                            event.target as Node
+                        )
+                    ) {
+                        setShowResults(false);
+                    } else if (event.type === 'resize') {
+                        setShowResults(false);
+                    }
                 }
-            }
-        };
+            };
 
-        document.addEventListener('mousedown', clickOutsideHandler);
-        window.addEventListener('resize', clickOutsideHandler);
+            const debouncedHandleSearchListPosition = debounce(
+                handleSearchListPosition,
+                300
+            );
+            const debouncedClickOutsideHandler = debounce(
+                clickOutsideHandler,
+                300,
+                { leading: true }
+            );
 
-        return () => {
-            document.removeEventListener('mousedown', clickOutsideHandler);
-            window.removeEventListener('resize', clickOutsideHandler);
-        };
-    }, [showResults]);
+            document.addEventListener('mousedown', clickOutsideHandler);
+            window.addEventListener('resize', debouncedClickOutsideHandler);
+            window.addEventListener(
+                'resize',
+                debouncedHandleSearchListPosition
+            );
+
+            return () => {
+                document.removeEventListener('mousedown', clickOutsideHandler);
+                window.removeEventListener(
+                    'resize',
+                    debouncedClickOutsideHandler
+                );
+                window.removeEventListener(
+                    'resize',
+                    debouncedHandleSearchListPosition
+                );
+            };
+        },
+        [showResults, handleSearchListPosition]
+    );
 
     const keyPressHandler = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === 'Enter') {
+        if (event.key === 'Enter' && searchListBoxComponent) {
             setShowResults(true);
         }
+    };
+
+    const focusInputHandler = () => {
+        if (searchListBoxComponent) setShowResults(true);
     };
 
     return (
-        <SearchBarContainer ref={searchBarContainerRef}>
-            <SearchInputContainer>
-                <SearchIcon onClick={() => setShowResults(true)}>
-                    <FontAwesomeIcon color="black" icon={'search'} />
-                </SearchIcon>
-                <SearchInput
-                    placeholder={placeholder}
-                    onChange={changeHandler}
-                    value={searchTerm}
-                    ref={searchInputRef}
-                    onKeyUp={keyPressHandler}
-                    onFocus={() => setShowResults(true)}
-                />
-                {searchTerm && (
-                    <SearchClearIcon
-                        onClick={() => {
-                            searchInputRef.current?.focus();
-                            if (onClear) onClear();
-                        }}
+        <StyledSearchContainer ref={searchContainerRef}>
+            <SearchInput
+                placeholder={placeholder}
+                variant="outlined"
+                onChange={changeHandler}
+                value={searchTerm}
+                size="small"
+                fullWidth
+                margin="none"
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <SearchIcon />
+                        </InputAdornment>
+                    ),
+                    endAdornment: (
+                        <StyledInputAdornment position="end">
+                            {searchTerm && (
+                                <IconButton
+                                    onClick={() => {
+                                        onClear();
+                                        searchInputRef.current?.focus();
+                                    }}
+                                >
+                                    <ClearIcon />
+                                </IconButton>
+                            )}
+                        </StyledInputAdornment>
+                    )
+                }}
+                inputRef={searchInputRef}
+                onKeyUp={keyPressHandler}
+                onFocus={focusInputHandler}
+            />
+            {Boolean(searchListBoxComponent) &&
+                showResults &&
+                searchListPosition?.top && (
+                    <StyledPopperContainer
+                        $positionleft={searchListPosition?.left}
+                        $positiontop={searchListPosition.top}
+                        $width={searchListPosition?.width}
+                        elevation={8}
+                        ref={searchPopperRef}
                     >
-                        <FontAwesomeIcon icon={'times'} />
-                    </SearchClearIcon>
+                        <StyledListboxContainer>
+                            {searchListBoxComponent}
+                        </StyledListboxContainer>
+                    </StyledPopperContainer>
                 )}
-            </SearchInputContainer>
-            {searchResults && showResults && (
-                <SearchList
-                    positionLeft={searchListPosition?.left}
-                    positionTop={searchListPosition?.top}
-                    width={searchListPosition?.width}
-                >
-                    {searchResults}
-                </SearchList>
-            )}
-        </SearchBarContainer>
+        </StyledSearchContainer>
     );
 };
 
-const searchIconWidth = '40px';
-const searchInputHeight = '32px';
+const SearchInput = styled(TextField)``;
 
-const SearchInputContainer = styled.div`
-    display: flex;
-    flex: 1 1;
-    position: relative;
-    justify-content: center;
-    align-items: center;
+const StyledSearchContainer = styled.div``;
+
+const StyledInputAdornment = styled(InputAdornment)`
+    width: 48px;
 `;
 
-const SearchInput = styled.input`
-    flex: 1 1;
-    height: ${searchInputHeight};
-    padding: 0px 0px 0px ${searchIconWidth};
-`;
-
-const SearchBarContainer = styled.div`
-    display: flex;
-    flex: 1;
-    position: relative;
-    justify-content: center;
-    align-items: center;
-    transition: ${props => props.theme.transitions.create('flex')};
-
-    ${SearchInput}:focus & {
-        flex: 1;
-    }
-`;
-
-interface SearchListProps {
-    positionLeft: number | undefined;
-    positionTop: number | undefined;
-    width: number | undefined;
+interface PopperProps {
+    $positionleft: number | undefined;
+    $positiontop: number | undefined;
+    $width: number | undefined;
 }
 
-const SearchList = styled.div<SearchListProps>`
+const StyledListboxContainer = styled.div`
+    overflow: auto;
+    max-height: calc(100vh - 100px);
     display: flex;
-    flex: 1 1;
-    position: fixed;
-    left: ${props => props.positionLeft}px;
-    top: ${props => (props.positionTop ?? 0) + parseInt(searchInputHeight)}px;
+    flex: 1;
+    color: inherit;
+    background-color: inherit;
     flex-direction: column;
-    justify-content: center;
-    width: ${props => props.width}px;
+`;
+
+const StyledPopperContainer = styled(Paper)<PopperProps>`
+    position: fixed;
+    width: 100%;
+    padding: ${props => props.theme.spacing()}px;
+    border-radius: ${props => props.theme.spacing(2)}px;
+    left: ${props => props.$positionleft}px;
+    top: ${props => props.$positiontop}px;
     color: black;
     background-color: white;
-`;
-
-const SearchIcon = styled.span`
-    display: flex;
-    width: ${searchIconWidth};
-    top: 0;
-    left: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-`;
-
-const SearchClearIcon = styled.span`
-    display: flex;
-    width: ${searchIconWidth};
-    top: 0;
-    right: 0;
-    bottom: 0;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
+    ${props => props.theme.breakpoints.up('md')} {
+        width: ${defaultPopperWidth}px;
+    }
 `;
 
 Search.defaultProps = {
     placeholder: 'Search',
     searchTerm: '',
-    onChange: () => null,
-    searchResults: undefined
+    onChange: () => null
 };
 
 export default Search;

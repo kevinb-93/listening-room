@@ -24,6 +24,7 @@ const SpotifySearch: React.FC = () => {
 
     const clearHandler = useCallback(() => {
         setSearchTerm('');
+        setTracks([]);
     }, [setSearchTerm]);
 
     return (
@@ -32,7 +33,11 @@ const SpotifySearch: React.FC = () => {
             onChange={changeHandler}
             searchTerm={searchTerm}
             onClear={clearHandler}
-            searchResults={<SpotifyTrackList tracks={tracks} />}
+            searchListBoxComponent={
+                tracks.length > 0 ? (
+                    <SpotifyTrackList tracks={tracks} />
+                ) : undefined
+            }
         />
     );
 };

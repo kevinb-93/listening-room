@@ -8,22 +8,18 @@ import Header from './app.header';
 import GlobalStyle from '../modules/shared/styles/global';
 import { useUserIdentityContext } from '../modules/user/contexts/identity';
 import PrivateRoute from '../modules/navigation/components/nav.private-route';
-import NavMenu from '../modules/navigation/components/nav.menu';
 import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
 import UserLogin from '../modules/user/containers/user.login';
-import SpotifySearch from '../modules/spotify/containers/spotify.search-tracks';
 import { useWebSocketContext } from '../modules/shared/contexts/websocket';
 import { io } from 'socket.io-client';
 import { WebSocketReducerActionType } from '../modules/shared/contexts/websocket/reducer/types';
 import { baseUrl } from '../modules/shared/config/api';
 import UserRegister from '../modules/user/containers/user.register';
-import { useSpotifyIdentityContext } from '../modules/spotify/context/identity';
 
 const Main: React.FC = () => {
     const { isRestoring } = useUserIdentityContext();
     const { isLoggedIn } = useAppIdentity();
-    const { spotifyToken } = useSpotifyIdentityContext();
     const { user } = useUserProfileContext();
     const { socket, dispatch } = useWebSocketContext();
 
@@ -68,7 +64,9 @@ const Main: React.FC = () => {
             <GlobalStyle />
             {isLoggedIn && (
                 <StyledHeader>
-                    <NavMenu>{spotifyToken ? <SpotifySearch /> : null}</NavMenu>
+                    {/* <NavMenu>
+                        {spotifyToken ? <StyledSpotifySearch /> : null}
+                    </NavMenu> */}
                 </StyledHeader>
             )}
             <Switch>

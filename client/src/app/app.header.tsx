@@ -14,9 +14,12 @@ import {
 import useAppIdentity from '../modules/shared/hooks/use-identity';
 import { useUserProfileContext } from '../modules/user/contexts/profile';
 import { getUserInitials } from '../modules/user/helpers/user.name-helpers';
+import { useSpotifyIdentityContext } from '../modules/spotify/context/identity';
+import SpotifySearch from '../modules/spotify/containers/spotify.search-tracks';
 
-const Header: React.FC = ({ children }) => {
+const Header: React.FC = () => {
     const { logout } = useAppIdentity();
+    const { spotifyToken } = useSpotifyIdentityContext();
     const { user } = useUserProfileContext();
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -33,7 +36,13 @@ const Header: React.FC = ({ children }) => {
     return (
         <StyledAppBar position="static" elevation={0}>
             <Toolbar>
-                <StyledToolbarMenu>{children}</StyledToolbarMenu>
+                <StyledToolbarMenu>
+                    {spotifyToken ? (
+                        <StyledSearchContainer>
+                            <SpotifySearch />
+                        </StyledSearchContainer>
+                    ) : null}
+                </StyledToolbarMenu>
                 <ButtonBase onClick={avatarClickHandler}>
                     <Avatar variant="circular">
                         {getUserInitials(user.name)}
@@ -42,7 +51,6 @@ const Header: React.FC = ({ children }) => {
                 <Popover
                     open={open}
                     anchorEl={anchorEl}
-                    anchorReference="anchorEl"
                     onClose={handleClosePopover}
                     anchorOrigin={{
                         vertical: 'bottom',
@@ -79,6 +87,9 @@ const Header: React.FC = ({ children }) => {
 
 const StyledToolbarMenu = styled.div`
     flex-grow: 1;
+    margin: 0 ${props => props.theme.spacing(2)}px;
+    display: flex;
+    justify-content: center;
 `;
 
 const StyledPaperHeader = styled.div`
@@ -96,6 +107,11 @@ const StyledPaper = styled(Paper)`
 const StyledAppBar = styled(AppBar)`
     z-index: 2;
     display: flex;
+`;
+
+const StyledSearchContainer = styled.div`
+    max-width: 500px;
+    min-width: 200px;
 `;
 
 export default Header;
