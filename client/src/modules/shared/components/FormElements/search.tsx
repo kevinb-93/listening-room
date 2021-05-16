@@ -48,20 +48,20 @@ const Search: React.FC<Props> = ({
     const searchInputRef = useRef<HTMLInputElement>(null);
     const searchPopperRef = useRef<HTMLDivElement>(null);
 
-    const [searchListPosition, setSearchListPosition] =
-        useState<SearchListPosition>({
-            left: undefined,
-            top: undefined,
-            width: undefined
-        });
+    const [
+        searchListPosition,
+        setSearchListPosition
+    ] = useState<SearchListPosition>({
+        left: undefined,
+        top: undefined,
+        width: undefined
+    });
 
     const [showResults, setShowResults] = useState<boolean>(false);
 
     const handleSearchListPosition = useCallback(() => {
-        const searchBarRect =
-            searchContainerRef.current?.getBoundingClientRect();
-        const searchPopperRect =
-            searchPopperRef.current?.getBoundingClientRect();
+        const searchBarRect = searchContainerRef.current?.getBoundingClientRect();
+        const searchPopperRect = searchPopperRef.current?.getBoundingClientRect();
         if (!searchBarRect) return;
 
         const searchContainerCenterPosition =
@@ -93,6 +93,7 @@ const Search: React.FC<Props> = ({
     );
 
     useEffect(() => {
+        console.log('show results');
         if (searchListBoxComponent) setShowResults(true);
     }, [searchListBoxComponent]);
 
@@ -153,8 +154,11 @@ const Search: React.FC<Props> = ({
     };
 
     const focusInputHandler = () => {
+        console.log('focus');
         if (searchListBoxComponent) setShowResults(true);
     };
+
+    console.log('render');
 
     return (
         <StyledSearchContainer ref={searchContainerRef}>

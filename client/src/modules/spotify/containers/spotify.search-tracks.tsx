@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import useSpotifySearch from '../hooks/useSpotifySearch';
-import Search from '../../shared/components/FormElements/search';
+import Search from '../../shared/components/FormElements/Search';
 import SpotifyTrackList from './spotify.track-list';
 
-const SpotifySearch: React.FC = () => {
+const SpotifySearch: React.FC = memo(() => {
     const { setSearchTerm, searchResults, searchTerm } = useSpotifySearch();
     const [tracks, setTracks] = useState<SpotifyApi.TrackObjectFull[]>([]);
 
@@ -40,6 +40,8 @@ const SpotifySearch: React.FC = () => {
             }
         />
     );
-};
+});
+
+SpotifySearch.displayName = 'SpotifySearch';
 
 export default SpotifySearch;
