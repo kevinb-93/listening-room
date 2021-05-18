@@ -10,9 +10,13 @@ import TrackItem, {
 
 export interface SpotifyTrackListProps {
     tracks: SpotifyApi.TrackObjectFull[];
+    showIndex?: boolean;
 }
 
-const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
+const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({
+    tracks,
+    showIndex = false
+}) => {
     const {
         player,
         queue,
@@ -77,7 +81,7 @@ const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
         [addTrackToQueue, deleteTrackFromQueue, getTrack, isTrackQueued]
     );
 
-    const trackItems = tracks?.map(t => {
+    const trackItems = tracks?.map((t, i) => {
         const track: TrackItemProps['track'] = {
             id: t.id,
             artist: getArtists(t),
@@ -101,6 +105,7 @@ const SpotifyTrackList: React.FC<SpotifyTrackListProps> = ({ tracks }) => {
                 isCurrentTrack={isCurrentTrack(t.id)}
                 track={track}
                 image={image}
+                itemIndex={showIndex ? i + 1 : 0}
                 key={t.id}
             />
         );

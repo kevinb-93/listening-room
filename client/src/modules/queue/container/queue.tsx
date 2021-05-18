@@ -67,17 +67,12 @@ const Queue: React.FC = () => {
     const renderQueuedTrackList = useCallback(() => {
         if (!queue?.length) return <Typography>Queue is empty.</Typography>;
 
-        return (
-            <>
-                <SpotifyTrackList tracks={queue} />
-            </>
-        );
+        return <SpotifyTrackList tracks={queue} showIndex />;
     }, [queue]);
 
     const renderQueue = useMemo(() => {
         return (
             <StyledQueueWrapper>
-                {' '}
                 <StyledCard raised>
                     <CardHeader
                         avatar={
@@ -85,7 +80,7 @@ const Queue: React.FC = () => {
                                 <QueueMusicIcon />
                             </Avatar>
                         }
-                        title="Queue"
+                        title="Up Next"
                         titleTypographyProps={{ variant: 'h6' }}
                     />
                     <StyledCardContent>

@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { IconButton, ListItem, Tooltip, Typography } from '@material-ui/core';
+import QueueMusicIcon from '@material-ui/icons/QueueMusic';
+import RemoveIcon from '@material-ui/icons/Remove';
 
 interface TrackItemImage {
     size: number;
@@ -23,6 +24,7 @@ export interface TrackItemProps {
     isCurrentTrack: boolean;
     onQueueTrack: (id: TrackProps['id']) => void;
     onPressPlayback: (id: TrackProps['id']) => void;
+    itemIndex?: number;
 }
 
 const TrackItem: React.FC<TrackItemProps> = ({
@@ -32,59 +34,121 @@ const TrackItem: React.FC<TrackItemProps> = ({
     onQueueTrack,
     isQueued,
     isPlaying,
-    isCurrentTrack
+    isCurrentTrack,
+    itemIndex = 0
 }) => {
-    const queueIcon: IconProp = isQueued ? 'times' : 'plus';
-    const playbackIcon: IconProp = isPlaying ? 'pause' : 'play';
+
 
     const queueTrackHandler = () => {
         onQueueTrack(track.id);
     };
 
-    const pressPlaybackHandler = () => {
-        onPressPlayback(track.id);
-    };
-
     return (
         <StyledTrackItemContainer>
-            <img height={image.size} width={image.size} src={image.src}></img>
+            {itemIndex > 0 && (
+                <StyledTrackItemIndex>
+                    <Typography
+                        variant={'h6'}
+                        color="textPrimary"
+                        align="center"
+                    >
+                        {itemIndex}
+                    </Typography>
+                </StyledTrackItemIndex>
+            )}
+            <StyledTrackImg
+                $height={image.size}
+                $width={image.size}
+                src={image.src}
+            ></StyledTrackImg>
             <StyledTrackInfo>
-                <span>{track.songTitle}</span>
-                <span>{track.artist}</span>
-                <span>{track.duration}</span>
+                <Typography color="textPrimary" variant="subtitle1" noWrap>
+                    {track.songTitle}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" noWrap>
+                    {track.artist}
+                </Typography>
             </StyledTrackInfo>
             <StyledTrackPlayerActions>
-                {!isCurrentTrack && (
-                    <span onClick={queueTrackHandler}>
-                        <FontAwesomeIcon fixedWidth icon={queueIcon} />
-                    </span>
-                )}
-                <span onClick={pressPlaybackHandler}>
-                    <FontAwesomeIcon fixedWidth icon={playbackIcon} />
-                </span>
+                <Typography variant="subtitle2" color="textSecondary">
+                    {track.duration}
+                </Typography>
+                <StyledQueueActionContainer>
+                    {!isCurrentTrack && (
+                        <Tooltip
+                            title={`${
+                                isQueued ? 'Remove from Queue' : 'Add to Queue'
+                            }`}
+                        >
+                            <IconButton onClick={queueTrackHandler}>
+                                {isQueued ? <RemoveIcon /> : <QueueMusicIcon />}
+                            </IconButton>
+                        </Tooltip>
+                    )}
+                </StyledQueueActionContainer>
             </StyledTrackPlayerActions>
         </StyledTrackItemContainer>
     );
 };
 
-const StyledTrackItemContainer = styled.li`
-    display: flex;
-    padding: ${props => props.theme.spacing(1)}px;
-    flex: 1;
+interface TrackImgProps {
+    $height: number;
+    $width: number;
+}
 
-    &:hover {
-        background-color: red;
+const StyledTrackImg = styled.img<TrackImgProps>`
+    height: 32px;
+    width: 32px;
+
+    ${props => props.theme.breakpoints.up('sm')} {
+        height: ${props => props.$height}px;
+        width: ${props => props.$width}px;
     }
+`;
+
+const StyledTrackItemContainer = styled(props => <ListItem {...props} />)`
+    display: flex;
+    padding: ${props => props.theme.spacing()}px;
+    flex: 1;
 `;
 
 const StyledTrackInfo = styled.div`
     display: flex;
+    flex: 1;
+    overflow: hidden;
+    margin: 0 ${props => props.theme.spacing()}px;
+    justify-content: center;
     flex-direction: column;
+
+    ${props => props.theme.breakpoints.up('sm')} {
+        margin: 0 ${props => props.theme.spacing(2)}px;
+    }
 `;
 
 const StyledTrackPlayerActions = styled.div`
     display: flex;
-    flex-direction: column;
+    flex-shrink: 0;
+    align-items: center;
+
+    & > *:not(:last-child) {
+        margin: 0 ${props => props.theme.spacing(0.5)}px;
+
+        ${props => props.theme.breakpoints.up('sm')} {
+            margin: 0 ${props => props.theme.spacing(2)}px;
+        }
+    }
+`;
+
+const StyledQueueActionContainer = styled.div`
+    width: 48px;
+    height: 48px;
+`;
+
+const StyledTrackItemIndex = styled.div`
+    display: flex;
+    justify-content: center;
+    padding-right: ${props => props.theme.spacing(2)}px;
+    padding-left: ${props => props.theme.spacing()}px;
 `;
 
 export default TrackItem;
