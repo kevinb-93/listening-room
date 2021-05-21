@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { IconButton, ListItem, Tooltip, Typography } from '@material-ui/core';
-import QueueMusicIcon from '@material-ui/icons/QueueMusic';
+import QueueMusicIcon from '@material-ui/icons/Queue';
 import RemoveIcon from '@material-ui/icons/Remove';
 
 interface TrackItemImage {
@@ -37,8 +37,6 @@ const TrackItem: React.FC<TrackItemProps> = ({
     isCurrentTrack,
     itemIndex = 0
 }) => {
-
-
     const queueTrackHandler = () => {
         onQueueTrack(track.id);
     };
@@ -108,7 +106,6 @@ const StyledTrackImg = styled.img<TrackImgProps>`
 
 const StyledTrackItemContainer = styled(props => <ListItem {...props} />)`
     display: flex;
-    padding: ${props => props.theme.spacing()}px;
     flex: 1;
 `;
 
@@ -148,7 +145,6 @@ const StyledTrackItemIndex = styled.div`
     display: flex;
     justify-content: center;
     padding-right: ${props => props.theme.spacing(2)}px;
-    padding-left: ${props => props.theme.spacing()}px;
 `;
 
 export default TrackItem;

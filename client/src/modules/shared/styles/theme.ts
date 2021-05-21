@@ -3,12 +3,22 @@ import { createMuiTheme } from '@material-ui/core/styles';
 // Required to use type import, as a plain side-effect import will be emitted to runtime.
 import type {} from '@material-ui/lab/themeAugmentation';
 
+const defaultTheme = createMuiTheme();
+
 export const theme = createMuiTheme({
     header: {
         height: '55px'
     },
     drawer: {
         width: '72px'
+    },
+    typography: {
+        h6: {
+            fontWeight: 600
+        },
+        body2: {
+            color: 'rgb(107, 119, 140)'
+        }
     },
     palette: {
         background: {
@@ -42,12 +52,19 @@ export const theme = createMuiTheme({
         },
         MuiButton: {
             root: {
-                borderRadius: '16px'
+                borderRadius: '16px',
+                fontWeight: 600,
+                textTransform: 'none'
             }
         },
         MuiAlert: {
             root: {
                 borderRadius: '16px'
+            }
+        },
+        MuiCardContent: {
+            root: {
+                padding: '8px 16px 16px'
             }
         },
         MuiCard: {
@@ -56,9 +73,27 @@ export const theme = createMuiTheme({
                 backgroundColor: 'rgb(255,255,255)'
             }
         },
+        MuiCardHeader: {
+            root: {
+                padding: '16px 16px 0'
+            }
+        },
+        MuiCardActions: {
+            root: {
+                backgroundColor: 'rgb(244, 245, 247)',
+                padding: '16px'
+            }
+        },
         MuiLink: {
             root: {
                 color: 'rgb(107, 119, 140)'
+            }
+        },
+        MuiListItem: {
+            root: {
+                '&:hover': {
+                    backgroundColor: defaultTheme.palette.action.hover
+                }
             }
         },
         MuiPaper: {

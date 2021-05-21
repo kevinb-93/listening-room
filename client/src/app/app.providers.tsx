@@ -13,10 +13,10 @@ import { CssBaseline } from '@material-ui/core';
 
 export const Providers: React.FC = ({ children }) => {
     return (
-        <CssBaseline>
-            <StylesProvider injectFirst>
-                <MuiThemeProvider theme={theme}>
-                    <ThemeProvider theme={theme}>
+        <StylesProvider injectFirst>
+            <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
+                    <CssBaseline>
                         <UserIdentityContextProvider>
                             <SpotifyIdentityContextProvider>
                                 <UserProfileContextProvider>
@@ -30,9 +30,9 @@ export const Providers: React.FC = ({ children }) => {
                                 </UserProfileContextProvider>
                             </SpotifyIdentityContextProvider>
                         </UserIdentityContextProvider>
-                    </ThemeProvider>
-                </MuiThemeProvider>
-            </StylesProvider>
-        </CssBaseline>
+                    </CssBaseline>
+                </ThemeProvider>
+            </MuiThemeProvider>
+        </StylesProvider>
     );
 };

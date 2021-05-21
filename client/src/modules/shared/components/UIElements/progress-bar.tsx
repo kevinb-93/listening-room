@@ -25,7 +25,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 
 const StyledContainer = styled.div`
     display: flex;
-    min-width: 200px;
+    min-width: 150px;
     justify-content: center;
     align-items: center;
 `;

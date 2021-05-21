@@ -4,58 +4,88 @@ import AudioControls, { AudioControlsProps } from './audio-controls';
 import ProgressBar, { ProgressBarProps } from '../UIElements/progress-bar';
 import Card from '@material-ui/core/Card';
 import { CardContent, CardMedia, Typography } from '@material-ui/core';
+import AlbumIcon from '@material-ui/icons/Album';
 
 export interface PlayerProps {
-    artWork: PlayerArtWork;
+    image?: string;
     creatorName: string;
     title: string;
     controls: AudioControlsProps;
     progress: ProgressBarProps;
 }
 
-export interface PlayerArtWork {
-    src: string;
-    height: number;
-    width: number;
-}
-
 const Player: React.FC<PlayerProps> = ({
-    artWork,
+    image = '',
     creatorName,
     title,
     controls,
     progress
 }) => {
     return (
-        <StyledContainer raised>
-            <StyledMedia {...artWork} />
-            <StyledPlayerContainer>
+        <StyledCard>
+            <StyledMediaContainer>
+                <StyledImageContainer>
+                    {image ? (
+                        <CardMedia component="img" src={image} />
+                    ) : (
+                        <StyledAlbumIcon />
+                    )}
+                </StyledImageContainer>
+            </StyledMediaContainer>
+            <StyledCardContent>
                 <StyledTrackDetails>
-                    <StyledCreatorName variant="h5">
-                        {creatorName}
-                    </StyledCreatorName>
-                    <StyledTitle variant="subtitle1" color="textSecondary">
+                    <StyledTitle variant="h5" noWrap>
                         {title}
                     </StyledTitle>
+                    <StyledCreatorName
+                        noWrap
+                        variant="subtitle2"
+                        color="textSecondary"
+                    >
+                        {creatorName}
+                    </StyledCreatorName>
                 </StyledTrackDetails>
                 <StyledControls>
                     <AudioControls {...controls} />
                     <ProgressBar {...progress} />
                 </StyledControls>
-            </StyledPlayerContainer>
-        </StyledContainer>
+            </StyledCardContent>
+        </StyledCard>
     );
 };
 
-const StyledMedia = styled((props: PlayerArtWork) => (
-    <CardMedia component="img" {...props} />
-))`
-    height: ${props => props.height}px;
-    width: ${props => props.width}px;
+const StyledAlbumIcon = styled(AlbumIcon)`
+    height: inherit;
+    width: inherit;
+    color: ${props => props.theme.palette.text.secondary};
+`;
+
+const StyledImageContainer = styled.div`
+    height: 200px;
+    width: 200px;
+`;
+
+const StyledMediaContainer = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+
+    ${props => props.theme.breakpoints.up('md')} {
+        flex: 0;
+        justify-content: flex-start;
+    }
 `;
 
 const StyledTrackDetails = styled.div`
     flex: 1;
+    align-self: center;
+    max-width: 100%;
+    text-align: center;
+
+    ${props => props.theme.breakpoints.up('md')} {
+        align-self: flex-start;
+        text-align: unset;
+    }
 `;
 
 const StyledControls = styled.div`
@@ -66,17 +96,21 @@ const StyledTitle = styled(Typography)``;
 
 const StyledCreatorName = styled(Typography)``;
 
-const StyledPlayerContainer = styled(CardContent)`
+const StyledCardContent = styled(CardContent)`
     display: flex;
     flex-direction: column;
     flex: 1;
+    overflow: hidden;
 `;
 
-const StyledContainer = styled(Card)`
+const StyledCard = styled(Card)`
     display: flex;
-    flex-direction: row;
-    color: black;
-    height: min-content;
+    flex-direction: column;
+    padding: ${props => props.theme.spacing(2)}px;
+
+    ${props => props.theme.breakpoints.up('md')} {
+        flex-direction: row;
+    }
 `;
 
 export default Player;

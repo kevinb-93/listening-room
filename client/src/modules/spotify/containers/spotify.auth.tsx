@@ -1,12 +1,18 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import { useSpotifyIdentityContext } from '../context/identity';
-import img from '../../shared/assets/logos/spotify/Spotify_Logo_RGB_Black.png';
-import { Button } from '@material-ui/core';
+import {
+    Button,
+    Card,
+    CardActions,
+    CardContent,
+    CardHeader,
+    Typography
+} from '@material-ui/core';
+import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
-const SpotifyAuthButton: React.FC = () => {
-    const { loginSpotify, spotifyToken } = useSpotifyIdentityContext();
+const SpotifyAuth: React.FC = () => {
+    const { loginSpotify } = useSpotifyIdentityContext();
 
     const spotifyAuthHandler = () => {
         const url = `https://qsong.com:5000/api/spotify/login`;
@@ -57,15 +63,32 @@ const SpotifyAuthButton: React.FC = () => {
     };
 
     return (
-        <Button onClick={() => spotifyAuthHandler()}>
-            <StyledImg width={70} src={img} />
-            <span>{spotifyToken ? 'authorized!' : 'authorise'}</span>
-        </Button>
+        <Card>
+            <CardHeader
+                titleTypographyProps={{ variant: 'h6' }}
+                title="Connect your Spotify Account"
+            ></CardHeader>
+            <CardContent>
+                <Typography variant="body2">
+                    This app requires your permission in order to access data
+                    from your account and the Spotify platform. Please follow
+                    the link below where you will be redirected to the
+                    authorisation page.
+                </Typography>
+            </CardContent>
+            <CardActions>
+                <Button
+                    variant="text"
+                    size="medium"
+                    endIcon={<ArrowForwardIcon />}
+                    color="primary"
+                    onClick={spotifyAuthHandler}
+                >
+                    Connect Spotify Account
+                </Button>
+            </CardActions>
+        </Card>
     );
 };
 
-const StyledImg = styled.img`
-    margin: 10px;
-`;
-
-export default SpotifyAuthButton;
+export default SpotifyAuth;

@@ -232,6 +232,7 @@ interface PopperProps {
 const StyledListboxContainer = styled.div`
     overflow: auto;
     max-height: calc(100vh - 100px);
+    border-radius: ${props => props.theme.spacing(2)}px;
     display: flex;
     flex: 1;
     color: inherit;
@@ -242,8 +243,6 @@ const StyledListboxContainer = styled.div`
 const StyledPopperContainer = styled(Paper)<PopperProps>`
     position: fixed;
     width: 100%;
-    padding: ${props => props.theme.spacing()}px;
-    border-radius: ${props => props.theme.spacing(2)}px;
     left: ${props => props.$positionleft}px;
     top: ${props => props.$positiontop}px;
     color: black;

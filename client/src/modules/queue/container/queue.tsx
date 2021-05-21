@@ -1,18 +1,29 @@
 import React, { useCallback, useMemo } from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import Player from '../../shared/components/audio/Player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
 import Chat from '../../chat/containers/chat';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
-import SpotifyAuthButton from '../../spotify/containers/auth';
 import Card from '@material-ui/core/Card';
-import { Avatar, CardContent, CardHeader, Typography } from '@material-ui/core';
+import {
+    Avatar,
+    CardHeader,
+    Container,
+    Grid,
+    Typography,
+    useMediaQuery
+} from '@material-ui/core';
 import SpotifyTrackList from '../../spotify/containers/spotify.track-list';
-import QueueMusicIcon from '@material-ui/icons/QueueMusic';
+import QueueMusicIcon from '@material-ui/icons/QueueMusicRounded';
+import SpotifyAuth from '../../spotify/containers/spotify.auth';
 
 const Queue: React.FC = () => {
     const { spotifyToken } = useSpotifyIdentityContext();
     const { player, queue, playbackState } = useSpotifyPlayerContext();
+    const theme = useTheme();
+    const showChat = useMediaQuery(theme.breakpoints.up('md'));
+
+    console.log('render');
 
     const resumePlayback = useCallback(() => {
         if (!player || !playbackState?.paused) {
@@ -36,24 +47,22 @@ const Queue: React.FC = () => {
         const { current_track } = playbackState?.track_window || {};
 
         return (
-            <Player
-                artWork={{
-                    src: current_track?.album?.images[0]?.url ?? '',
-                    height: 200,
-                    width: 200
-                }}
-                controls={{
-                    playHandler: resumePlayback,
-                    pauseHandler: pausePlayback,
-                    isPlaying: !(playbackState?.paused ?? true)
-                }}
-                creatorName={current_track?.artists[0]?.name ?? ''}
-                title={current_track?.name ?? ''}
-                progress={{
-                    elaspedTime: playbackState?.position ?? 0,
-                    songDurationMs: playbackState?.duration ?? 0
-                }}
-            />
+            <Grid item xs={12}>
+                <Player
+                    image={current_track?.album?.images[0]?.url}
+                    controls={{
+                        playHandler: resumePlayback,
+                        pauseHandler: pausePlayback,
+                        isPlaying: !(playbackState?.paused ?? true)
+                    }}
+                    creatorName={current_track?.artists[0]?.name ?? ''}
+                    title={current_track?.name ?? ''}
+                    progress={{
+                        elaspedTime: playbackState?.position ?? 0,
+                        songDurationMs: playbackState?.duration ?? 0
+                    }}
+                />
+            </Grid>
         );
     }, [
         pausePlayback,
@@ -72,74 +81,77 @@ const Queue: React.FC = () => {
 
     const renderQueue = useMemo(() => {
         return (
-            <StyledQueueWrapper>
-                <StyledCard raised>
+            <Grid item xs={12}>
+                <StyledCard>
                     <CardHeader
                         avatar={
-                            <Avatar>
+                            <StyledAvatar>
                                 <QueueMusicIcon />
-                            </Avatar>
+                            </StyledAvatar>
                         }
                         title="Up Next"
                         titleTypographyProps={{ variant: 'h6' }}
                     />
-                    <StyledCardContent>
-                        {renderQueuedTrackList()}
-                    </StyledCardContent>
+                    {renderQueuedTrackList()}
                 </StyledCard>
-            </StyledQueueWrapper>
+            </Grid>
         );
     }, [renderQueuedTrackList]);
 
     return (
-        <StyledContainer>
-            <StyledWrapper>
-                {spotifyToken ? (
-                    <>
-                        {renderPlayer}
-                        {renderQueue}
-                    </>
-                ) : (
-                    <SpotifyAuthButton />
-                )}
-            </StyledWrapper>
-            <Chat />
-        </StyledContainer>
+        <StyledGridContainer>
+            <StyledOverflowContainer>
+                <StyledContainer>
+                    <StyledMainContent container>
+                        {spotifyToken ? (
+                            <>
+                                {renderPlayer}
+                                {renderQueue}
+                            </>
+                        ) : (
+                            <Grid item xs={12}>
+                                <SpotifyAuth />
+                            </Grid>
+                        )}
+                    </StyledMainContent>
+                </StyledContainer>
+            </StyledOverflowContainer>
+            {showChat && <Chat />}
+        </StyledGridContainer>
     );
 };
 
-const StyledQueueWrapper = styled.div`
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-`;
-
-const StyledCardContent = styled(CardContent)`
-    padding-top: 0px;
-    flex: 1;
-    overflow-y: auto;
-`;
-
-const StyledContainer = styled.div`
+const StyledGridContainer = styled.div`
     display: grid;
     overflow: hidden;
     grid-template-columns: 1fr auto;
     height: 100%;
 `;
 
-const StyledCard = styled(Card)`
+const StyledMainContent = styled(Grid)`
     display: flex;
     flex-direction: column;
-    height: fit-content;
+
+    ${props => props.theme.breakpoints.up('sm')} {
+        padding: ${props => props.theme.spacing(2)}px;
+    }
+
+    & > .MuiGrid-item {
+        padding: ${props => props.theme.spacing(2)}px 0;
+    }
 `;
 
-const StyledWrapper = styled.div`
-    display: grid;
-    overflow: hidden;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    gap: ${props => props.theme.spacing(2)}px;
-    margin: ${props => props.theme.spacing(2)}px;
+const StyledCard = styled(Card)``;
+
+const StyledOverflowContainer = styled.div`
+    overflow: auto;
 `;
+
+const StyledAvatar = styled(Avatar)`
+    background-color: transparent;
+    color: ${props => props.theme.palette.primary.main};
+`;
+
+const StyledContainer = styled(Container)``;
 
 export default Queue;
