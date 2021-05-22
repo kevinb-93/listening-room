@@ -70,7 +70,6 @@ const Chat: React.FC = () => {
 
     const { user } = useUserProfileContext();
     const [chatListItems, setChatListItems] = useState<ChatListItem[]>([]);
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
     const listRef = useRef<List>();
     const messageCountRef = useRef<number>(0);
@@ -79,12 +78,13 @@ const Chat: React.FC = () => {
     const latestMessageIdRef = useRef<string>();
     const latestReadMessageRef = useRef<MessageData>();
     const [unreadMessages, setUnreadMessages] = useState<MessageData[]>();
-    const deleteMessageIdRef = useRef<string>();
+    const [deleteMessageId, setDeleteMessageId] = useState<MessageData['id']>(
+        ''
+    );
     const isScrolledBottomRef = useRef<boolean>();
 
     const cancelDeleteMessageHandler = () => {
-        deleteMessageIdRef.current = undefined;
-        setShowDeleteDialog(false);
+        setDeleteMessageId('');
     };
 
     const isFirstLoad = () => fetchMessagesCounterRef.current < 1;
@@ -146,22 +146,21 @@ const Chat: React.FC = () => {
     const deleteMessageHandler = useCallback<OnDeleteMessage>(
         id => {
             const message = chatMessages.find(m => m.id === id);
-            deleteMessageIdRef.current = message?.id;
-            setShowDeleteDialog(true);
+            if (!message?.id) return;
+            setDeleteMessageId(message.id);
         },
         [chatMessages]
     );
 
     const confirmDeleteMessageHandler = useCallback(async () => {
         try {
-            await deleteChatMessage(deleteMessageIdRef.current);
+            await deleteChatMessage(deleteMessageId);
         } catch (e) {
             console.error(e);
         } finally {
-            deleteMessageIdRef.current = undefined;
-            setShowDeleteDialog(false);
+            setDeleteMessageId('');
         }
-    }, [deleteChatMessage]);
+    }, [deleteChatMessage, deleteMessageId]);
 
     const canDeleteMessage = useCallback(
         (senderId: ChatMessage['sender']) => {
@@ -364,7 +363,7 @@ const Chat: React.FC = () => {
 
     return (
         <StyledContainer square component="section">
-            <Dialog maxWidth="xs" open={showDeleteDialog}>
+            <Dialog maxWidth="xs" open={Boolean(deleteMessageId)}>
                 <DialogTitle>Delete Message</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
