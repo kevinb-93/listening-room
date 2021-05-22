@@ -179,7 +179,10 @@ const Chat: React.FC = () => {
                         id: item.data.date,
                         component: (
                             <StyledDateHeaderItemContainer>
-                                <Typography variant="subtitle2">
+                                <Typography
+                                    variant="caption"
+                                    color="textSecondary"
+                                >
                                     {item.data.date}
                                 </Typography>
                             </StyledDateHeaderItemContainer>

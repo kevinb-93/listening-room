@@ -1,7 +1,12 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { DeleteForever } from '@material-ui/icons';
-import { IconButton, Typography, TypographyProps } from '@material-ui/core';
+import {
+    IconButton,
+    Tooltip,
+    Typography,
+    TypographyProps
+} from '@material-ui/core';
 
 export interface ChatMessage {
     id: string;
@@ -54,22 +59,32 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         <StyledListItem>
             {allowDelete && (
                 <div>
-                    <StyledDeleteMessage
-                        size="small"
-                        onClick={deleteMessageHandler}
-                    >
-                        <DeleteForever fontSize="small" />
-                    </StyledDeleteMessage>
+                    <Tooltip title="Delete">
+                        <StyledDeleteMessage
+                            size="small"
+                            onClick={deleteMessageHandler}
+                        >
+                            <DeleteForever fontSize="small" />
+                        </StyledDeleteMessage>
+                    </Tooltip>
                 </div>
             )}
             <StyledMessage>
-                <StyledMessageTime component="span" variant="body2">
+                <StyledMessageTime component="span" variant="caption">
                     {message.time}
                 </StyledMessageTime>
-                <StyledMessageSender component="span" variant="body2">
+                <StyledMessageSender
+                    component="span"
+                    variant="body2"
+                    color="textPrimary"
+                >
                     {message.sender}
                 </StyledMessageSender>
-                <StyledMessageContent component="span" variant="body2">
+                <StyledMessageContent
+                    component="span"
+                    variant="body2"
+                    color="textPrimary"
+                >
                     {message.content}
                 </StyledMessageContent>
             </StyledMessage>
