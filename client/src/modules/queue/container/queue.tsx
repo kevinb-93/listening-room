@@ -52,7 +52,7 @@ const Queue: React.FC = () => {
 
     const renderPlayer = useMemo(() => {
         const { current_track } = playbackState?.track_window || {};
-        const isPlaybackPaused = Boolean(playbackState?.paused);
+        const isPlaybackPaused = playbackState?.paused ?? true;
 
         const handlePlayNext = () =>
             dispatch({
