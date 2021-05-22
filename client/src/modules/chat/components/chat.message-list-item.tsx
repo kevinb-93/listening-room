@@ -78,7 +78,6 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 };
 
 const StyledListItem = styled.li`
-    background-color: #fff;
     display: flex;
     padding: ${({ theme }) => theme.spacing(0.5)}px;
     border-radius: ${props => props.theme.shape.borderRadius}px;

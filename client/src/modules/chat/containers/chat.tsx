@@ -5,6 +5,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Divider,
     Paper,
     Typography
 } from '@material-ui/core';
@@ -381,8 +382,9 @@ const Chat: React.FC = () => {
                 </DialogActions>
             </Dialog>
             <StyledChatHeader>
-                <Typography variant="h6">CHAT</Typography>
+                <Typography variant="h6">Chat</Typography>
             </StyledChatHeader>
+            <Divider />
             <StyledInfiniteListContainer>
                 <InfiniteList
                     list={chatMessageList}
@@ -399,6 +401,7 @@ const Chat: React.FC = () => {
                     unreadItems={unreadMessages?.length}
                 />
             </StyledInfiniteListContainer>
+            <Divider />
             <StyledChatBox>
                 <ChatForm onSubmit={handleChatSubmit} />
             </StyledChatBox>
@@ -411,7 +414,7 @@ const StyledContainer = styled(Paper)`
     flex-direction: column;
     width: 350px;
     overflow: hidden;
-    border: 1px solid ${props => props.theme.palette.grey[400]};
+    border-left: 1px solid ${props => props.theme.palette.divider};
 `;
 
 const StyledDateHeaderItemContainer = styled.div`
@@ -423,22 +426,22 @@ const StyledDateHeaderItemContainer = styled.div`
 
 const StyledChatHeader = styled.div`
     display: flex;
-    flex: 0 0;
+    flex: 0;
     justify-content: center;
-    padding: ${props => props.theme.spacing()}px;
-    border: 1px solid ${props => props.theme.palette.grey[400]};
-    background-color: ${props => props.theme.palette.grey.A100};
+    padding: ${props => props.theme.spacing()}px
+        ${props => props.theme.spacing(2)}px;
 `;
 
 const StyledInfiniteListContainer = styled.div`
     flex: 1;
+    background-color: ${props => props.theme.palette.background.default};
 `;
 
 const StyledChatBox = styled.div`
     display: flex;
-    border: 1px solid ${props => props.theme.palette.grey[400]};
-    flex: 0 0;
-    padding: ${props => props.theme.spacing()}px;
+    flex: 0;
+    padding: ${props => props.theme.spacing()}px
+        ${props => props.theme.spacing(2)}px;
 `;
 
 export default Chat;

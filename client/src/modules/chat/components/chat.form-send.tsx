@@ -2,9 +2,9 @@ import React, { useRef } from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 import { Formik, Field, Form, FormikConfig } from 'formik';
-import { IconButton } from '@material-ui/core';
+import { IconButton, Tooltip, TextField } from '@material-ui/core';
 import { SendRounded } from '@material-ui/icons';
-import { InputBase, InputBaseProps } from 'formik-material-ui';
+import { fieldToTextField, TextFieldProps } from 'formik-material-ui';
 
 export interface ChatFormValues {
     message: string;
@@ -16,9 +16,23 @@ export interface ChatFormProps {
     onSubmit: ChatFormSubmit;
 }
 
+const MUITextField = (props: TextFieldProps) => {
+    return (
+        <TextField
+            {...fieldToTextField(props)}
+            placeholder="Leave a message..."
+            autoComplete="off"
+            color="primary"
+            fullWidth
+            size="small"
+            variant="outlined"
+        />
+    );
+};
+
 const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
     const validationSchema: Yup.SchemaOf<ChatFormValues> = Yup.object({
-        message: Yup.string().required('Required')
+        message: Yup.string().required('')
     });
 
     const inputRef = useRef<HTMLInputElement>();
@@ -42,18 +56,28 @@ const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
         <Formik
             initialValues={initialValues}
             onSubmit={handleSubmit}
+            validateOnBlur={false}
             validationSchema={validationSchema}
         >
-            <StyledForm>
-                <Field
-                    name="message"
-                    inputRef={inputRef}
-                    component={ChatInput}
-                />
-                <ChatSendMessage type="submit">
-                    <SendRounded />
-                </ChatSendMessage>
-            </StyledForm>
+            {({ isValid, dirty, isSubmitting }) => (
+                <StyledForm>
+                    <Field
+                        name="message"
+                        inputRef={inputRef}
+                        component={MUITextField}
+                    />
+                    <Tooltip title="Send">
+                        <span>
+                            <ChatSendMessage
+                                disabled={!(isValid && dirty) || isSubmitting}
+                                type="submit"
+                            >
+                                <SendRounded />
+                            </ChatSendMessage>
+                        </span>
+                    </Tooltip>
+                </StyledForm>
+            )}
         </Formik>
     );
 };
@@ -61,24 +85,8 @@ const ChatForm: React.FC<ChatFormProps> = ({ onSubmit }) => {
 const StyledForm = styled(Form)`
     display: flex;
     flex: 1;
-`;
-
-const ChatInput = styled((props: InputBaseProps) => (
-    <InputBase placeholder="Send a message..." {...props} autoComplete="off" />
-))`
-    flex: 1;
-    border-radius: ${props => props.theme.spacing(2)}px;
-    padding: ${props => props.theme.spacing()}px;
-    background-color: ${props => props.theme.palette.grey[50]};
-    margin-right: ${props => props.theme.spacing()}px;
-
-    &:hover {
-        background-color: ${props => props.theme.palette.action.hover};
-    }
-
-    &:focus {
-        background-color: ${props => props.theme.palette.action.focus};
-    }
+    align-items: center;
+    gap: ${props => props.theme.spacing()}px;
 `;
 
 const ChatSendMessage = styled(IconButton)`

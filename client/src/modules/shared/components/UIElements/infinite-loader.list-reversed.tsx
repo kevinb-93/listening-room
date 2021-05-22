@@ -14,7 +14,7 @@ import debounce from 'lodash/debounce';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import styled from 'styled-components';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import { IconButton } from '@material-ui/core';
+import { Badge, IconButton, Tooltip } from '@material-ui/core';
 
 export interface ListItem {
     id: string;
@@ -206,15 +206,21 @@ const InfiniteListReversed: React.FC<InfiniteListReversedProps> = memo(
                 </AutoSizer>
                 {showScrollBottom && (
                     <StyledScrollBottomButtonContainer>
-                        <StyledScrollBottomButton
-                            onClick={scrollBottomClickHandler}
-                        >
-                            <ArrowDownwardIcon
-                                color="secondary"
-                                fontSize="large"
-                            />
-                            {unreadItems > 0 && unreadItems}
-                        </StyledScrollBottomButton>
+                        <Tooltip title="Scroll to bottom" placement="top">
+                            <StyledScrollBottomButton
+                                onClick={scrollBottomClickHandler}
+                            >
+                                <Badge
+                                    color="secondary"
+                                    badgeContent={unreadItems}
+                                >
+                                    <ArrowDownwardIcon
+                                        color="primary"
+                                        fontSize="large"
+                                    />
+                                </Badge>
+                            </StyledScrollBottomButton>
+                        </Tooltip>
                     </StyledScrollBottomButtonContainer>
                 )}
             </>
@@ -238,7 +244,7 @@ const StyledLoading = styled.div`
 `;
 
 const StyledScrollBottomButton = styled(IconButton)`
-    background-color: blue;
+    border: 1px solid ${props => props.theme.palette.divider};
 `;
 
 const StyledScrollBottomButtonContainer = styled.div`

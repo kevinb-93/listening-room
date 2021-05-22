@@ -24,7 +24,10 @@ const PlayerControls: React.FC<AudioControlsProps> = ({
 }) => {
     return (
         <Controls>
-            <Tooltip title={`${playControl.isPaused ? 'Play' : 'Pause'}`}>
+            <Tooltip
+                title={`${playControl.isPaused ? 'Play' : 'Pause'}`}
+                placement="top"
+            >
                 <IconButton onClick={playControl.onPress}>
                     {playControl.isPaused ? (
                         <PlayArrow fontSize="large" />
@@ -33,13 +36,15 @@ const PlayerControls: React.FC<AudioControlsProps> = ({
                     )}
                 </IconButton>
             </Tooltip>
-            <Tooltip title="Next">
-                <IconButton
-                    disabled={playNextControl.isDisabled}
-                    onClick={playNextControl.onPress}
-                >
-                    <SkipNext fontSize="large" />
-                </IconButton>
+            <Tooltip title="Next" placement="top">
+                <span>
+                    <IconButton
+                        disabled={playNextControl.isDisabled}
+                        onClick={playNextControl.onPress}
+                    >
+                        <SkipNext fontSize="large" />
+                    </IconButton>
+                </span>
             </Tooltip>
         </Controls>
     );
