@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import styled, { useTheme } from 'styled-components';
-import Player from '../../shared/components/audio/Player';
+import Player from '../../shared/components/audio/audio.player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
 import Chat from '../../chat/containers/chat';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import Card from '@material-ui/core/Card';
 import {
     Avatar,
+    CardContent,
     CardHeader,
     Container,
     Grid,
@@ -16,10 +17,16 @@ import {
 import SpotifyTrackList from '../../spotify/containers/spotify.track-list';
 import QueueMusicIcon from '@material-ui/icons/QueueMusicRounded';
 import SpotifyAuth from '../../spotify/containers/spotify.auth';
+import { SpotifyPlayerReducerActionType } from '../../../modules/spotify/context/player/reducer/types';
 
 const Queue: React.FC = () => {
     const { spotifyToken } = useSpotifyIdentityContext();
-    const { player, queue, playbackState } = useSpotifyPlayerContext();
+    const {
+        player,
+        queue,
+        playbackState,
+        dispatch
+    } = useSpotifyPlayerContext();
     const theme = useTheme();
     const showChat = useMediaQuery(theme.breakpoints.up('md'));
 
@@ -45,15 +52,29 @@ const Queue: React.FC = () => {
 
     const renderPlayer = useMemo(() => {
         const { current_track } = playbackState?.track_window || {};
+        const isPlaybackPaused = Boolean(playbackState?.paused);
+
+        const handlePlayNext = () =>
+            dispatch({
+                type: SpotifyPlayerReducerActionType.setPlayNext,
+                payload: true
+            });
 
         return (
             <Grid item xs={12}>
                 <Player
                     image={current_track?.album?.images[0]?.url}
                     controls={{
-                        playHandler: resumePlayback,
-                        pauseHandler: pausePlayback,
-                        isPlaying: !(playbackState?.paused ?? true)
+                        playControl: {
+                            isPaused: isPlaybackPaused,
+                            onPress: isPlaybackPaused
+                                ? resumePlayback
+                                : pausePlayback
+                        },
+                        playNextControl: {
+                            isDisabled: !queue.length,
+                            onPress: handlePlayNext
+                        }
                     }}
                     creatorName={current_track?.artists[0]?.name ?? ''}
                     title={current_track?.name ?? ''}
@@ -65,16 +86,23 @@ const Queue: React.FC = () => {
             </Grid>
         );
     }, [
+        dispatch,
         pausePlayback,
         playbackState?.duration,
         playbackState?.paused,
         playbackState?.position,
         playbackState?.track_window,
+        queue.length,
         resumePlayback
     ]);
 
     const renderQueuedTrackList = useCallback(() => {
-        if (!queue?.length) return <Typography>Queue is empty.</Typography>;
+        if (!queue?.length)
+            return (
+                <CardContent>
+                    <Typography>Queue is empty.</Typography>
+                </CardContent>
+            );
 
         return <SpotifyTrackList tracks={queue} showIndex />;
     }, [queue]);

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import AudioControls, { AudioControlsProps } from './audio-controls';
-import ProgressBar, { ProgressBarProps } from '../UIElements/progress-bar';
+import AudioControls, { AudioControlsProps } from './audio.controls';
+import ProgressBar, { ProgressBarProps } from './audio.progress-bar';
 import Card from '@material-ui/core/Card';
 import { CardContent, CardMedia, Typography } from '@material-ui/core';
 import AlbumIcon from '@material-ui/icons/Album';

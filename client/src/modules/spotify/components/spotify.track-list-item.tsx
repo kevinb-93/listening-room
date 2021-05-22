@@ -60,7 +60,7 @@ const TrackItem: React.FC<TrackItemProps> = ({
                 src={image.src}
             ></StyledTrackImg>
             <StyledTrackInfo>
-                <Typography color="textPrimary" variant="subtitle1" noWrap>
+                <Typography color="textPrimary" variant="subtitle2" noWrap>
                     {track.songTitle}
                 </Typography>
                 <Typography variant="body2" color="textSecondary" noWrap>

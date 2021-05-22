@@ -13,7 +13,7 @@ export const theme = createMuiTheme({
         width: '72px'
     },
     typography: {
-        h6: {
+        h5: {
             fontWeight: 600
         },
         body2: {

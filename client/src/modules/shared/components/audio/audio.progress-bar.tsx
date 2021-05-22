@@ -1,3 +1,4 @@
+import { Typography } from '@material-ui/core';
 import Slider from '@material-ui/core/Slider';
 import React from 'react';
 import styled from 'styled-components';
@@ -15,10 +16,17 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     return (
         <StyledContainer>
             <StyledElaspedTime>
-                {convertDurationMs(elaspedTime)}
+                <Typography variant="body2">
+                    {' '}
+                    {convertDurationMs(elaspedTime)}
+                </Typography>
             </StyledElaspedTime>
             <Slider value={elaspedTime} max={songDurationMs} />
-            <StyledDuration>{convertDurationMs(songDurationMs)}</StyledDuration>
+            <StyledDuration>
+                <Typography variant="body2">
+                    {convertDurationMs(songDurationMs)}
+                </Typography>
+            </StyledDuration>
         </StyledContainer>
     );
 };
