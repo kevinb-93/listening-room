@@ -1,8 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled from 'styled-components';
 import Player from '../../shared/components/audio/audio.player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
-// import Chat from '../../chat/containers/chat';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import Card from '@material-ui/core/Card';
 import {
@@ -11,8 +10,7 @@ import {
     CardHeader,
     Container,
     Grid,
-    Typography,
-    useMediaQuery
+    Typography
 } from '@material-ui/core';
 import SpotifyTrackList from '../../spotify/containers/spotify.track-list';
 import QueueMusicIcon from '@material-ui/icons/QueueMusicRounded';
@@ -27,8 +25,6 @@ const Queue: React.FC = () => {
         playbackState,
         dispatch
     } = useSpotifyPlayerContext();
-    // const theme = useTheme();
-    // const showChat = useMediaQuery(theme.breakpoints.up('md'));
 
     console.log('render');
 
