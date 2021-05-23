@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import styled, { useTheme } from 'styled-components';
 import Player from '../../shared/components/audio/audio.player';
 import { useSpotifyPlayerContext } from '../../spotify/context/player';
-import Chat from '../../chat/containers/chat';
+// import Chat from '../../chat/containers/chat';
 import { useSpotifyIdentityContext } from '../../spotify/context/identity';
 import Card from '@material-ui/core/Card';
 import {
@@ -27,8 +27,8 @@ const Queue: React.FC = () => {
         playbackState,
         dispatch
     } = useSpotifyPlayerContext();
-    const theme = useTheme();
-    const showChat = useMediaQuery(theme.breakpoints.up('md'));
+    // const theme = useTheme();
+    // const showChat = useMediaQuery(theme.breakpoints.up('md'));
 
     console.log('render');
 
@@ -144,7 +144,7 @@ const Queue: React.FC = () => {
                     </StyledMainContent>
                 </StyledContainer>
             </StyledOverflowContainer>
-            {showChat && <Chat />}
+            {/* {showChat && <Chat />} */}
         </StyledGridContainer>
     );
 };
